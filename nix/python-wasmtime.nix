@@ -24,7 +24,7 @@ buildPythonPackage rec {
         inherit pname version format;
         dist = "py3";
         python = "py3";
-        platform = "manylinux1_aarch64";
+        platform = "manylinux2014_aarch64";
         hash = "sha256-5oZkS83f7IkJXJ/ZgrCEirXklOzoZVFyFKY0MLLtCPg=";
       }
     else
