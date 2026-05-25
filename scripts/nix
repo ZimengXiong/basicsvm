@@ -5,6 +5,19 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 portable_dir="$repo_root/.nix-portable"
 portable_bin="$portable_dir/bin/nix-portable"
 
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  if command -v nix >/dev/null 2>&1; then
+    exec nix "$@"
+  fi
+
+  if [[ -x /nix/var/nix/profiles/default/bin/nix ]]; then
+    exec /nix/var/nix/profiles/default/bin/nix "$@"
+  fi
+
+  echo "Nix is required on macOS. Install it first, then rerun this command." >&2
+  exit 1
+fi
+
 arch="$(uname -m)"
 case "$arch" in
   x86_64|aarch64) ;;
