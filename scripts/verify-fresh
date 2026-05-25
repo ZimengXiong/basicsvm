@@ -1,0 +1,216 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+sky130_commit="0fe599b2afb6708d281543108caf8310912f54af"
+gf180mcu_commit="c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+validation_root="$repo_root/out/fresh-validation"
+basics_root="$validation_root/basics-root/opt/basics"
+pdk_root="$repo_root/out/result-fresh-pdks/share/basics/pdks"
+
+echo "== clean generated state =="
+rm -rf "$validation_root"
+rm -rf "$repo_root/out/result-fresh-profile" "$repo_root/out/result-fresh-templates" "$repo_root/out/result-fresh-pdks"
+rm -rf "$repo_root/out/result-vm-x86_64" "$repo_root/out/result-vm-aarch64"
+mkdir -p "$validation_root"
+
+echo "== source checks =="
+"$repo_root/scripts/verify-source"
+
+echo "== build fresh Nix packages =="
+"$repo_root/scripts/nix" build .#basics-profile -o "$repo_root/out/result-fresh-profile"
+"$repo_root/scripts/nix" build .#basics-examples -o "$repo_root/out/result-fresh-examples"
+"$repo_root/scripts/nix" build .#basics-templates -o "$repo_root/out/result-fresh-templates"
+"$repo_root/scripts/nix" build .#basics-pdks -o "$repo_root/out/result-fresh-pdks"
+
+echo "== fresh runtime validation =="
+"$repo_root/scripts/nix" shell .#basics-profile .#basics-templates --command bash -s -- \
+  "$pdk_root" "$sky130_commit" "$gf180mcu_commit" <<'VALIDATE'
+set -euo pipefail
+
+pdk_root="$1"
+sky130_commit="$2"
+gf180mcu_commit="$3"
+repo_root="$PWD"
+templates_root="out/result-fresh-templates/share/basics/templates"
+examples_root="out/result-fresh-examples/share/basics/examples"
+
+export PDK_ROOT="$pdk_root"
+export BASICS_ROOT="$(dirname "$pdk_root")"
+export BASICS_EXAMPLES="$examples_root"
+export BASICS_TEMPLATES="$templates_root"
+
+echo "== validate pinned Nix-built PDK_ROOT =="
+test "$(readlink "$PDK_ROOT/sky130A")" = "volare/sky130/versions/$sky130_commit/sky130A"
+test "$(readlink "$PDK_ROOT/sky130B")" = "volare/sky130/versions/$sky130_commit/sky130B"
+test "$(readlink "$PDK_ROOT/gf180mcuD")" = "volare/gf180mcu/versions/$gf180mcu_commit/gf180mcuD"
+
+echo "== command availability =="
+for cmd in \
+  openlane openroad yosys magic netgen ngspice verilator iverilog klayout \
+  xschem volare dot xdot sby z3 yices boolector bitwuzla ghdl surelog \
+  uhdm-lint uhdm-dump ciel cvc5 pre-commit yowasp-yosys python
+do
+  command -v "$cmd" >/dev/null
+done
+
+echo "== Python module imports =="
+python - <<'PY'
+import cairosvg
+import chevron
+import configupdater
+import frontmatter
+import gdstk
+import git
+import klayout.db
+import matplotlib
+import mistune
+import numpy
+import PIL
+import pytest
+import requests
+import serial
+import virtualenv
+import yaml
+import wasmtime
+import yowasp_runtime
+import yowasp_yosys
+PY
+
+echo "== tool version smoke checks =="
+openlane --version >/dev/null
+openroad -version >/dev/null
+yosys -V >/dev/null
+magic --version >/dev/null
+ngspice --version >/dev/null
+verilator --version >/dev/null
+iverilog -V >/dev/null || true
+klayout -v >/dev/null
+xschem --version >/dev/null
+volare --version >/dev/null
+surelog --version >/dev/null
+cvc5 --version >/dev/null
+yowasp-yosys -V >/dev/null
+
+echo "== templates and TinyTapeout support scripts =="
+test -f "$templates_root/sky130-rtl2gds/Makefile"
+test -f "$templates_root/gf180-rtl2gds/Makefile"
+test -f "$templates_root/reference-upstream/tt-support-tools/tt_tool.py"
+test -f "$templates_root/reference-upstream/tt-support-tools/precheck/precheck.py"
+test -f "$templates_root/reference-upstream/caravel_user_project/Makefile"
+test -f "$templates_root/reference-upstream/openframe_user_project/Makefile"
+python "$templates_root/reference-upstream/tt-support-tools/tt_tool.py" --help >/dev/null
+python "$templates_root/reference-upstream/tt-support-tools/precheck/precheck.py" --help >/dev/null
+
+echo "== packaged template validation =="
+work="$PWD/out/fresh-validation/template-tests"
+rm -rf "$work"
+mkdir -p "$work"
+cp -R "$templates_root/reference-upstream/tt-support-tools" "$work/tt-support-tools"
+chmod -R u+w "$work/tt-support-tools"
+
+klayout_script="$PWD/out/fresh-validation/klayout-read.rb"
+cat > "$klayout_script" <<'RUBY'
+layout = RBA::Layout::new
+layout.read($input)
+raise "empty layout" if layout.cells == 0
+RUBY
+
+for gds in \
+  "$templates_root/reference-upstream/caravel_user_project/gds/user_proj_example.gds" \
+  "$templates_root/reference-upstream/caravel_user_project/gds/user_project_wrapper.gds" \
+  "$templates_root/reference-upstream/openframe_user_project/gds/user_proj_timer.gds" \
+  "$templates_root/reference-upstream/openframe_user_project/gds/openframe_project_wrapper.gds" \
+  "$templates_root/reference-upstream/openframe_user_project/gds/vccd1_connection.gds" \
+  "$templates_root/reference-upstream/openframe_user_project/gds/vssd1_connection.gds"
+do
+  klayout -b -r "$klayout_script" -rd input="$gds" >/dev/null
+done
+
+yosys -q -p "read_verilog -sv $templates_root/reference-upstream/caravel_user_project/verilog/rtl/defines.v $templates_root/reference-upstream/caravel_user_project/verilog/rtl/user_proj_example.v; hierarchy -top user_proj_example; proc; check"
+yosys -q -p "read_verilog -sv $templates_root/reference-upstream/openframe_user_project/verilog/rtl/user_proj_timer.v $templates_root/reference-upstream/openframe_user_project/verilog/rtl/timer.v; hierarchy -top user_proj_timer; proc; check"
+
+(
+  cd "$work/tt-support-tools/precheck"
+  pytest -q test_precheck.py
+)
+
+echo "== clean SKY130 template RTL-to-GDS =="
+template_work="$PWD/out/fresh-validation/sky130-template-work"
+rm -rf "$template_work"
+cp -R "$templates_root/sky130-rtl2gds" "$template_work"
+chmod -R u+w "$template_work"
+(
+  cd "$template_work"
+  make
+  run_dir="$(find runs -maxdepth 1 -mindepth 1 -type d | sort | tail -1)"
+  gds="$run_dir/final/gds/user_project.gds"
+  test -s "$gds"
+  grep -R "Flow complete" "$run_dir" >/dev/null
+  sha256sum "$gds"
+)
+
+echo "== clean GF180 template RTL-to-GDS =="
+template_work="$PWD/out/fresh-validation/gf180-template-work"
+rm -rf "$template_work"
+cp -R "$templates_root/gf180-rtl2gds" "$template_work"
+chmod -R u+w "$template_work"
+(
+  cd "$template_work"
+  make
+  run_dir="$(find runs -maxdepth 1 -mindepth 1 -type d | sort | tail -1)"
+  gds="$run_dir/final/gds/user_project.gds"
+  test -s "$gds"
+  grep -R "Flow complete" "$run_dir" >/dev/null
+  sha256sum "$gds"
+)
+
+echo "== clean SKY130 RTL-to-GDS =="
+example_work="$repo_root/out/fresh-validation/sky130-counter-work"
+rm -rf "$example_work"
+cp -R "$examples_root/sky130-counter" "$example_work"
+chmod -R u+w "$example_work"
+cd "$example_work"
+make
+run_dir="$(find runs -maxdepth 1 -mindepth 1 -type d | sort | tail -1)"
+gds="$run_dir/final/gds/counter.gds"
+test -s "$gds"
+grep -R "Flow complete" "$run_dir" >/dev/null
+test -f "$run_dir/74-misc-reportmanufacturability/manufacturability.rpt"
+grep -A1 "\\* Antenna" "$run_dir/74-misc-reportmanufacturability/manufacturability.rpt" | grep "Passed" >/dev/null
+grep -A1 "\\* DRC" "$run_dir/74-misc-reportmanufacturability/manufacturability.rpt" | grep "Passed" >/dev/null
+grep -A1 "\\* LVS" "$run_dir/74-misc-reportmanufacturability/manufacturability.rpt" | grep "Passed" >/dev/null
+grep -R "No setup violations" "$run_dir" >/dev/null
+grep -R "No hold violations" "$run_dir" >/dev/null
+grep '"design__violations": 0' "$run_dir/final/metrics.json" >/dev/null
+sha256sum "$gds"
+
+echo "== clean GF180 RTL-to-GDS =="
+example_work="$repo_root/out/fresh-validation/gf180-counter-work"
+rm -rf "$example_work"
+cp -R "$examples_root/gf180-counter" "$example_work"
+chmod -R u+w "$example_work"
+cd "$example_work"
+make
+run_dir="$(find runs -maxdepth 1 -mindepth 1 -type d | sort | tail -1)"
+gds="$run_dir/final/gds/counter.gds"
+test -s "$gds"
+grep -R "Flow complete" "$run_dir" >/dev/null
+test -f "$run_dir/74-misc-reportmanufacturability/manufacturability.rpt"
+grep -A1 "\\* Antenna" "$run_dir/74-misc-reportmanufacturability/manufacturability.rpt" | grep "Passed" >/dev/null
+grep -A1 "\\* DRC" "$run_dir/74-misc-reportmanufacturability/manufacturability.rpt" | grep "Passed" >/dev/null
+grep -A1 "\\* LVS" "$run_dir/74-misc-reportmanufacturability/manufacturability.rpt" | grep "Passed" >/dev/null
+grep -R "No setup violations" "$run_dir" >/dev/null
+grep -R "No hold violations" "$run_dir" >/dev/null
+grep '"design__violations": 0' "$run_dir/final/metrics.json" >/dev/null
+sha256sum "$gds"
+VALIDATE
+
+if [[ "${VALIDATE_VM:-1}" == "1" ]]; then
+  echo "== build fresh x86_64 NixOS VM derivation =="
+  "$repo_root/scripts/build-vm" x86_64
+fi
+
+echo "fresh validation passed"

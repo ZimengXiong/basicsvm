@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+web_port="${BASICS_VIEW_WEB_PORT:-6080}"
+vnc_host="${BASICS_VIEW_VNC_HOST:-127.0.0.1}"
+vnc_port="${BASICS_VIEW_VNC_PORT:-5901}"
+
+mkdir -p "$repo_root/cache"
+
+novnc_path="$("$repo_root/scripts/nix" eval --raw nixpkgs#novnc)"
+
+cd "$repo_root"
+exec "$repo_root/scripts/nix" shell nixpkgs#websockify nixpkgs#novnc --command websockify \
+  --web "$novnc_path/share/novnc" \
+  "0.0.0.0:${web_port}" \
+  "${vnc_host}:${vnc_port}"

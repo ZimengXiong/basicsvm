@@ -1,0 +1,13 @@
+.nix-portable/
+cache/
+out/
+result
+result-*
+
+node_modules/
+.vitepress/cache/
+.vitepress/dist/
+
+*.log
+*.qcow2
+*.img

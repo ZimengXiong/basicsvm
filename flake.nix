@@ -1,0 +1,175 @@
+{
+  description = "bASICs VM: zero-setup open silicon desktop VM";
+
+  inputs = {
+    openlane2.url = "github:efabless/openlane2";
+    nixpkgs.follows = "openlane2/nix-eda/nixpkgs";
+  };
+
+  outputs = { self, nixpkgs, openlane2, ... }:
+    let
+      systems = [ "x86_64-linux" "aarch64-linux" ];
+      forAllSystems = nixpkgs.lib.genAttrs systems;
+      pkgsFor = system: openlane2.legacyPackages.${system};
+      basicsFor = system:
+        let
+          pkgs = pkgsFor system;
+          yowaspRuntime = pkgs.python3Packages.callPackage ./nix/python-yowasp-runtime.nix { };
+          wasmtime = pkgs.python3Packages.callPackage ./nix/python-wasmtime.nix { };
+          yowaspYosys = pkgs.python3Packages.callPackage ./nix/python-yowasp-yosys.nix {
+            inherit wasmtime yowaspRuntime;
+          };
+          basicsContent = ./content;
+          basicsAssets = pkgs.callPackage ./assets/nix/package.nix { };
+          basicsPython = pkgs.python3.withPackages (ps: with ps; [
+            cairosvg
+            chevron
+            configupdater
+            gdstk
+            gitpython
+            (ps.callPackage ./nix/python-klayout.nix { })
+            matplotlib
+            mistune
+            numpy
+            platformdirs
+            pillow
+            pytest
+            python-frontmatter
+            pyserial
+            pyyaml
+            requests
+            virtualenv
+            yowaspYosys
+          ]);
+          basicsTemplates = pkgs.callPackage ./nix/templates.nix {
+            inherit basicsContent;
+          };
+          basicsExamples = pkgs.stdenvNoCC.mkDerivation {
+            pname = "basics-examples";
+            version = "0.1.0";
+            dontUnpack = true;
+            dontBuild = true;
+            installPhase = ''
+              runHook preInstall
+              mkdir -p "$out/share/basics/examples"
+              cp -R ${basicsContent}/examples/. "$out/share/basics/examples/"
+              find "$out/share/basics/examples" -type d -exec chmod 0755 {} +
+              find "$out/share/basics/examples" -type f -exec chmod 0644 {} +
+              runHook postInstall
+            '';
+          };
+          basicsPdks = pkgs.callPackage ./nix/pdks.nix { };
+          basicsDocsSite = pkgs.buildNpmPackage {
+            pname = "basics-docs-site";
+            version = "0.1.0";
+            src = "${basicsContent}/docs-site";
+            npmDepsHash = "sha256-ja+/Q0GRZyGIBFb8CHaU4MlyNjUiPDuS5K0+VZSuUA8=";
+            installPhase = ''
+              runHook preInstall
+              mkdir -p "$out/share/basics/docs-site"
+              cp -R .vitepress/dist/. "$out/share/basics/docs-site/"
+              runHook postInstall
+            '';
+          };
+          basicsTools = with pkgs; [
+            basicsPython
+            git
+            gnumake
+            jq
+            rsync
+            curl
+            pre-commit
+            vim
+            nano
+            tree
+
+            openlane2.packages.${system}.openlane
+            openlane2.packages.${system}.openroad
+            openlane2.packages.${system}.opensta
+            openlane2.packages.${system}.openroad-abc
+            yosys
+            magic-vlsi
+            netgen
+            ngspice
+            klayout
+            verilator
+            verilog
+            gtkwave
+            xschem
+            volare
+            graphviz
+            xdot
+            symbiyosys
+            z3
+            yices
+            boolector
+            bitwuzla
+            yosys-sby
+            ghdl
+            surelog
+            uhdm
+            ciel
+            cvc5
+          ];
+        in
+        {
+          inherit pkgs basicsContent basicsAssets basicsTools basicsExamples basicsTemplates basicsPdks basicsDocsSite;
+          profile = pkgs.symlinkJoin {
+            name = "basics-profile-${system}";
+            paths = basicsTools;
+          };
+        };
+    in
+    {
+      packages = forAllSystems (system:
+        let basics = basicsFor system;
+        in {
+          default = basics.profile;
+          basics-profile = basics.profile;
+          basics-examples = basics.basicsExamples;
+          basics-templates = basics.basicsTemplates;
+          basics-pdks = basics.basicsPdks;
+          basics-docs-site = basics.basicsDocsSite;
+        });
+
+      devShells = forAllSystems (system:
+        let
+          basics = basicsFor system;
+          pkgs = basics.pkgs;
+        in {
+          default = pkgs.mkShell {
+            packages = basics.basicsTools;
+            shellHook = ''
+              export BASICS_ROOT="$PWD/out/basics-root/opt/basics"
+              export PDK_ROOT="$BASICS_ROOT/pdks"
+              export BASICS_EXAMPLES="$PWD/examples"
+              export BASICS_SKY130_OPEN_PDKS="0fe599b2afb6708d281543108caf8310912f54af"
+              export BASICS_GF180MCU_OPEN_PDKS="c6d73a35f524070e85faff4a6a9eef49553ebc2b"
+              echo "Basics dev shell"
+              echo "  BASICS_ROOT=$BASICS_ROOT"
+              echo "  PDK_ROOT=$PDK_ROOT"
+            '';
+          };
+        });
+
+      nixosConfigurations = {
+        basics-x86_64 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = {
+            inherit self openlane2;
+            basics = basicsFor "x86_64-linux";
+          };
+          modules = [ ./nixos/basics.nix ];
+        };
+
+        basics-aarch64 = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = {
+            inherit self openlane2;
+            basics = basicsFor "aarch64-linux";
+          };
+          modules = [ ./nixos/basics.nix ];
+        };
+      };
+    };
+}

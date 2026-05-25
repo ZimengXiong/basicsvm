@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+portable_dir="$repo_root/.nix-portable"
+portable_bin="$portable_dir/bin/nix-portable"
+
+arch="$(uname -m)"
+case "$arch" in
+  x86_64|aarch64) ;;
+  *)
+    echo "Unsupported architecture for nix-portable: $arch" >&2
+    exit 1
+    ;;
+esac
+
+mkdir -p "$portable_dir/bin" "$portable_dir/home" "$portable_dir/state" "$repo_root/out"
+
+if [[ ! -x "$portable_bin" ]]; then
+  tmp="$portable_bin.tmp"
+  url="https://github.com/DavHau/nix-portable/releases/latest/download/nix-portable-$arch"
+  echo "Downloading repo-local nix-portable for $arch"
+  echo "  $url"
+  curl -L --fail --show-error "$url" -o "$tmp"
+  chmod +x "$tmp"
+  mv "$tmp" "$portable_bin"
+fi
+
+export HOME="$portable_dir/home"
+export NP_LOCATION="$portable_dir/state"
+export NP_RUNTIME="bwrap"
+export NIX_CONFIG="${NIX_CONFIG:-}
+experimental-features = nix-command flakes
+accept-flake-config = true
+extra-substituters = https://cache.nixos.org
+"
+
+exec "$portable_bin" nix "$@"

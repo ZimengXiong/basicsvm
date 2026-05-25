@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+system="${1:-x86_64}"
+
+case "$system" in
+  x86_64) result="$repo_root/out/result-vm-x86_64" ;;
+  aarch64|arm64) result="$repo_root/out/result-vm-aarch64" ;;
+  *)
+    echo "usage: scripts/run-vm [x86_64|aarch64]" >&2
+    exit 2
+    ;;
+esac
+
+runner="$(find -L "$result/bin" -maxdepth 1 -type f -name 'run-*-vm' -print -quit)"
+if [[ -z "$runner" ]]; then
+  echo "VM runner not found. Build first with scripts/build-vm $system." >&2
+  exit 1
+fi
+
+mkdir -p "$repo_root/out"
+
+export QEMU_OPTS="${QEMU_OPTS:-} -display vnc=0.0.0.0:1"
+exec "$runner" 2>&1 | tee "$repo_root/out/vm-$system.log"

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+shellcheck_targets=(
+  scripts/build-vm
+  scripts/dev-shell
+  scripts/nix
+  scripts/run-vm
+  scripts/update-content
+  scripts/view-vm
+  scripts/verify-fresh
+  scripts/verify-source
+)
+
+for target in "${shellcheck_targets[@]}"; do
+  bash -n "$target"
+done
+
+legacy_pattern='[c]hipvm|[C]hipVM|[C]HIPVM|git [s]ubmodule|\.[g]itmodules|build-repo\.[l]ock|basics-vm-[n]ix|/home/zimengx/Projects/basics-[v]m'
+
+if rg -n "$legacy_pattern" . \
+  --glob '!research/upstream/**' \
+  --glob '!out/**' \
+  --glob '!flake.lock' \
+  --glob '!.nix-portable/**'; then
+  echo "Unexpected legacy/submodule source reference remains." >&2
+  exit 1
+fi
+
+echo "basicsvm source checks passed"

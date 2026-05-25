@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+system="${1:-x86_64}"
+case "$system" in
+  x86_64) attr="nixosConfigurations.basics-x86_64.config.system.build.vm" ;;
+  aarch64|arm64) attr="nixosConfigurations.basics-aarch64.config.system.build.vm" ;;
+  *)
+    echo "usage: scripts/build-vm [x86_64|aarch64]" >&2
+    exit 2
+    ;;
+esac
+
+exec "$repo_root/scripts/nix" build ".#$attr" -o "out/result-vm-$system"
