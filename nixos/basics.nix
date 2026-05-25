@@ -399,7 +399,7 @@ EOF
 
     cat > /home/beaver/.local/bin/set-basics-wallpaper <<'EOF'
 #!/bin/sh
-wallpaper='${basics.basicsAssets}/assets/wallpapers/BW-Entrance.png'
+wallpaper='${basics.basicsAssets}/share/basics/assets/wallpapers/BW-Entrance.png'
 if command -v xrandr >/dev/null 2>&1; then
   xrandr --output Virtual-1 --mode 1920x1080 >/dev/null 2>&1 || true
   xrandr --output Virtual-0 --mode 1920x1080 >/dev/null 2>&1 || true
@@ -407,6 +407,7 @@ if command -v xrandr >/dev/null 2>&1; then
 fi
 for monitor in Virtual-1 Virtual1 VNC-0 default monitor0; do
   xfconf-query -c xfce4-desktop -p "/backdrop/screen0/monitor$monitor/workspace0/last-image" -n -t string -s "$wallpaper" >/dev/null 2>&1 || true
+  xfconf-query -c xfce4-desktop -p "/backdrop/screen0/monitor$monitor/workspace0/last-single-image" -n -t string -s "$wallpaper" >/dev/null 2>&1 || true
   xfconf-query -c xfce4-desktop -p "/backdrop/screen0/monitor$monitor/workspace0/image-style" -n -t int -s 5 >/dev/null 2>&1 || true
 done
 xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/color-style -n -t int -s 0 >/dev/null 2>&1 || true
