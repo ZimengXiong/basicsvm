@@ -117,13 +117,13 @@ EOF
             ngspice
             klayout
             verilator
-            iverilog
+            (iverilog or verilog)
             gtkwave
             xschem
             volare
             graphviz
             xdot
-            sby
+            (sby or symbiyosys)
             z3
             yices
             boolector
