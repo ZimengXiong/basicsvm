@@ -13,6 +13,18 @@
       systems = [ "x86_64-linux" "aarch64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
       pkgsFor = system: openlane2.legacyPackages.${system};
+      imageDiskSizeMiB = 80 * 1024;
+      imageDiskSizeModule = { lib, ... }: {
+        virtualisation.diskSize = lib.mkForce imageDiskSizeMiB;
+      };
+      qcowImageDiskSizeModule = { lib, config, pkgs, modulesPath, ... }: {
+        system.build.qcow = lib.mkForce (import "${toString modulesPath}/../lib/make-disk-image.nix" {
+          inherit lib config pkgs;
+          diskSize = imageDiskSizeMiB;
+          format = "qcow2";
+          partitionTableType = "hybrid";
+        });
+      };
       basicsFor = system:
         let
           pkgs = pkgsFor system;
@@ -164,8 +176,12 @@ EOF
                 inherit self openlane2;
                 basics = basicsFor system;
               };
-              modules = [ ./nixos/basics.nix ];
-              format = if system == "aarch64-linux" then "qcow-efi" else "qcow";
+              modules = [
+                imageDiskSizeModule
+                qcowImageDiskSizeModule
+                ./nixos/basics.nix
+              ];
+              format = "qcow";
             };
         } // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           basics-image-virtualbox =
@@ -175,7 +191,10 @@ EOF
                 inherit self openlane2;
                 basics = basicsFor system;
               };
-              modules = [ ./nixos/basics.nix ];
+              modules = [
+                imageDiskSizeModule
+                ./nixos/basics.nix
+              ];
               format = "virtualbox";
             };
         });
