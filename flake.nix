@@ -23,6 +23,7 @@
           diskSize = imageDiskSizeMiB;
           format = "qcow2";
           partitionTableType = "hybrid";
+          memSize = 4096;
         });
       };
       basicsFor = system:
