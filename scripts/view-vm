@@ -6,12 +6,16 @@ web_port="${BASICS_VIEW_WEB_PORT:-6080}"
 vnc_host="${BASICS_VIEW_VNC_HOST:-127.0.0.1}"
 vnc_port="${BASICS_VIEW_VNC_PORT:-5901}"
 
-mkdir -p "$repo_root/cache"
+mkdir -p "${BASICS_VIEW_WORKDIR:-/tmp/basicsvm-novnc}"
 
 novnc_path="$("$repo_root/scripts/nix" eval --raw nixpkgs#novnc)"
 
-cd "$repo_root"
-exec "$repo_root/scripts/nix" shell nixpkgs#websockify nixpkgs#novnc --command websockify \
-  --web "$novnc_path/share/novnc" \
-  "0.0.0.0:${web_port}" \
-  "${vnc_host}:${vnc_port}"
+cd "${BASICS_VIEW_WORKDIR:-/tmp/basicsvm-novnc}"
+exec "$repo_root/scripts/nix" shell nixpkgs#python3Packages.websockify nixpkgs#novnc --command bash -lc '
+  set -euo pipefail
+  novnc_web="$1/share/webapps/novnc"
+  if [[ ! -d "$novnc_web" ]]; then
+    novnc_web="$1/share/novnc"
+  fi
+  exec websockify --web "$novnc_web" "$2" "$3"
+' bash "$novnc_path" "0.0.0.0:${web_port}" "${vnc_host}:${vnc_port}"
