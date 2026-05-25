@@ -13,13 +13,17 @@ case "$system" in
     ;;
 esac
 
-runner="$(find -L "$result/bin" -maxdepth 1 -type f -name 'run-*-vm' -print -quit)"
-if [[ -z "$runner" ]]; then
-  echo "VM runner not found. Build first with scripts/build-vm $system." >&2
-  exit 1
-fi
-
 mkdir -p "$repo_root/out"
 
 export QEMU_OPTS="${QEMU_OPTS:-} -display vnc=0.0.0.0:1"
-exec "$runner" 2>&1 | tee "$repo_root/out/vm-$system.log"
+exec "$repo_root/scripts/nix" shell nixpkgs#bash --command bash -lc '
+  set -euo pipefail
+  result="$1"
+  log="$2"
+  runner="$(find -L "$result/bin" -maxdepth 1 -type f -name "run-*-vm" -print -quit)"
+  if [[ -z "$runner" ]]; then
+    echo "VM runner not found in $result/bin" >&2
+    exit 1
+  fi
+  exec "$runner" 2>&1 | tee "$log"
+' bash "$result" "$repo_root/out/vm-$system.log"
