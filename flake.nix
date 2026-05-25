@@ -59,15 +59,39 @@
             '';
           };
           basicsPdks = pkgs.callPackage ./nix/pdks.nix { };
-          basicsDocsSite = pkgs.buildNpmPackage {
+          basicsDocsSite = pkgs.stdenvNoCC.mkDerivation {
             pname = "basics-docs-site";
             version = "0.1.0";
             src = "${basicsContent}/docs-site";
-            npmDepsHash = "sha256-ja+/Q0GRZyGIBFb8CHaU4MlyNjUiPDuS5K0+VZSuUA8=";
+            dontBuild = true;
             installPhase = ''
               runHook preInstall
               mkdir -p "$out/share/basics/docs-site"
-              cp -R .vitepress/dist/. "$out/share/basics/docs-site/"
+              cp -R . "$out/share/basics/docs-site/source"
+              cat > "$out/share/basics/docs-site/index.html" <<'EOF'
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>bASICs VM Docs</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; max-width: 60rem; line-height: 1.5; }
+    code { background: #f2f2f2; padding: 0.1rem 0.25rem; }
+  </style>
+</head>
+<body>
+  <h1>bASICs VM Docs</h1>
+  <p>The full documentation source is bundled in <code>source/</code>. Public hosted docs are built outside the VM release path.</p>
+  <ul>
+    <li><a href="source/index.md">Overview</a></li>
+    <li><a href="source/getting-started.md">Getting Started</a></li>
+    <li><a href="source/reference/tools.md">Tools Inventory</a></li>
+    <li><a href="source/advanced/reproduce-vm.md">Reproduce the VM</a></li>
+  </ul>
+</body>
+</html>
+EOF
               runHook postInstall
             '';
           };

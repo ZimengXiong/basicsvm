@@ -1,10 +1,15 @@
 export default {
-  title: 'bASICs VM v2',
-  description: 'Static documentation for the bASICs VM v2 open silicon desktop environment.',
+  title: 'bASICs VM',
+  description: 'Static documentation for the bASICs VM open silicon desktop environment.',
   cleanUrls: true,
+  vite: {
+    build: {
+      minify: false
+    }
+  },
   themeConfig: {
     logo: '/logo.svg',
-    siteTitle: 'bASICs VM v2',
+    siteTitle: 'bASICs VM',
     nav: [
       { text: 'Start', link: '/' },
       { text: 'Install', link: '/install/mac-apple-silicon' },
@@ -47,11 +52,8 @@ export default {
         ]
       }
     ],
-    search: {
-      provider: 'local'
-    },
     footer: {
-      message: 'Built from the bASICs VM v2 repository.',
+      message: 'Built from the bASICs VM repository.',
       copyright: 'Static docs for public hosting and offline VM bundling.'
     }
   }
