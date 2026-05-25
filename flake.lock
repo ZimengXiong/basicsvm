@@ -1,21 +1,5 @@
 {
   "nodes": {
-    "basics-content": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1779741520,
-        "narHash": "sha256-UzV1Q0vDm9j0SZQux8fohyrg8BvY5cp4KuYOkv7iMWg=",
-        "owner": "ZimengXiong",
-        "repo": "basics-vm-content",
-        "rev": "28454bcd8c4bea5fe9e0e7c5296c05a14c1a06b4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ZimengXiong",
-        "repo": "basics-vm-content",
-        "type": "github"
-      }
-    },
     "devshell": {
       "inputs": {
         "nixpkgs": [
@@ -155,7 +139,6 @@
     },
     "root": {
       "inputs": {
-        "basics-content": "basics-content",
         "nixpkgs": [
           "openlane2",
           "nix-eda",

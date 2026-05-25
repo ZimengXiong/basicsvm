@@ -130,6 +130,7 @@
           basics-templates = basics.basicsTemplates;
           basics-pdks = basics.basicsPdks;
           basics-docs-site = basics.basicsDocsSite;
+          basics-assets = basics.basicsAssets;
         });
 
       devShells = forAllSystems (system:
