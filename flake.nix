@@ -4,9 +4,11 @@
   inputs = {
     openlane2.url = "github:efabless/openlane2";
     nixpkgs.follows = "openlane2/nix-eda/nixpkgs";
+    nixos-generators.url = "github:nix-community/nixos-generators/1.8.0";
+    nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, openlane2, ... }:
+  outputs = { self, nixpkgs, openlane2, nixos-generators, ... }:
     let
       systems = [ "x86_64-linux" "aarch64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
@@ -155,6 +157,27 @@ EOF
           basics-pdks = basics.basicsPdks;
           basics-docs-site = basics.basicsDocsSite;
           basics-assets = basics.basicsAssets;
+          basics-image-qcow =
+            nixos-generators.nixosGenerate {
+              inherit system;
+              specialArgs = {
+                inherit self openlane2;
+                basics = basicsFor system;
+              };
+              modules = [ ./nixos/basics.nix ];
+              format = if system == "aarch64-linux" then "qcow-efi" else "qcow";
+            };
+        } // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          basics-image-virtualbox =
+            nixos-generators.nixosGenerate {
+              inherit system;
+              specialArgs = {
+                inherit self openlane2;
+                basics = basicsFor system;
+              };
+              modules = [ ./nixos/basics.nix ];
+              format = "virtualbox";
+            };
         });
 
       devShells = forAllSystems (system:
