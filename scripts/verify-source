@@ -21,11 +21,26 @@ done
 
 legacy_pattern='[c]hipvm|[C]hipVM|[C]HIPVM|git [s]ubmodule|\.[g]itmodules|build-repo\.[l]ock|basics-vm-[n]ix|/home/zimengx/Projects/basics-[v]m'
 
-if rg -n "$legacy_pattern" . \
-  --glob '!research/upstream/**' \
-  --glob '!out/**' \
-  --glob '!flake.lock' \
-  --glob '!.nix-portable/**'; then
+if command -v rg >/dev/null 2>&1; then
+  legacy_matches="$(
+    rg -n "$legacy_pattern" . \
+      --glob '!research/upstream/**' \
+      --glob '!out/**' \
+      --glob '!flake.lock' \
+      --glob '!.nix-portable/**' || true
+  )"
+else
+  legacy_matches="$(
+    grep -RInE "$legacy_pattern" . \
+      --exclude-dir=.git \
+      --exclude-dir=.nix-portable \
+      --exclude-dir=out \
+      --exclude=flake.lock || true
+  )"
+fi
+
+if [[ -n "$legacy_matches" ]]; then
+  printf '%s\n' "$legacy_matches"
   echo "Unexpected legacy/submodule source reference remains." >&2
   exit 1
 fi
