@@ -128,11 +128,12 @@ EOF
             yices
             boolector
             bitwuzla
-            ghdl
             surelog
             uhdm
             ciel
             cvc5
+          ] ++ pkgs.lib.optionals (system == "x86_64-linux") [
+            ghdl
           ];
         in
         {
