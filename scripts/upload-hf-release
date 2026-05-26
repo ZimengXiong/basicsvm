@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+usage() {
+  cat >&2 <<'EOF'
+usage: scripts/upload-hf-release [options]
+
+Options:
+  --repo ID          Hugging Face repo id, default: zimengxiong/basicsvm
+  --type TYPE        Hugging Face repo type, default: dataset
+  --version VALUE    Release version, default: git short SHA
+  --source DIR       Local release directory, default: out/final
+  --private          Create repo as private instead of public
+  --dry-run          Write manifest but do not create/upload
+
+Uploads the polished bASICs VM release folders to Hugging Face.
+EOF
+}
+
+repo_id="${BASICS_HF_REPO:-zimengxiong/basicsvm}"
+repo_type="${BASICS_HF_REPO_TYPE:-dataset}"
+version="$(git rev-parse --short HEAD)"
+source_dir="$repo_root/out/final"
+private=0
+dry_run=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --repo)
+      repo_id="${2:?missing --repo value}"
+      shift 2
+      ;;
+    --type)
+      repo_type="${2:?missing --type value}"
+      shift 2
+      ;;
+    --version)
+      version="${2:?missing --version value}"
+      shift 2
+      ;;
+    --source)
+      source_dir="${2:?missing --source value}"
+      shift 2
+      ;;
+    --private)
+      private=1
+      shift
+      ;;
+    --dry-run)
+      dry_run=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "unknown option: $1" >&2
+      usage
+      exit 2
+      ;;
+  esac
+done
+
+if [[ ! -d "$source_dir" ]]; then
+  echo "release source directory does not exist: $source_dir" >&2
+  exit 1
+fi
+
+venv="$repo_root/out/hf-venv"
+if [[ ! -x "$venv/bin/python" ]]; then
+  python3 -m venv "$venv"
+fi
+"$venv/bin/pip" install -q --upgrade pip huggingface_hub
+
+manifest="$source_dir/VERSION.json"
+export BASICS_HF_REPO_ID="$repo_id"
+export BASICS_HF_REPO_TYPE="$repo_type"
+export BASICS_HF_VERSION="$version"
+export BASICS_HF_SOURCE="$source_dir"
+export BASICS_HF_PRIVATE="$private"
+export BASICS_HF_DRY_RUN="$dry_run"
+export BASICS_HF_MANIFEST="$manifest"
+
+"$venv/bin/python" - <<'PY'
+import json
+import os
+import subprocess
+from datetime import datetime, timezone
+from pathlib import Path
+
+from huggingface_hub import HfApi, create_repo
+
+repo_id = os.environ["BASICS_HF_REPO_ID"]
+repo_type = os.environ["BASICS_HF_REPO_TYPE"]
+version = os.environ["BASICS_HF_VERSION"]
+source = Path(os.environ["BASICS_HF_SOURCE"]).resolve()
+private = os.environ["BASICS_HF_PRIVATE"] == "1"
+dry_run = os.environ["BASICS_HF_DRY_RUN"] == "1"
+manifest_path = Path(os.environ["BASICS_HF_MANIFEST"]).resolve()
+
+git_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+git_status = subprocess.check_output(["git", "status", "--short"], text=True).strip()
+
+files = []
+for path in sorted(p for p in source.rglob("*") if p.is_file()):
+    if path == manifest_path:
+        continue
+    rel = path.relative_to(source).as_posix()
+    files.append({"path": rel, "bytes": path.stat().st_size})
+
+manifest = {
+    "name": "basicsvm",
+    "version": version,
+    "git_sha": git_sha,
+    "git_dirty": bool(git_status),
+    "created_at": datetime.now(timezone.utc).isoformat(),
+    "repo_id": repo_id,
+    "repo_type": repo_type,
+    "targets": [
+        "macos-apple-silicon",
+        "macos-intel",
+        "windows-arm",
+        "windows-x86",
+        "linux-x86",
+    ],
+    "files": files,
+}
+manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+
+print(f"Wrote {manifest_path}")
+print(f"Repo: {repo_type}:{repo_id}")
+print(f"Files: {len(files) + 1}")
+print(f"Bytes: {sum(f['bytes'] for f in files):,}")
+
+if dry_run:
+    print("Dry run; not uploading.")
+    raise SystemExit(0)
+
+api = HfApi()
+create_repo(repo_id=repo_id, repo_type=repo_type, private=private, exist_ok=True)
+api.upload_folder(
+    repo_id=repo_id,
+    repo_type=repo_type,
+    folder_path=str(source),
+    path_in_repo=f"releases/{version}",
+    commit_message=f"Upload bASICs VM release {version}",
+)
+print(f"Uploaded to https://huggingface.co/{repo_type}s/{repo_id}/tree/main/releases/{version}")
+PY
