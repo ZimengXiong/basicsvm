@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+usage() {
+  cat >&2 <<'EOF'
+usage: scripts/build-release TARGET...
+
+Targets:
+  all                  build every supported release target
+  local                build local preview VM only
+  x86                  build macos-intel, windows-x86, linux-x86
+  arm                  build macos-apple-silicon, windows-arm
+  macos-apple-silicon
+  macos-intel
+  windows-x86
+  windows-arm
+  linux-x86
+
+Environment:
+  BASICS_ARM_BUILDER   ssh host that can run aarch64-linux builds
+  BASICS_ARM_REPO      repo path on ARM builder, default: ~/Projects/basicsvm
+
+Examples:
+  scripts/build-release local
+  scripts/build-release x86
+  BASICS_ARM_BUILDER=xzm@xzm.local scripts/build-release arm
+  BASICS_ARM_BUILDER=xzm@xzm.local scripts/build-release all
+EOF
+}
+
+if [[ $# -eq 0 || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+targets=()
+for arg in "$@"; do
+  case "$arg" in
+    all)
+      targets+=(macos-intel windows-x86 linux-x86 macos-apple-silicon windows-arm)
+      ;;
+    local)
+      targets+=(local)
+      ;;
+    x86)
+      targets+=(macos-intel windows-x86 linux-x86)
+      ;;
+    arm)
+      targets+=(macos-apple-silicon windows-arm)
+      ;;
+    macos-apple-silicon|macos-intel|windows-x86|windows-arm|linux-x86)
+      targets+=("$arg")
+      ;;
+    *)
+      echo "unknown release target: $arg" >&2
+      usage
+      exit 2
+      ;;
+  esac
+done
+
+run_local_target() {
+  local target="$1"
+  case "$target" in
+    local)
+      exec "$repo_root/scripts/preview-vm" --rebuild
+      ;;
+    macos-intel|windows-x86|linux-x86)
+      "$repo_root/scripts/package-vm" "$target"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+run_arm_target() {
+  local target="$1"
+  local builder="${BASICS_ARM_BUILDER:-}"
+  local arm_repo="${BASICS_ARM_REPO:-~/Projects/basicsvm}"
+
+  if [[ -z "$builder" ]]; then
+    cat >&2 <<EOF
+$target needs an aarch64-linux builder.
+Set BASICS_ARM_BUILDER, for example:
+  BASICS_ARM_BUILDER=xzm@xzm.local scripts/build-release $target
+EOF
+    exit 1
+  fi
+
+  ssh "$builder" "cd $arm_repo && git pull --ff-only && scripts/package-vm $target"
+}
+
+for target in "${targets[@]}"; do
+  case "$target" in
+    local|macos-intel|windows-x86|linux-x86)
+      run_local_target "$target"
+      ;;
+    macos-apple-silicon|windows-arm)
+      run_arm_target "$target"
+      ;;
+  esac
+done

@@ -19,6 +19,7 @@ Options:
   --raw PATH                 use an existing raw image instead of building it
   --repart-build-dir DIR     assemble raw image from a kept failed Nix repart build
   --keep-raw                 keep raw image when target normally only needs converted disk
+  --archive                  create a .tar.zst release archive
 
 Examples:
   scripts/package-vm windows-x86
@@ -38,6 +39,7 @@ out=""
 raw_input=""
 repart_build_dir=""
 keep_raw=0
+archive=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -55,6 +57,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --keep-raw)
       keep_raw=1
+      shift
+      ;;
+    --archive)
+      archive=1
       shift
       ;;
     *)
@@ -223,6 +229,25 @@ case "$format" in
     ;;
 esac
 
+cat > "$pkg_dir/README.txt" <<EOF
+bASICs VM - $target
+
+Recommended app: $([[ "$format" == "utm" ]] && echo "UTM" || echo "VirtualBox")
+VM architecture: $nix_system
+Login user: beaver
+Password: works
+
+Import/use the disk image in this folder:
+$(basename "$image")
+
+Suggested VM resources:
+- RAM: 8 GB minimum
+- CPU: 4 cores minimum
+- Disk: image virtual size is about 80 GiB
+
+The VM contains the EDA toolchain, PDKs, examples, templates, and docs.
+EOF
+
 (
   cd "$out"
   : > checksums/SHA256SUMS
@@ -230,6 +255,7 @@ esac
     sha256sum raw/basicsvm-${arch_name}-linux.raw > checksums/SHA256SUMS
   fi
   sha256sum "$format/$(basename "$image")" >> checksums/SHA256SUMS
+  sha256sum "$format/README.txt" >> checksums/SHA256SUMS
   if [[ -f raw/repart-output.json ]]; then
     sha256sum raw/repart-output.json >> checksums/SHA256SUMS
   fi
@@ -239,9 +265,19 @@ if [[ "$keep_raw" -ne 1 && "$raw_is_external" -ne 1 ]]; then
   rm -f "$raw_path"
 fi
 
+if [[ "$archive" -eq 1 ]]; then
+  archive_path="$out/basicsvm-$target.tar.zst"
+  rm -f "$archive_path"
+  tar --zstd -cf "$archive_path" -C "$out" "$format" checksums
+fi
+
 cat <<EOF
 Packaged $target
   image: $image
   info:  $pkg_dir/qemu-img-info.txt
   sums:  $checksum_dir/SHA256SUMS
 EOF
+
+if [[ "${archive:-0}" -eq 1 ]]; then
+  echo "  archive: $archive_path"
+fi

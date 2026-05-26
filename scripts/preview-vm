@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+system="x86_64"
+rebuild=0
+no_vnc=0
+
+usage() {
+  cat >&2 <<'EOF'
+usage: scripts/preview-vm [--rebuild] [--no-vnc]
+
+Builds and runs the local x86_64 preview VM with external VNC/noVNC.
+
+Ports:
+  VNC    5901
+  noVNC  6080
+
+Environment:
+  BASICS_VIEW_WEB_PORT  noVNC web port, default: 6080
+  BASICS_VIEW_VNC_PORT  QEMU VNC port, default: 5901
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --rebuild)
+      rebuild=1
+      shift
+      ;;
+    --no-vnc)
+      no_vnc=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "unknown option: $1" >&2
+      usage
+      exit 2
+      ;;
+  esac
+done
+
+if [[ "$rebuild" -eq 1 || ! -e "$repo_root/out/result-vm-$system" ]]; then
+  "$repo_root/scripts/build-vm" "$system"
+fi
+
+mkdir -p "$repo_root/out/preview"
+
+if [[ "$no_vnc" -ne 1 ]]; then
+  if [[ -f "$repo_root/out/preview/novnc.pid" ]] && kill -0 "$(cat "$repo_root/out/preview/novnc.pid")" 2>/dev/null; then
+    :
+  else
+    (
+      exec "$repo_root/scripts/view-vm" > "$repo_root/out/preview/novnc.log" 2>&1
+    ) &
+    echo $! > "$repo_root/out/preview/novnc.pid"
+  fi
+fi
+
+exec "$repo_root/scripts/run-vm" "$system"

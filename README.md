@@ -22,6 +22,7 @@ submodules or depend on the previous checkout at build time.
 ./scripts/build-vm x86_64
 ./scripts/run-vm x86_64
 ./scripts/view-vm
+./scripts/preview-vm --rebuild
 ./scripts/verify-source
 ```
 
@@ -39,6 +40,9 @@ are:
 Linux ARM is intentionally not a supported student target.
 
 ```bash
+./scripts/build-release local
+./scripts/build-release x86
+BASICS_ARM_BUILDER=xzm@xzm.local ./scripts/build-release arm
 ./scripts/package-vm macos-apple-silicon
 ./scripts/package-vm macos-intel
 ./scripts/package-vm windows-x86
