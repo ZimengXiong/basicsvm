@@ -4,11 +4,12 @@
   inputs = {
     openlane2.url = "github:efabless/openlane2";
     nixpkgs.follows = "openlane2/nix-eda/nixpkgs";
+    nixpkgs-image.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixos-generators.url = "github:nix-community/nixos-generators/1.8.0";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, openlane2, nixos-generators, ... }:
+  outputs = { self, nixpkgs, nixpkgs-image, openlane2, nixos-generators, ... }:
     let
       systems = [ "x86_64-linux" "aarch64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
@@ -26,6 +27,65 @@
           memSize = 4096;
         });
       };
+      repartImageModule = { config, lib, pkgs, modulesPath, ... }:
+        let
+          efiArch = pkgs.stdenv.hostPlatform.efiArch;
+        in
+        {
+          imports = [ "${modulesPath}/image/repart.nix" ];
+
+          fileSystems."/" = {
+            device = "/dev/disk/by-label/nixos";
+            fsType = "ext4";
+          };
+
+          boot.loader.grub.enable = false;
+          boot.loader.systemd-boot.enable = lib.mkForce true;
+          boot.loader.efi.canTouchEfiVariables = false;
+          boot.initrd.includeDefaultModules = false;
+          boot.initrd.availableKernelModules = lib.mkForce [
+            "ahci"
+            "sd_mod"
+            "sr_mod"
+            "virtio_pci"
+            "virtio_blk"
+            "virtio_scsi"
+            "xhci_pci"
+            "usbhid"
+          ];
+
+          image.repart = {
+            name = "basicsvm-${pkgs.stdenv.hostPlatform.system}";
+            compression.enable = true;
+            compression.algorithm = "zstd";
+            partitions = {
+              "10-esp" = {
+                contents = {
+                  "/EFI/BOOT/BOOT${lib.toUpper efiArch}.EFI".source =
+                    "${pkgs.systemd}/lib/systemd/boot/efi/systemd-boot${efiArch}.efi";
+                  "/EFI/Linux/${config.system.boot.loader.ukiFile}".source =
+                    "${config.system.build.uki}/${config.system.boot.loader.ukiFile}";
+                };
+                repartConfig = {
+                  Type = "esp";
+                  Format = "vfat";
+                  Label = "ESP";
+                  SizeMinBytes = "96M";
+                };
+              };
+              "20-root" = {
+                storePaths = [ config.system.build.toplevel ];
+                repartConfig = {
+                  Type = "root";
+                  Format = "ext4";
+                  Label = "nixos";
+                  SizeMinBytes = "80G";
+                  SizeMaxBytes = "80G";
+                };
+              };
+            };
+          };
+        };
       basicsFor = system:
         let
           pkgs = pkgsFor system;
@@ -176,6 +236,7 @@ EOF
               specialArgs = {
                 inherit self openlane2;
                 basics = basicsFor system;
+                basicsVmRunner = true;
               };
               modules = [
                 imageDiskSizeModule
@@ -184,6 +245,19 @@ EOF
               ];
               format = "qcow";
             };
+          basics-image-repart =
+            (nixpkgs-image.lib.nixosSystem {
+              inherit system;
+              specialArgs = {
+                inherit self openlane2;
+                basics = basicsFor system;
+                basicsVmRunner = false;
+              };
+              modules = [
+                ./nixos/basics.nix
+                repartImageModule
+              ];
+            }).config.system.build.image;
         } // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           basics-image-virtualbox =
             nixos-generators.nixosGenerate {
@@ -191,6 +265,7 @@ EOF
               specialArgs = {
                 inherit self openlane2;
                 basics = basicsFor system;
+                basicsVmRunner = true;
               };
               modules = [
                 imageDiskSizeModule
@@ -226,6 +301,7 @@ EOF
           specialArgs = {
             inherit self openlane2;
             basics = basicsFor "x86_64-linux";
+            basicsVmRunner = true;
           };
           modules = [ ./nixos/basics.nix ];
         };
@@ -235,6 +311,7 @@ EOF
           specialArgs = {
             inherit self openlane2;
             basics = basicsFor "aarch64-linux";
+            basicsVmRunner = true;
           };
           modules = [ ./nixos/basics.nix ];
         };

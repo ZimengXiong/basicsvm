@@ -1,4 +1,4 @@
-{ config, lib, modulesPath, pkgs, basics, ... }:
+{ config, lib, modulesPath, pkgs, basics, basicsVmRunner ? true, ... }:
 
 let
   basicsGtkCss = pkgs.writeText "basics-yellow-black-gtk.css" ''
@@ -132,6 +132,7 @@ let
 in
 {
   imports = [
+  ] ++ lib.optionals basicsVmRunner [
     "${modulesPath}/virtualisation/qemu-vm.nix"
   ];
 
@@ -444,16 +445,19 @@ EOF
     '';
   };
 
-  virtualisation.memorySize = 8192;
-  virtualisation.cores = 4;
-  virtualisation.diskSize = 65536;
-  virtualisation.graphics = false;
-  virtualisation.forwardPorts = [
-    {
-      from = "host";
-      host.address = "0.0.0.0";
-      host.port = 2222;
-      guest.port = 22;
-    }
-  ];
+} // lib.optionalAttrs basicsVmRunner {
+  virtualisation = {
+    memorySize = 8192;
+    cores = 4;
+    diskSize = 65536;
+    graphics = false;
+    forwardPorts = [
+      {
+        from = "host";
+        host.address = "0.0.0.0";
+        host.port = 2222;
+        guest.port = 22;
+      }
+    ];
+  };
 }
