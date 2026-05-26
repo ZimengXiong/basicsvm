@@ -43,6 +43,7 @@ Linux ARM is intentionally not a supported student target.
 ./scripts/build-release local
 ./scripts/build-release x86
 BASICS_ARM_BUILDER=xzm@xzm.local ./scripts/build-release arm
+./scripts/finalize-release
 ./scripts/upload-hf-release --version "$(git rev-parse --short HEAD)"
 ./scripts/package-vm macos-apple-silicon
 ./scripts/package-vm macos-intel
