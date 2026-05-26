@@ -46,121 +46,141 @@ zip_path="$out_dir/${bundle_name}.utm.zip"
 vm_uuid="$(new_uuid)"
 disk_uuid="$(new_uuid)"
 mac="$(printf '52:54:00:%02X:%02X:%02X' $((RANDOM % 256)) $((RANDOM % 256)) $((RANDOM % 256)))"
+case "$arch" in
+  aarch64)
+    target="virt"
+    ;;
+  x86_64)
+    target="q35"
+    ;;
+esac
 
 rm -rf "$bundle_path" "$zip_path"
 mkdir -p "$bundle_path/Data"
 cp -f "$source_image" "$bundle_path/Data/disk-0.qcow2"
+rm -f "$bundle_path/Data/efi_vars.fd"
 
 cat > "$bundle_path/config.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>ConfigurationVersion</key>
-  <integer>4</integer>
   <key>Backend</key>
   <string>QEMU</string>
-  <key>Debug</key>
-  <dict>
-    <key>DebugLog</key>
-    <false/>
-    <key>IgnoreAllConfiguration</key>
-    <false/>
-  </dict>
+  <key>ConfigurationVersion</key>
+  <integer>4</integer>
   <key>Display</key>
-  <dict>
-    <key>ConsoleFont</key>
-    <string>Menlo</string>
-    <key>ConsoleFontSize</key>
-    <integer>12</integer>
-    <key>ConsoleOnly</key>
-    <false/>
-    <key>ConsoleTheme</key>
-    <string>Default</string>
-    <key>DisplayCard</key>
-    <string>virtio-ramfb-gl</string>
-    <key>DisplayDownscaler</key>
-    <string>linear</string>
-    <key>DisplayFitScreen</key>
-    <true/>
-    <key>DisplayRetina</key>
-    <false/>
-    <key>DisplayUpscaler</key>
-    <string>linear</string>
-  </dict>
-  <key>Drives</key>
   <array>
     <dict>
-      <key>DriveName</key>
-      <string>${disk_uuid}</string>
-      <key>ImagePath</key>
-      <string>disk-0.qcow2</string>
-      <key>ImageType</key>
-      <string>disk</string>
-      <key>InterfaceType</key>
-      <string>nvme</string>
+      <key>DownscalingFilter</key>
+      <string>Linear</string>
+      <key>DynamicResolution</key>
+      <true/>
+      <key>Hardware</key>
+      <string>virtio-gpu-pci</string>
+      <key>NativeResolution</key>
+      <false/>
+      <key>UpscalingFilter</key>
+      <string>Nearest</string>
     </dict>
   </array>
-  <key>Info</key>
+  <key>Drive</key>
+  <array>
+    <dict>
+      <key>Identifier</key>
+      <string>${disk_uuid}</string>
+      <key>ImageName</key>
+      <string>disk-0.qcow2</string>
+      <key>ImageType</key>
+      <string>Disk</string>
+      <key>Interface</key>
+      <string>VirtIO</string>
+      <key>InterfaceVersion</key>
+      <integer>1</integer>
+      <key>ReadOnly</key>
+      <false/>
+    </dict>
+  </array>
+  <key>Information</key>
   <dict>
     <key>Icon</key>
-    <string>generic</string>
+    <string>linux</string>
     <key>IconCustom</key>
     <false/>
     <key>Name</key>
     <string>bASICs VM</string>
+    <key>UUID</key>
+    <string>${vm_uuid}</string>
   </dict>
   <key>Input</key>
   <dict>
-    <key>InputLegacy</key>
+    <key>MaximumUsbShare</key>
+    <integer>3</integer>
+    <key>UsbBusSupport</key>
+    <string>2.0</string>
+    <key>UsbSharing</key>
     <false/>
   </dict>
-  <key>Networking</key>
-  <dict>
-    <key>NetworkCard</key>
-    <string>virtio-net-pci</string>
-    <key>NetworkCardMAC</key>
-    <string>${mac}</string>
-    <key>NetworkMode</key>
-    <string>shared</string>
-  </dict>
-  <key>Printing</key>
-  <dict/>
+  <key>Network</key>
+  <array>
+    <dict>
+      <key>Hardware</key>
+      <string>virtio-net-pci</string>
+      <key>IsolateFromHost</key>
+      <false/>
+      <key>MacAddress</key>
+      <string>${mac}</string>
+      <key>Mode</key>
+      <string>Shared</string>
+      <key>PortForward</key>
+      <array/>
+    </dict>
+  </array>
   <key>QEMU</key>
   <dict>
+    <key>AdditionalArguments</key>
+    <array/>
+    <key>BalloonDevice</key>
+    <false/>
+    <key>DebugLog</key>
+    <false/>
     <key>Hypervisor</key>
     <true/>
+    <key>PS2Controller</key>
+    <false/>
+    <key>RNGDevice</key>
+    <true/>
+    <key>RTCLocalTime</key>
+    <false/>
+    <key>TPMDevice</key>
+    <false/>
+    <key>TSO</key>
+    <false/>
     <key>UEFIBoot</key>
     <true/>
   </dict>
+  <key>Serial</key>
+  <array/>
   <key>Sharing</key>
   <dict>
     <key>ClipboardSharing</key>
     <true/>
-    <key>DirectorySharing</key>
-    <true/>
-    <key>Usb3Support</key>
+    <key>DirectoryShareMode</key>
+    <string>VirtFS</string>
+    <key>DirectoryShareReadOnly</key>
     <false/>
-    <key>UsbRedirectMax</key>
-    <integer>3</integer>
   </dict>
   <key>Sound</key>
-  <dict>
-    <key>SoundCard</key>
-    <string>intel-hda</string>
-    <key>SoundEnabled</key>
-    <true/>
-  </dict>
+  <array>
+    <dict>
+      <key>Hardware</key>
+      <string>intel-hda</string>
+    </dict>
+  </array>
   <key>System</key>
   <dict>
-    <key>AddArgs</key>
-    <array/>
     <key>Architecture</key>
     <string>${arch}</string>
-    <key>BootDevice</key>
-    <string></string>
-    <key>BootUefi</key>
-    <true/>
     <key>CPU</key>
     <string>default</string>
     <key>CPUCount</key>
@@ -169,14 +189,10 @@ cat > "$bundle_path/config.plist" <<EOF
     <true/>
     <key>JITCacheSize</key>
     <integer>0</integer>
-    <key>MachineProperties</key>
-    <string>highmem=off</string>
-    <key>Memory</key>
+    <key>MemorySize</key>
     <integer>8192</integer>
-    <key>SystemUUID</key>
-    <string>${vm_uuid}</string>
     <key>Target</key>
-    <string>virt</string>
+    <string>${target}</string>
   </dict>
 </dict>
 </plist>
