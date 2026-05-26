@@ -10,4 +10,9 @@ node_modules/
 
 *.log
 *.qcow2
+*.vdi
+*.vmdk
+*.ova
 *.img
+*.raw
+*.raw.zst

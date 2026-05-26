@@ -2,7 +2,7 @@
 
 The `basicsvm` repository is a flake-based build. The repo-local scripts use `nix-portable` under `.nix-portable` and keep build outputs under `out`.
 
-## Build a VM
+## Build a dev VM
 
 From the repository:
 
@@ -11,7 +11,7 @@ cd basicsvm
 scripts/build-vm x86_64
 ```
 
-For ARM:
+For ARM builders:
 
 ```bash
 cd basicsvm
@@ -46,3 +46,17 @@ The flake defines:
 | `nixosConfigurations.basics-aarch64` | `aarch64-linux` |
 
 The VM configuration is in `nixos/basics.nix`.
+
+## Package release images
+
+Release packaging uses named host targets:
+
+```bash
+scripts/package-vm macos-apple-silicon
+scripts/package-vm macos-intel
+scripts/package-vm windows-x86
+scripts/package-vm windows-arm
+scripts/package-vm linux-x86
+```
+
+Linux ARM is not a supported student release target.
