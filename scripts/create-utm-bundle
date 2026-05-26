@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'EOF'
+usage: scripts/create-utm-bundle SOURCE_QCOW2 OUT_DIR NAME ARCH
+
+ARCH must be aarch64 or x86_64. Writes OUT_DIR/NAME.utm and OUT_DIR/NAME.utm.zip.
+EOF
+}
+
+if [[ $# -ne 4 || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 2
+fi
+
+source_image="$1"
+out_dir="$2"
+bundle_name="$3"
+arch="$4"
+
+if [[ ! -f "$source_image" ]]; then
+  echo "missing qcow2 image: $source_image" >&2
+  exit 1
+fi
+
+case "$arch" in
+  aarch64|x86_64) ;;
+  *)
+    echo "unsupported UTM arch: $arch" >&2
+    exit 2
+    ;;
+esac
+
+new_uuid() {
+  if command -v uuidgen >/dev/null 2>&1; then
+    uuidgen | tr '[:lower:]' '[:upper:]'
+  else
+    cat /proc/sys/kernel/random/uuid | tr '[:lower:]' '[:upper:]'
+  fi
+}
+
+mkdir -p "$out_dir"
+bundle_path="$out_dir/${bundle_name}.utm"
+zip_path="$out_dir/${bundle_name}.utm.zip"
+vm_uuid="$(new_uuid)"
+disk_uuid="$(new_uuid)"
+mac="$(printf '52:54:00:%02X:%02X:%02X' $((RANDOM % 256)) $((RANDOM % 256)) $((RANDOM % 256)))"
+
+rm -rf "$bundle_path" "$zip_path"
+mkdir -p "$bundle_path/Data"
+cp -f "$source_image" "$bundle_path/Data/disk-0.qcow2"
+
+cat > "$bundle_path/config.plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>ConfigurationVersion</key>
+  <integer>4</integer>
+  <key>Backend</key>
+  <string>QEMU</string>
+  <key>Debug</key>
+  <dict>
+    <key>DebugLog</key>
+    <false/>
+    <key>IgnoreAllConfiguration</key>
+    <false/>
+  </dict>
+  <key>Display</key>
+  <dict>
+    <key>ConsoleFont</key>
+    <string>Menlo</string>
+    <key>ConsoleFontSize</key>
+    <integer>12</integer>
+    <key>ConsoleOnly</key>
+    <false/>
+    <key>ConsoleTheme</key>
+    <string>Default</string>
+    <key>DisplayCard</key>
+    <string>virtio-ramfb-gl</string>
+    <key>DisplayDownscaler</key>
+    <string>linear</string>
+    <key>DisplayFitScreen</key>
+    <true/>
+    <key>DisplayRetina</key>
+    <false/>
+    <key>DisplayUpscaler</key>
+    <string>linear</string>
+  </dict>
+  <key>Drives</key>
+  <array>
+    <dict>
+      <key>DriveName</key>
+      <string>${disk_uuid}</string>
+      <key>ImagePath</key>
+      <string>disk-0.qcow2</string>
+      <key>ImageType</key>
+      <string>disk</string>
+      <key>InterfaceType</key>
+      <string>nvme</string>
+    </dict>
+  </array>
+  <key>Info</key>
+  <dict>
+    <key>Icon</key>
+    <string>generic</string>
+    <key>IconCustom</key>
+    <false/>
+    <key>Name</key>
+    <string>bASICs VM</string>
+  </dict>
+  <key>Input</key>
+  <dict>
+    <key>InputLegacy</key>
+    <false/>
+  </dict>
+  <key>Networking</key>
+  <dict>
+    <key>NetworkCard</key>
+    <string>virtio-net-pci</string>
+    <key>NetworkCardMAC</key>
+    <string>${mac}</string>
+    <key>NetworkMode</key>
+    <string>shared</string>
+  </dict>
+  <key>Printing</key>
+  <dict/>
+  <key>QEMU</key>
+  <dict>
+    <key>Hypervisor</key>
+    <true/>
+    <key>UEFIBoot</key>
+    <true/>
+  </dict>
+  <key>Sharing</key>
+  <dict>
+    <key>ClipboardSharing</key>
+    <true/>
+    <key>DirectorySharing</key>
+    <true/>
+    <key>Usb3Support</key>
+    <false/>
+    <key>UsbRedirectMax</key>
+    <integer>3</integer>
+  </dict>
+  <key>Sound</key>
+  <dict>
+    <key>SoundCard</key>
+    <string>intel-hda</string>
+    <key>SoundEnabled</key>
+    <true/>
+  </dict>
+  <key>System</key>
+  <dict>
+    <key>AddArgs</key>
+    <array/>
+    <key>Architecture</key>
+    <string>${arch}</string>
+    <key>BootDevice</key>
+    <string></string>
+    <key>BootUefi</key>
+    <true/>
+    <key>CPU</key>
+    <string>default</string>
+    <key>CPUCount</key>
+    <integer>4</integer>
+    <key>ForceMulticore</key>
+    <true/>
+    <key>JITCacheSize</key>
+    <integer>0</integer>
+    <key>MachineProperties</key>
+    <string>highmem=off</string>
+    <key>Memory</key>
+    <integer>8192</integer>
+    <key>SystemUUID</key>
+    <string>${vm_uuid}</string>
+    <key>Target</key>
+    <string>virt</string>
+  </dict>
+</dict>
+</plist>
+EOF
+
+(
+  cd "$out_dir"
+  python3 -m zipfile -c "$(basename "$zip_path")" "$(basename "$bundle_path")"
+)
+
+printf '%s\n' "$zip_path"

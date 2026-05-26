@@ -8,8 +8,8 @@ usage() {
 usage: scripts/package-vm TARGET [options]
 
 Targets:
-  macos-apple-silicon   aarch64 UTM qcow2
-  macos-intel           x86_64 UTM qcow2
+  macos-apple-silicon   aarch64 zipped UTM bundle
+  macos-intel           x86_64 zipped UTM bundle
   windows-x86           x86_64 VirtualBox vdi
   windows-arm           aarch64 VirtualBox vdi
   linux-x86             x86_64 VirtualBox vdi
@@ -220,6 +220,11 @@ case "$format" in
     rm -f "$image"
     qemu-img convert -p -f raw -O qcow2 "$raw_path" "$image"
     qemu-img info "$image" > "$pkg_dir/qemu-img-info.txt"
+    if [[ "$nix_system" == "aarch64-linux" ]]; then
+      utm_zip="$("$repo_root/scripts/create-utm-bundle" "$image" "$pkg_dir" "bASICs-VM-Apple-Silicon" aarch64)"
+    else
+      utm_zip="$("$repo_root/scripts/create-utm-bundle" "$image" "$pkg_dir" "bASICs-VM-Intel-Mac" x86_64)"
+    fi
     ;;
   virtualbox)
     image="$pkg_dir/basicsvm-${arch_name}-linux.vdi"
@@ -240,6 +245,15 @@ Password: works
 Import/use the disk image in this folder:
 $(basename "$image")
 
+$([[ "$format" == "utm" ]] && cat <<UTM_TEXT
+
+For Mac, the preferred download is the bundled UTM VM:
+$(basename "$utm_zip")
+
+Unzip it, then open the .utm bundle in UTM.
+UTM_TEXT
+)
+
 Suggested VM resources:
 - RAM: 8 GB minimum
 - CPU: 4 cores minimum
@@ -255,6 +269,9 @@ EOF
     sha256sum raw/basicsvm-${arch_name}-linux.raw > checksums/SHA256SUMS
   fi
   sha256sum "$format/$(basename "$image")" >> checksums/SHA256SUMS
+  if [[ "$format" == "utm" ]]; then
+    sha256sum "$format/$(basename "$utm_zip")" >> checksums/SHA256SUMS
+  fi
   sha256sum "$format/README.txt" >> checksums/SHA256SUMS
   if [[ -f raw/repart-output.json ]]; then
     sha256sum raw/repart-output.json >> checksums/SHA256SUMS

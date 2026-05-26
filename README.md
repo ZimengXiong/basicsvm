@@ -31,8 +31,8 @@ submodules or depend on the previous checkout at build time.
 Use `scripts/package-vm` for release images. The supported student host targets
 are:
 
-- `macos-apple-silicon` - aarch64 UTM/QCOW2
-- `macos-intel` - x86_64 UTM/QCOW2
+- `macos-apple-silicon` - aarch64 zipped UTM bundle plus QCOW2
+- `macos-intel` - x86_64 zipped UTM bundle plus QCOW2
 - `windows-x86` - x86_64 VirtualBox/VDI
 - `windows-arm` - aarch64 VirtualBox/VDI
 - `linux-x86` - x86_64 VirtualBox/VDI

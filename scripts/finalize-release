@@ -46,6 +46,7 @@ copy_target() {
   local target="$1"
   local format="$2"
   local image_glob="$3"
+  local bundle_glob="${4:-}"
   local source_dir="$source_root/$target/$format"
   local checksum_dir="$source_root/$target/checksums"
   local dest_dir="$final_root/$target"
@@ -67,6 +68,16 @@ copy_target() {
   rm -rf "$dest_dir"
   mkdir -p "$dest_dir"
   cp -f "${images[0]}" "$dest_dir/"
+  if [[ -n "$bundle_glob" ]]; then
+    shopt -s nullglob
+    local bundles=("$source_dir"/$bundle_glob)
+    shopt -u nullglob
+    if [[ "${#bundles[@]}" -ne 1 ]]; then
+      echo "expected exactly one $bundle_glob for $target in $source_dir" >&2
+      exit 1
+    fi
+    cp -f "${bundles[0]}" "$dest_dir/"
+  fi
   cp -f "$source_dir/README.txt" "$dest_dir/"
   if [[ -f "$checksum_dir/SHA256SUMS" ]]; then
     cp -f "$checksum_dir/SHA256SUMS" "$dest_dir/"
@@ -81,8 +92,8 @@ copy_target() {
 rm -rf "$final_root"
 mkdir -p "$final_root"
 
-copy_target macos-apple-silicon utm '*.qcow2'
-copy_target macos-intel utm '*.qcow2'
+copy_target macos-apple-silicon utm '*.qcow2' '*.utm.zip'
+copy_target macos-intel utm '*.qcow2' '*.utm.zip'
 copy_target windows-arm virtualbox '*.vdi'
 copy_target windows-x86 virtualbox '*.vdi'
 copy_target linux-x86 virtualbox '*.vdi'
