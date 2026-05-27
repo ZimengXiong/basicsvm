@@ -185,7 +185,6 @@ in
     BASICS_EXAMPLES = "/home/beaver/bASICs/examples";
     BASICS_TEMPLATES = "/home/beaver/bASICs/templates";
     BASICS_SKY130_OPEN_PDKS = "0fe599b2afb6708d281543108caf8310912f54af";
-    BASICS_GF180MCU_OPEN_PDKS = "c6d73a35f524070e85faff4a6a9eef49553ebc2b";
   };
 
   environment.etc."profile.d/basics.sh".text = ''

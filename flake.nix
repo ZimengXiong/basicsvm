@@ -119,7 +119,6 @@
               export PDK_ROOT="$BASICS_ROOT/pdks"
               export BASICS_EXAMPLES="$PWD/examples"
               export BASICS_SKY130_OPEN_PDKS="0fe599b2afb6708d281543108caf8310912f54af"
-              export BASICS_GF180MCU_OPEN_PDKS="c6d73a35f524070e85faff4a6a9eef49553ebc2b"
               echo "Basics dev shell"
               echo "  BASICS_ROOT=$BASICS_ROOT"
               echo "  PDK_ROOT=$PDK_ROOT"

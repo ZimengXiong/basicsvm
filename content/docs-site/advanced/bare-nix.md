@@ -34,7 +34,6 @@ Inside the dev shell, run upstream tools directly:
 openlane --version
 openroad -version
 yosys -V
-volare --version
 ```
 
 For an example flow:

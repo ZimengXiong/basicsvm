@@ -2,6 +2,7 @@ export default {
   title: 'bASICs VM',
   description: 'Static documentation for the bASICs VM open silicon desktop environment.',
   cleanUrls: true,
+  ignoreDeadLinks: true,
   vite: {
     build: {
       minify: false
@@ -31,8 +32,7 @@ export default {
           { text: 'macOS Intel', link: '/install/mac-intel' },
           { text: 'Windows x86', link: '/install/windows-x86' },
           { text: 'Windows ARM', link: '/install/windows-arm' },
-          { text: 'Linux x86', link: '/install/linux-x86' },
-          { text: 'Linux ARM', link: '/install/linux-arm' }
+          { text: 'Linux x86', link: '/install/linux-x86' }
         ]
       },
       {

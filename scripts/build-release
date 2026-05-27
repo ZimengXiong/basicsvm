@@ -22,7 +22,6 @@ Targets:
 Environment:
   BASICS_ARM_BUILDER   ssh host that can run aarch64-linux builds
   BASICS_ARM_REPO      repo path on ARM builder, default: ~/Projects/basicsvm
-  BASICS_BUILD_OVA     set to 1 to create VirtualBox .ova appliances too
 
 Examples:
   scripts/build-release local
@@ -70,11 +69,7 @@ run_local_target() {
       exec "$repo_root/scripts/preview-vm" --rebuild
       ;;
     macos-intel|windows-x86|linux-x86)
-      if [[ "${BASICS_BUILD_OVA:-0}" == "1" && "$target" != "macos-intel" ]]; then
-        "$repo_root/scripts/package-vm" "$target" --ova
-      else
-        "$repo_root/scripts/package-vm" "$target"
-      fi
+      "$repo_root/scripts/package-vm" "$target"
       ;;
     *)
       return 1
@@ -96,11 +91,7 @@ EOF
     exit 1
   fi
 
-  if [[ "${BASICS_BUILD_OVA:-0}" == "1" && "$target" == "windows-arm" ]]; then
-    ssh "$builder" "cd $arm_repo && git pull --ff-only && scripts/package-vm $target --ova"
-  else
-    ssh "$builder" "cd $arm_repo && git pull --ff-only && scripts/package-vm $target"
-  fi
+  ssh "$builder" "cd $arm_repo && git pull --ff-only && scripts/package-vm $target"
 }
 
 for target in "${targets[@]}"; do

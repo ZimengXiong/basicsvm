@@ -1,6 +1,6 @@
 # bASICs VM
 
-bASICs VM is a zero-setup open silicon desktop environment. It packages upstream EDA tools, pinned SKY130 and GF180MCU PDK data, example projects, and project templates into a Linux VM.
+bASICs VM is a zero-setup open silicon desktop environment. It packages upstream EDA tools, pinned SKY130 PDK data, example projects, and project templates into a Linux VM.
 
 The same static documentation site can be hosted publicly or bundled offline in the VM. The VM workflow uses upstream commands directly. There are no bASICs wrapper commands.
 

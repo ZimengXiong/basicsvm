@@ -1,4 +1,4 @@
-{ imageDiskSizeMiB ? 80 * 1024
+{ imageDiskSizeMiB ? 30 * 1024
 , smokeDiskSizeMiB ? 10 * 1024
 }:
 
@@ -12,20 +12,102 @@
     virtualisation.diskSize = lib.mkForce smokeDiskSizeMiB;
   };
 
-  virtualBoxImageModule = { lib, ... }: {
-    virtualbox.baseImageSize = lib.mkForce imageDiskSizeMiB;
-    virtualbox.memorySize = lib.mkForce 4096;
-    virtualbox.vmName = lib.mkForce "bASICs VM";
-    virtualbox.vmFileName = lib.mkForce "basicsvm-x86_64-linux.ova";
-  };
+  virtualBoxImageModule = { config, lib, pkgs, modulesPath, ... }:
+    let
+      cfg = config.virtualbox;
+    in
+    {
+      virtualbox.baseImageSize = lib.mkForce imageDiskSizeMiB;
+      virtualbox.baseImageFreeSpace = lib.mkForce 2048;
+      virtualbox.memorySize = lib.mkForce 4096;
+      virtualbox.vmName = lib.mkForce "bASICs VM";
+      virtualbox.vmFileName = lib.mkForce "basicsvm-x86_64-linux.ova";
 
-  smokeVirtualBoxImageModule = { lib, ... }: {
-    virtualbox.baseImageSize = lib.mkForce smokeDiskSizeMiB;
-    virtualbox.baseImageFreeSpace = lib.mkForce 2048;
-    virtualbox.memorySize = lib.mkForce 2048;
-    virtualbox.vmName = lib.mkForce "bASICs Smoke";
-    virtualbox.vmFileName = lib.mkForce "basicsvm-smoke-x86_64-linux.ova";
-  };
+      system.build.image = lib.mkForce config.system.build.virtualBoxOVA;
+      system.build.virtualBoxOVA = lib.mkForce (import "${toString modulesPath}/../lib/make-disk-image.nix" {
+        name = cfg.vmDerivationName;
+        inherit pkgs lib config;
+        partitionTableType = "legacy";
+        diskSize = cfg.baseImageSize;
+        additionalSpace = "${toString cfg.baseImageFreeSpace}M";
+        copyChannel = false;
+        memSize = 4096;
+        postVM = ''
+          export HOME=$PWD
+          export PATH=${pkgs.virtualbox}/bin:$PATH
+
+          echo "converting image to VirtualBox format..."
+          VBoxManage convertfromraw "$diskImage" disk.vdi
+
+          echo "creating VirtualBox VM..."
+          vmName="${cfg.vmName}"
+          VBoxManage createvm --name "$vmName" --register --ostype Linux26_64
+          VBoxManage modifyvm "$vmName" \
+            --memory ${toString cfg.memorySize} \
+            ${lib.cli.toGNUCommandLineShell { } cfg.params}
+          VBoxManage storagectl "$vmName" ${lib.cli.toGNUCommandLineShell { } cfg.storageController}
+          VBoxManage storageattach "$vmName" --storagectl ${cfg.storageController.name} --port 0 --device 0 --type hdd \
+            --medium disk.vdi
+
+          echo "exporting VirtualBox VM..."
+          mkdir -p "$out"
+          fn="$out/${cfg.vmFileName}"
+          VBoxManage export "$vmName" --output "$fn" --options manifest ${lib.escapeShellArgs cfg.exportParams}
+          ${cfg.postExportCommands}
+
+          rm -v "$diskImage"
+
+          mkdir -p "$out/nix-support"
+          echo "file ova $fn" >> "$out/nix-support/hydra-build-products"
+        '';
+      });
+    };
+
+  smokeVirtualBoxImageModule = { config, lib, pkgs, modulesPath, ... }:
+    let
+      cfg = config.virtualbox;
+    in
+    {
+      virtualbox.baseImageSize = lib.mkForce smokeDiskSizeMiB;
+      virtualbox.baseImageFreeSpace = lib.mkForce 1024;
+      virtualbox.memorySize = lib.mkForce 2048;
+      virtualbox.vmName = lib.mkForce "bASICs Smoke";
+      virtualbox.vmFileName = lib.mkForce "basicsvm-smoke-x86_64-linux.ova";
+
+      system.build.image = lib.mkForce config.system.build.virtualBoxOVA;
+      system.build.virtualBoxOVA = lib.mkForce (import "${toString modulesPath}/../lib/make-disk-image.nix" {
+        name = cfg.vmDerivationName;
+        inherit pkgs lib config;
+        partitionTableType = "legacy";
+        diskSize = cfg.baseImageSize;
+        additionalSpace = "${toString cfg.baseImageFreeSpace}M";
+        copyChannel = false;
+        memSize = 2048;
+        postVM = ''
+          export HOME=$PWD
+          export PATH=${pkgs.virtualbox}/bin:$PATH
+
+          VBoxManage convertfromraw "$diskImage" disk.vdi
+          vmName="${cfg.vmName}"
+          VBoxManage createvm --name "$vmName" --register --ostype Linux26_64
+          VBoxManage modifyvm "$vmName" \
+            --memory ${toString cfg.memorySize} \
+            ${lib.cli.toGNUCommandLineShell { } cfg.params}
+          VBoxManage storagectl "$vmName" ${lib.cli.toGNUCommandLineShell { } cfg.storageController}
+          VBoxManage storageattach "$vmName" --storagectl ${cfg.storageController.name} --port 0 --device 0 --type hdd \
+            --medium disk.vdi
+
+          mkdir -p "$out"
+          fn="$out/${cfg.vmFileName}"
+          VBoxManage export "$vmName" --output "$fn" --options manifest ${lib.escapeShellArgs cfg.exportParams}
+          ${cfg.postExportCommands}
+          rm -v "$diskImage"
+
+          mkdir -p "$out/nix-support"
+          echo "file ova $fn" >> "$out/nix-support/hydra-build-products"
+        '';
+      });
+    };
 
   qcowImageDiskSizeModule = { lib, config, pkgs, modulesPath, ... }: {
     system.build.qcow = lib.mkForce (import "${toString modulesPath}/../lib/make-disk-image.nix" {
@@ -83,16 +165,16 @@
               SizeMinBytes = "96M";
             };
           };
-          "20-root" = {
-            storePaths = [ config.system.build.toplevel ];
-            repartConfig = {
-              Type = "root";
-              Format = "ext4";
-              Label = "nixos";
-              SizeMinBytes = "80G";
-              SizeMaxBytes = "80G";
-            };
-          };
+              "20-root" = {
+                storePaths = [ config.system.build.toplevel ];
+                repartConfig = {
+                  Type = "root";
+                  Format = "ext4";
+                  Label = "nixos";
+                  SizeMinBytes = "30G";
+                  SizeMaxBytes = "30G";
+                };
+              };
         };
       };
     };

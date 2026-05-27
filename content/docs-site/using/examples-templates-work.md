@@ -21,10 +21,8 @@ The repository currently includes:
 | Directory | Notes |
 | --- | --- |
 | `examples/sky130-counter` | SKY130 counter OpenLane example |
-| `examples/gf180-counter` | GF180MCU counter OpenLane example |
 | `examples/picorv32a-sky130` | PicoRV32A SKY130 example |
 | `templates/sky130-rtl2gds` | SKY130 RTL-to-GDS starter |
-| `templates/gf180-rtl2gds` | GF180MCU RTL-to-GDS starter |
 | `templates/reference-upstream` | Packaged upstream template/support references |
 
 Use upstream commands directly from your copied project. There are no bASICs wrappers.

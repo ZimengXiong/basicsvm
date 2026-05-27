@@ -33,9 +33,9 @@ are:
 
 - `macos-apple-silicon` - aarch64 zipped UTM bundle plus QCOW2
 - `macos-intel` - x86_64 zipped UTM bundle plus QCOW2
-- `windows-x86` - x86_64 VirtualBox/VDI
+- `windows-x86` - x86_64 VirtualBox OVA
 - `windows-arm` - aarch64 VirtualBox/VDI
-- `linux-x86` - x86_64 VirtualBox/VDI
+- `linux-x86` - x86_64 VirtualBox OVA
 
 Linux ARM is intentionally not a supported student target.
 

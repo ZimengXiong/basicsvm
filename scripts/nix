@@ -27,7 +27,7 @@ case "$arch" in
     ;;
 esac
 
-mkdir -p "$portable_dir/bin" "$portable_dir/home" "$portable_dir/state" "$repo_root/out"
+mkdir -p "$portable_dir/bin" "$portable_dir/home" "$portable_dir/state" "$repo_root/out/tmp"
 
 if [[ ! -x "$portable_bin" ]]; then
   tmp="$portable_bin.tmp"
@@ -42,6 +42,7 @@ fi
 export HOME="$portable_dir/home"
 export NP_LOCATION="$portable_dir/state"
 export NP_RUNTIME="bwrap"
+export TMPDIR="$repo_root/out/tmp"
 export NIX_CONFIG="${NIX_CONFIG:-}
 experimental-features = nix-command flakes
 accept-flake-config = true

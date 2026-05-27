@@ -10,9 +10,9 @@ usage: scripts/package-vm TARGET [options]
 Targets:
   macos-apple-silicon   aarch64 zipped UTM bundle
   macos-intel           x86_64 zipped UTM bundle
-  windows-x86           x86_64 VirtualBox vdi
-  windows-arm           aarch64 VirtualBox vdi
-  linux-x86             x86_64 VirtualBox vdi
+  windows-x86           x86_64 VirtualBox OVA
+  windows-arm           aarch64 VirtualBox VDI
+  linux-x86             x86_64 VirtualBox OVA
 
 Options:
   --out DIR                  output directory, default: out/release/TARGET
@@ -20,7 +20,7 @@ Options:
   --repart-build-dir DIR     assemble raw image from a kept failed Nix repart build
   --keep-raw                 keep raw image when target normally only needs converted disk
   --archive                  create a .tar.zst release archive
-  --ova                      also create a VirtualBox .ova appliance for VirtualBox targets
+  --ova                      create an OVA when using a raw/VDI VirtualBox fallback path
 
 Examples:
   scripts/package-vm windows-x86
@@ -116,6 +116,86 @@ pkg_dir="$out/$format"
 checksum_dir="$out/checksums"
 mkdir -p "$raw_dir" "$pkg_dir" "$checksum_dir"
 
+host_path_for_nix_result() {
+  local path="$1"
+  local target
+  if [[ -L "$path" ]]; then
+    target="$(readlink "$path")"
+    if [[ "$target" == /nix/store/* && ! -e "$target" ]]; then
+      printf '%s\n' "$repo_root/.nix-portable/state/.nix-portable$target"
+      return 0
+    fi
+  fi
+  printf '%s\n' "$path"
+}
+
+find_built_ova() {
+  local result_dir="$1"
+  local found
+  result_dir="$(host_path_for_nix_result "$result_dir")"
+  found="$(find -L "$result_dir" -maxdepth 3 -name '*.ova' -type f | head -1)"
+  if [[ -z "$found" ]]; then
+    echo "Nix VirtualBox build did not produce an .ova under $result_dir" >&2
+    exit 1
+  fi
+  printf '%s\n' "$found"
+}
+
+install_ova() {
+  local source_ova="$1"
+  local dest_ova="$2"
+  local existing_ova
+  rm -f "$dest_ova"
+  existing_ova="$(find "$repo_root/out/release" -path "$dest_ova" -prune -o -name 'basicsvm-x86_64-linux.ova' -type f -print | head -1)"
+  if [[ -n "$existing_ova" ]] && cmp -s "$source_ova" "$existing_ova"; then
+    ln "$existing_ova" "$dest_ova" 2>/dev/null || cp -f "$source_ova" "$dest_ova"
+  else
+    cp -f "$source_ova" "$dest_ova"
+  fi
+}
+
+if [[ "$format" == "virtualbox" && "$nix_system" == "x86_64-linux" && -z "$raw_input" && -z "$repart_build_dir" ]]; then
+  result_dir="$out/nix-virtualbox-result"
+  rm -f "$result_dir"
+  "$repo_root/scripts/nix" build ".#packages.${nix_system}.basics-image-virtualbox" -o "$result_dir" --print-build-logs
+
+  ova_path="$pkg_dir/basicsvm-${arch_name}-linux.ova"
+  install_ova "$(find_built_ova "$result_dir")" "$ova_path"
+
+  cat > "$pkg_dir/README.txt" <<EOF
+bASICs VM - $target
+
+Recommended app: VirtualBox
+VM architecture: $nix_system
+Login user: beaver
+Password: works
+
+Import this appliance in VirtualBox:
+$(basename "$ova_path")
+
+Suggested VM resources:
+- RAM: 8 GB minimum
+- CPU: 4 cores minimum
+- Disk: image virtual size is about 30 GiB
+
+The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
+EOF
+
+  (
+    cd "$out"
+    : > checksums/SHA256SUMS
+    sha256sum "$format/$(basename "$ova_path")" >> checksums/SHA256SUMS
+    sha256sum "$format/README.txt" >> checksums/SHA256SUMS
+  )
+
+  cat <<EOF
+Packaged $target
+  appliance: $ova_path
+  sums:      $checksum_dir/SHA256SUMS
+EOF
+  exit 0
+fi
+
 require_qemu_img() {
   if ! command -v qemu-img >/dev/null 2>&1; then
     echo "qemu-img is required for $format packaging" >&2
@@ -155,6 +235,7 @@ copy_or_decompress_raw() {
 find_built_raw() {
   local result_dir="$1"
   local found
+  result_dir="$(host_path_for_nix_result "$result_dir")"
   found="$(find "$result_dir" -maxdepth 2 \( -name '*.raw' -o -name '*.raw.zst' \) -type f | head -1)"
   if [[ -z "$found" ]]; then
     echo "Nix image build did not produce a .raw or .raw.zst under $result_dir" >&2
@@ -212,7 +293,7 @@ EOF
     exit 1
   fi
   copy_or_decompress_raw "$(find_built_raw "$result_dir")"
-  repart_json="$(find "$result_dir" -maxdepth 2 -name 'repart-output.json' -type f | head -1 || true)"
+  repart_json="$(find "$(host_path_for_nix_result "$result_dir")" -maxdepth 2 -name 'repart-output.json' -type f | head -1 || true)"
   if [[ -n "$repart_json" ]]; then
     cp -f "$repart_json" "$raw_dir/repart-output.json"
   fi
@@ -277,9 +358,9 @@ UTM_TEXT
 Suggested VM resources:
 - RAM: 8 GB minimum
 - CPU: 4 cores minimum
-- Disk: image virtual size is about 80 GiB
+- Disk: image virtual size is about 30 GiB
 
-The VM contains the EDA toolchain, PDKs, examples, templates, and docs.
+The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
 EOF
 
 (

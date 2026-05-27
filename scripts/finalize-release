@@ -97,8 +97,8 @@ mkdir -p "$final_root"
 copy_target macos-apple-silicon utm '*.qcow2' '*.utm.zip'
 copy_target macos-intel utm '*.qcow2' '*.utm.zip'
 copy_target windows-arm virtualbox '*.vdi' '*.ova'
-copy_target windows-x86 virtualbox '*.vdi' '*.ova'
-copy_target linux-x86 virtualbox '*.vdi' '*.ova'
+copy_target windows-x86 virtualbox '*.ova'
+copy_target linux-x86 virtualbox '*.ova'
 
 cat <<EOF
 Final release tree ready:
