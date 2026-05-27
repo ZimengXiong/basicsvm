@@ -113,6 +113,7 @@ VBoxManage createvm \
 VBoxManage modifyvm "$vm_name" \
   --memory "$memory" \
   --cpus "$cpus" \
+  --firmware efi \
   --vram "$vram" \
   --graphicscontroller vmsvga \
   --audio-driver none \
