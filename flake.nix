@@ -15,8 +15,13 @@
       forAllSystems = nixpkgs.lib.genAttrs systems;
       pkgsFor = system: openlane2.legacyPackages.${system};
       imageDiskSizeMiB = 80 * 1024;
+      smokeDiskSizeMiB = 6 * 1024;
       imageDiskSizeModule = { lib, ... }: {
         virtualisation.diskSize = lib.mkForce imageDiskSizeMiB;
+        virtualisation.memorySize = lib.mkForce 4096;
+      };
+      smokeDiskSizeModule = { lib, ... }: {
+        virtualisation.diskSize = lib.mkForce smokeDiskSizeMiB;
       };
       qcowImageDiskSizeModule = { lib, config, pkgs, modulesPath, ... }: {
         system.build.qcow = lib.mkForce (import "${toString modulesPath}/../lib/make-disk-image.nix" {
@@ -25,6 +30,15 @@
           format = "qcow2";
           partitionTableType = "hybrid";
           memSize = 4096;
+        });
+      };
+      smokeQcowImageDiskSizeModule = { lib, config, pkgs, modulesPath, ... }: {
+        system.build.qcow = lib.mkForce (import "${toString modulesPath}/../lib/make-disk-image.nix" {
+          inherit lib config pkgs;
+          diskSize = smokeDiskSizeMiB;
+          format = "qcow2";
+          partitionTableType = "hybrid";
+          memSize = 2048;
         });
       };
       repartImageModule = { config, lib, pkgs, modulesPath, ... }:
@@ -42,17 +56,7 @@
           boot.loader.grub.enable = false;
           boot.loader.systemd-boot.enable = lib.mkForce true;
           boot.loader.efi.canTouchEfiVariables = false;
-          boot.initrd.includeDefaultModules = false;
-          boot.initrd.availableKernelModules = lib.mkForce [
-            "ahci"
-            "sd_mod"
-            "sr_mod"
-            "virtio_pci"
-            "virtio_blk"
-            "virtio_scsi"
-            "xhci_pci"
-            "usbhid"
-          ];
+          boot.initrd.includeDefaultModules = lib.mkForce true;
 
           image.repart = {
             name = "basicsvm-${pkgs.stdenv.hostPlatform.system}";
@@ -228,6 +232,20 @@ EOF
           basics-pdks = basics.basicsPdks;
           basics-docs-site = basics.basicsDocsSite;
           basics-assets = basics.basicsAssets;
+          basics-smoke-qcow =
+            nixos-generators.nixosGenerate {
+              inherit system;
+              specialArgs = {
+                inherit self openlane2;
+                basicsVmRunner = true;
+              };
+              modules = [
+                smokeDiskSizeModule
+                smokeQcowImageDiskSizeModule
+                ./nixos/smoke.nix
+              ];
+              format = "qcow";
+            };
           basics-image-qcow =
             nixos-generators.nixosGenerate {
               inherit system;
@@ -271,6 +289,19 @@ EOF
               ];
               format = "virtualbox";
             };
+          basics-smoke-virtualbox =
+            nixos-generators.nixosGenerate {
+              inherit system;
+              specialArgs = {
+                inherit self openlane2;
+                basicsVmRunner = true;
+              };
+              modules = [
+                smokeDiskSizeModule
+                ./nixos/smoke.nix
+              ];
+              format = "virtualbox";
+            };
         });
 
       devShells = forAllSystems (system:
@@ -304,6 +335,15 @@ EOF
           modules = [ ./nixos/basics.nix ];
         };
 
+        smoke-x86_64 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = {
+            inherit self openlane2;
+            basicsVmRunner = true;
+          };
+          modules = [ ./nixos/smoke.nix ];
+        };
+
         basics-aarch64 = nixpkgs.lib.nixosSystem {
           system = "aarch64-linux";
           specialArgs = {
@@ -312,6 +352,15 @@ EOF
             basicsVmRunner = true;
           };
           modules = [ ./nixos/basics.nix ];
+        };
+
+        smoke-aarch64 = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = {
+            inherit self openlane2;
+            basicsVmRunner = true;
+          };
+          modules = [ ./nixos/smoke.nix ];
         };
       };
     };

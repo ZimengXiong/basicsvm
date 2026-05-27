@@ -3,12 +3,25 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 system="${1:-x86_64}"
+profile="${2:-full}"
 
 case "$system" in
-  x86_64) result="$repo_root/out/result-vm-x86_64" ;;
-  aarch64|arm64) result="$repo_root/out/result-vm-aarch64" ;;
+  x86_64)
+    case "$profile" in
+      full) result="$repo_root/out/result-vm-x86_64"; log_name="vm-x86_64.log" ;;
+      smoke) result="$repo_root/out/result-vm-smoke-x86_64"; log_name="vm-smoke-x86_64.log" ;;
+      *) echo "usage: scripts/run-vm [x86_64|aarch64] [full|smoke]" >&2; exit 2 ;;
+    esac
+    ;;
+  aarch64|arm64)
+    case "$profile" in
+      full) result="$repo_root/out/result-vm-aarch64"; log_name="vm-aarch64.log" ;;
+      smoke) result="$repo_root/out/result-vm-smoke-aarch64"; log_name="vm-smoke-aarch64.log" ;;
+      *) echo "usage: scripts/run-vm [x86_64|aarch64] [full|smoke]" >&2; exit 2 ;;
+    esac
+    ;;
   *)
-    echo "usage: scripts/run-vm [x86_64|aarch64]" >&2
+    echo "usage: scripts/run-vm [x86_64|aarch64] [full|smoke]" >&2
     exit 2
     ;;
 esac
@@ -26,4 +39,4 @@ exec "$repo_root/scripts/nix" shell nixpkgs#bash --command bash -lc '
     exit 1
   fi
   exec "$runner" 2>&1 | tee "$log"
-' bash "$result" "$repo_root/out/vm-$system.log"
+' bash "$result" "$repo_root/out/$log_name"

@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+if [[ "${BASICS_IN_NIX_SHELL:-0}" != "1" ]]; then
+  exec "$repo_root/scripts/nix" shell nixpkgs#qemu nixpkgs#zstd --command \
+    env BASICS_IN_NIX_SHELL=1 bash "$0" "$@"
+fi
+
+usage() {
+  cat >&2 <<'EOF'
+usage: scripts/package-smoke TARGET [options]
+
+Targets:
+  macos-intel           x86_64 zipped UTM bundle
+  macos-apple-silicon   aarch64 zipped UTM bundle
+  windows-x86           x86_64 VirtualBox VDI, optionally OVA
+  windows-arm           aarch64 VirtualBox VDI, optionally OVA
+  linux-x86             x86_64 VirtualBox VDI, optionally OVA
+
+Options:
+  --out DIR     output directory, default: out/smoke/TARGET
+  --ova         also create an importable VirtualBox .ova when VBoxManage exists
+
+This builds the minimal GUI smoke image only. It is for fast boot/import checks,
+not for release EDA validation.
+EOF
+}
+
+target="${1:-}"
+if [[ -z "$target" || "$target" == "-h" || "$target" == "--help" ]]; then
+  usage
+  exit 0
+fi
+shift
+
+out=""
+ova=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --out)
+      out="${2:?missing --out value}"
+      shift 2
+      ;;
+    --ova)
+      ova=1
+      shift
+      ;;
+    *)
+      echo "unknown option: $1" >&2
+      usage
+      exit 2
+      ;;
+  esac
+done
+
+case "$target" in
+  macos-intel)
+    nix_system="x86_64-linux"
+    arch_name="x86_64"
+    format="utm"
+    ;;
+  macos-apple-silicon)
+    nix_system="aarch64-linux"
+    arch_name="aarch64"
+    format="utm"
+    ;;
+  windows-x86|linux-x86)
+    nix_system="x86_64-linux"
+    arch_name="x86_64"
+    format="virtualbox"
+    ;;
+  windows-arm)
+    nix_system="aarch64-linux"
+    arch_name="aarch64"
+    format="virtualbox"
+    ;;
+  *)
+    echo "unsupported target: $target" >&2
+    usage
+    exit 2
+    ;;
+esac
+
+if ! command -v qemu-img >/dev/null 2>&1; then
+  echo "qemu-img is required for smoke packaging" >&2
+  exit 1
+fi
+
+out="${out:-$repo_root/out/smoke/$target}"
+result="$out/nix-qcow-result"
+pkg_dir="$out/$format"
+checksum_dir="$out/checksums"
+mkdir -p "$pkg_dir" "$checksum_dir"
+rm -f "$result"
+
+"$repo_root/scripts/nix" build ".#packages.${nix_system}.basics-smoke-qcow" -o "$result" --print-build-logs
+
+source_qcow=""
+if [[ -f "$result" ]]; then
+  source_qcow="$result"
+else
+  source_qcow="$(find -L "$result" -maxdepth 3 -type f \( -name '*.qcow2' -o -name 'nixos.qcow2' -o -name 'nixos.qcow' \) | head -1)"
+fi
+if [[ -z "$source_qcow" ]]; then
+  source_qcow="$(find -L "$result" -maxdepth 3 -type f | while read -r candidate; do
+    if qemu-img info "$candidate" >/dev/null 2>&1; then
+      qemu-img info "$candidate" | grep -q 'file format: qcow2' && printf '%s\n' "$candidate" && break
+    fi
+  done)"
+fi
+if [[ -z "$source_qcow" ]]; then
+  echo "smoke build did not produce a qcow2 image under $result" >&2
+  exit 1
+fi
+
+case "$format" in
+  utm)
+    image="$pkg_dir/basicsvm-smoke-${arch_name}-linux.qcow2"
+    rm -f "$image"
+    cp -f "$source_qcow" "$image"
+    qemu-img info "$image" > "$pkg_dir/qemu-img-info.txt"
+    if [[ "$arch_name" == "aarch64" ]]; then
+      bundle_name="bASICs-Smoke-Apple-Silicon"
+      utm_arch="aarch64"
+    else
+      bundle_name="bASICs-Smoke-Intel-Mac"
+      utm_arch="x86_64"
+    fi
+    utm_bundle="$("$repo_root/scripts/create-utm-bundle" "$image" "$pkg_dir" "$bundle_name" "$utm_arch" --no-zip)"
+    ;;
+  virtualbox)
+    image="$pkg_dir/basicsvm-smoke-${arch_name}-linux.vdi"
+    rm -f "$image"
+    qemu-img convert -p -f qcow2 -O vdi "$source_qcow" "$image"
+    qemu-img info "$image" > "$pkg_dir/qemu-img-info.txt"
+    ova_path=""
+    if [[ "$ova" -eq 1 ]]; then
+      ova_path="$pkg_dir/bASICs-Smoke-${arch_name}.ova"
+      "$repo_root/scripts/create-virtualbox-appliance" "$image" "$ova_path" \
+        --name "bASICs Smoke ${arch_name}" \
+        --cpus 2 \
+        --memory 2048 \
+        --vram 64
+    fi
+    ;;
+esac
+
+cat > "$pkg_dir/README.txt" <<EOF
+bASICs smoke image - $target
+
+This is a minimal GUI boot/import test image.
+Login user: beaver
+Password: works
+
+It intentionally does not contain the EDA toolchain.
+EOF
+
+(
+  cd "$out"
+  : > checksums/SHA256SUMS
+  sha256sum "$format/$(basename "$image")" >> checksums/SHA256SUMS
+  sha256sum "$format/qemu-img-info.txt" >> checksums/SHA256SUMS
+  sha256sum "$format/README.txt" >> checksums/SHA256SUMS
+  if [[ "$format" == "utm" ]]; then
+    find "$format/$(basename "$utm_bundle")" -type f -print0 | sort -z | xargs -0 sha256sum >> checksums/SHA256SUMS
+  fi
+  if [[ "${ova_path:-}" != "" ]]; then
+    sha256sum "$format/$(basename "$ova_path")" >> checksums/SHA256SUMS
+  fi
+)
+
+cat <<EOF
+Packaged smoke $target
+  image: $image
+  info:  $pkg_dir/qemu-img-info.txt
+  sums:  $checksum_dir/SHA256SUMS
+EOF

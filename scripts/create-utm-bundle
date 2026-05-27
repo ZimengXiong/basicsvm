@@ -3,13 +3,14 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<'EOF'
-usage: scripts/create-utm-bundle SOURCE_QCOW2 OUT_DIR NAME ARCH
+usage: scripts/create-utm-bundle SOURCE_QCOW2 OUT_DIR NAME ARCH [--no-zip]
 
-ARCH must be aarch64 or x86_64. Writes OUT_DIR/NAME.utm and OUT_DIR/NAME.utm.zip.
+ARCH must be aarch64 or x86_64. Writes OUT_DIR/NAME.utm and, unless --no-zip
+is passed, OUT_DIR/NAME.utm.zip.
 EOF
 }
 
-if [[ $# -ne 4 || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+if [[ $# -lt 4 || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   usage
   exit 2
 fi
@@ -18,6 +19,22 @@ source_image="$1"
 out_dir="$2"
 bundle_name="$3"
 arch="$4"
+shift 4
+zip_bundle=1
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --no-zip)
+      zip_bundle=0
+      shift
+      ;;
+    *)
+      echo "unknown option: $1" >&2
+      usage
+      exit 2
+      ;;
+  esac
+done
 
 if [[ ! -f "$source_image" ]]; then
   echo "missing qcow2 image: $source_image" >&2
@@ -185,6 +202,10 @@ cat > "$bundle_path/config.plist" <<EOF
     <string>default</string>
     <key>CPUCount</key>
     <integer>4</integer>
+    <key>CPUFlagsAdd</key>
+    <array/>
+    <key>CPUFlagsRemove</key>
+    <array/>
     <key>ForceMulticore</key>
     <true/>
     <key>JITCacheSize</key>
@@ -198,9 +219,11 @@ cat > "$bundle_path/config.plist" <<EOF
 </plist>
 EOF
 
-(
-  cd "$out_dir"
-  python3 -m zipfile -c "$(basename "$zip_path")" "$(basename "$bundle_path")"
-)
+if [[ "$zip_bundle" -eq 1 ]]; then
+  (
+    cd "$out_dir"
+    python3 -m zipfile -c "$(basename "$zip_path")" "$(basename "$bundle_path")"
+  )
+fi
 
-printf '%s\n' "$zip_path"
+printf '%s\n' "$([[ "$zip_bundle" -eq 1 ]] && echo "$zip_path" || echo "$bundle_path")"

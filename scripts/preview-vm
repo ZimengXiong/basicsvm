@@ -3,12 +3,13 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 system="x86_64"
+profile="full"
 rebuild=0
 no_vnc=0
 
 usage() {
   cat >&2 <<'EOF'
-usage: scripts/preview-vm [--rebuild] [--no-vnc]
+usage: scripts/preview-vm [--smoke] [--rebuild] [--no-vnc]
 
 Builds and runs the local x86_64 preview VM with external VNC/noVNC.
 
@@ -24,6 +25,10 @@ EOF
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --smoke)
+      profile="smoke"
+      shift
+      ;;
     --rebuild)
       rebuild=1
       shift
@@ -44,8 +49,14 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ "$rebuild" -eq 1 || ! -e "$repo_root/out/result-vm-$system" ]]; then
-  "$repo_root/scripts/build-vm" "$system"
+case "$profile" in
+  full) result="$repo_root/out/result-vm-$system" ;;
+  smoke) result="$repo_root/out/result-vm-smoke-$system" ;;
+  *) echo "unsupported preview profile: $profile" >&2; exit 2 ;;
+esac
+
+if [[ "$rebuild" -eq 1 || ! -e "$result" ]]; then
+  "$repo_root/scripts/build-vm" "$system" "$profile"
 fi
 
 mkdir -p "$repo_root/out/preview"
@@ -61,4 +72,4 @@ if [[ "$no_vnc" -ne 1 ]]; then
   fi
 fi
 
-exec "$repo_root/scripts/run-vm" "$system"
+exec "$repo_root/scripts/run-vm" "$system" "$profile"

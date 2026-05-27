@@ -5,13 +5,26 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 system="${1:-x86_64}"
+profile="${2:-full}"
 case "$system" in
-  x86_64) attr="nixosConfigurations.basics-x86_64.config.system.build.vm" ;;
-  aarch64|arm64) attr="nixosConfigurations.basics-aarch64.config.system.build.vm" ;;
+  x86_64)
+    case "$profile" in
+      full) attr="nixosConfigurations.basics-x86_64.config.system.build.vm"; out_name="result-vm-x86_64" ;;
+      smoke) attr="nixosConfigurations.smoke-x86_64.config.system.build.vm"; out_name="result-vm-smoke-x86_64" ;;
+      *) echo "usage: scripts/build-vm [x86_64|aarch64] [full|smoke]" >&2; exit 2 ;;
+    esac
+    ;;
+  aarch64|arm64)
+    case "$profile" in
+      full) attr="nixosConfigurations.basics-aarch64.config.system.build.vm"; out_name="result-vm-aarch64" ;;
+      smoke) attr="nixosConfigurations.smoke-aarch64.config.system.build.vm"; out_name="result-vm-smoke-aarch64" ;;
+      *) echo "usage: scripts/build-vm [x86_64|aarch64] [full|smoke]" >&2; exit 2 ;;
+    esac
+    ;;
   *)
-    echo "usage: scripts/build-vm [x86_64|aarch64]" >&2
+    echo "usage: scripts/build-vm [x86_64|aarch64] [full|smoke]" >&2
     exit 2
     ;;
 esac
 
-exec "$repo_root/scripts/nix" build ".#$attr" -o "out/result-vm-$system"
+exec "$repo_root/scripts/nix" build ".#$attr" -o "out/$out_name"
