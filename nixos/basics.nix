@@ -140,10 +140,11 @@ in
   networking.hostName = "basics";
   time.timeZone = "America/Los_Angeles";
 
+  users.mutableUsers = false;
   users.users.beaver = {
     isNormalUser = true;
     extraGroups = [ "wheel" "networkmanager" "video" ];
-    password = "works";
+    hashedPassword = "$6$RtamX2LzbF4b7DhH$VI.8wwYHbSUKI5IReuf8obvVMAnMZasVcJIOU80WM4ArOGJwRuS2.7s6HMScBJqOQQcaasrhi3jN4FaJrPFpM.";
   };
 
   services.xserver.enable = true;

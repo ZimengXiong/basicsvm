@@ -79,6 +79,7 @@ let
     XTerm*faceName: Monospace
     XTerm*faceSize: 11
   '';
+
 in
 {
   imports = lib.optionals basicsVmRunner [
@@ -93,24 +94,32 @@ in
     isNormalUser = true;
     extraGroups = [ "wheel" "networkmanager" "video" ];
     password = "works";
+    shell = pkgs.bashInteractive;
   };
+
+  systemd.defaultUnit = "graphical.target";
 
   services.xserver.enable = true;
   services.xserver.windowManager.jwm.enable = true;
   services.xserver.displayManager.lightdm.enable = true;
   services.displayManager.defaultSession = "none+jwm";
+  services.displayManager.autoLogin.enable = true;
+  services.displayManager.autoLogin.user = "beaver";
   services.xserver.resolutions = [
     {
       x = 1920;
       y = 1080;
     }
   ];
-  services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user = "beaver";
   services.xserver.xkb.layout = "us";
 
   networking.networkmanager.enable = true;
   services.openssh.enable = true;
+  services.openssh.settings = {
+    PasswordAuthentication = true;
+    KbdInteractiveAuthentication = true;
+    PermitRootLogin = "no";
+  };
   services.logrotate.checkConfig = false;
 
   environment.systemPackages = with pkgs; [
