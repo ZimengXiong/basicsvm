@@ -20,6 +20,7 @@ Options:
   --repart-build-dir DIR     assemble raw image from a kept failed Nix repart build
   --keep-raw                 keep raw image when target normally only needs converted disk
   --archive                  create a .tar.zst release archive
+  --ova                      also create a VirtualBox .ova appliance for VirtualBox targets
 
 Examples:
   scripts/package-vm windows-x86
@@ -40,6 +41,7 @@ raw_input=""
 repart_build_dir=""
 keep_raw=0
 archive=0
+ova=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -61,6 +63,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --archive)
       archive=1
+      shift
+      ;;
+    --ova)
+      ova=1
       shift
       ;;
     *)
@@ -213,6 +219,7 @@ EOF
 fi
 
 require_qemu_img
+ova_path=""
 
 case "$format" in
   utm)
@@ -231,6 +238,10 @@ case "$format" in
     rm -f "$image"
     qemu-img convert -p -f raw -O vdi "$raw_path" "$image"
     qemu-img info "$image" > "$pkg_dir/qemu-img-info.txt"
+    if [[ "$ova" -eq 1 ]]; then
+      ova_path="$pkg_dir/bASICs-VM-${arch_name}.ova"
+      "$repo_root/scripts/create-virtualbox-appliance" "$image" "$ova_path"
+    fi
     ;;
 esac
 
@@ -244,6 +255,15 @@ Password: works
 
 Import/use the disk image in this folder:
 $(basename "$image")
+
+$([[ -n "$ova_path" ]] && cat <<OVA_TEXT
+
+For VirtualBox, the preferred download is the bundled appliance:
+$(basename "$ova_path")
+
+Open VirtualBox, choose File -> Import Appliance, and select the .ova file.
+OVA_TEXT
+)
 
 $([[ "$format" == "utm" ]] && cat <<UTM_TEXT
 
@@ -269,6 +289,9 @@ EOF
     sha256sum raw/basicsvm-${arch_name}-linux.raw > checksums/SHA256SUMS
   fi
   sha256sum "$format/$(basename "$image")" >> checksums/SHA256SUMS
+  if [[ -n "$ova_path" ]]; then
+    sha256sum "$format/$(basename "$ova_path")" >> checksums/SHA256SUMS
+  fi
   if [[ "$format" == "utm" ]]; then
     sha256sum "$format/$(basename "$utm_zip")" >> checksums/SHA256SUMS
   fi

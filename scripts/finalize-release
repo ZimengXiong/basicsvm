@@ -72,11 +72,13 @@ copy_target() {
     shopt -s nullglob
     local bundles=("$source_dir"/$bundle_glob)
     shopt -u nullglob
-    if [[ "${#bundles[@]}" -ne 1 ]]; then
-      echo "expected exactly one $bundle_glob for $target in $source_dir" >&2
+    if [[ "${#bundles[@]}" -gt 1 ]]; then
+      echo "expected at most one $bundle_glob for $target in $source_dir" >&2
       exit 1
     fi
-    cp -f "${bundles[0]}" "$dest_dir/"
+    if [[ "${#bundles[@]}" -eq 1 ]]; then
+      cp -f "${bundles[0]}" "$dest_dir/"
+    fi
   fi
   cp -f "$source_dir/README.txt" "$dest_dir/"
   if [[ -f "$checksum_dir/SHA256SUMS" ]]; then
@@ -94,9 +96,9 @@ mkdir -p "$final_root"
 
 copy_target macos-apple-silicon utm '*.qcow2' '*.utm.zip'
 copy_target macos-intel utm '*.qcow2' '*.utm.zip'
-copy_target windows-arm virtualbox '*.vdi'
-copy_target windows-x86 virtualbox '*.vdi'
-copy_target linux-x86 virtualbox '*.vdi'
+copy_target windows-arm virtualbox '*.vdi' '*.ova'
+copy_target windows-x86 virtualbox '*.vdi' '*.ova'
+copy_target linux-x86 virtualbox '*.vdi' '*.ova'
 
 cat <<EOF
 Final release tree ready:

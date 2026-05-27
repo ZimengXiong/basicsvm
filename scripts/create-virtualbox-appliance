@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'EOF'
+usage: scripts/create-virtualbox-appliance VDI OUT_OVA [options]
+
+Options:
+  --name NAME       VM/appliance name, default: bASICs VM
+  --cpus N          virtual CPUs, default: 4
+  --memory MB       RAM in MiB, default: 8192
+  --vram MB         display RAM in MiB, default: 128
+  --workdir DIR     temporary VirtualBox home, default: OUT_OVA.work
+
+Creates a VirtualBox-importable .ova from an existing .vdi using VBoxManage.
+The script keeps VirtualBox registry state inside --workdir via VBOX_USER_HOME.
+EOF
+}
+
+if [[ $# -lt 2 || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 2
+fi
+
+vdi="$1"
+out_ova="$2"
+shift 2
+
+name="bASICs VM"
+cpus="4"
+memory="8192"
+vram="128"
+workdir=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --name)
+      name="${2:?missing --name value}"
+      shift 2
+      ;;
+    --cpus)
+      cpus="${2:?missing --cpus value}"
+      shift 2
+      ;;
+    --memory)
+      memory="${2:?missing --memory value}"
+      shift 2
+      ;;
+    --vram)
+      vram="${2:?missing --vram value}"
+      shift 2
+      ;;
+    --workdir)
+      workdir="${2:?missing --workdir value}"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "unknown option: $1" >&2
+      usage
+      exit 2
+      ;;
+  esac
+done
+
+if [[ ! -f "$vdi" ]]; then
+  echo "missing VDI: $vdi" >&2
+  exit 1
+fi
+
+if ! command -v VBoxManage >/dev/null 2>&1; then
+  echo "VBoxManage is required to create a VirtualBox .ova appliance." >&2
+  echo "Install VirtualBox on this builder, then rerun this command." >&2
+  exit 1
+fi
+
+case "$cpus" in
+  ''|*[!0-9]*) echo "--cpus must be an integer" >&2; exit 2 ;;
+esac
+case "$memory" in
+  ''|*[!0-9]*) echo "--memory must be an integer MiB value" >&2; exit 2 ;;
+esac
+case "$vram" in
+  ''|*[!0-9]*) echo "--vram must be an integer MiB value" >&2; exit 2 ;;
+esac
+
+vdi="$(cd "$(dirname "$vdi")" && pwd)/$(basename "$vdi")"
+out_ova="$(cd "$(dirname "$out_ova")" && pwd)/$(basename "$out_ova")"
+workdir="${workdir:-$out_ova.work}"
+vm_dir="$workdir/vms"
+vm_name="$name"
+
+rm -rf "$workdir"
+mkdir -p "$vm_dir" "$(dirname "$out_ova")"
+rm -f "$out_ova"
+
+export VBOX_USER_HOME="$workdir/vbox-home"
+
+cleanup() {
+  VBoxManage unregistervm "$vm_name" --delete >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+VBoxManage createvm \
+  --name "$vm_name" \
+  --ostype "Linux_64" \
+  --basefolder "$vm_dir" \
+  --register >/dev/null
+
+VBoxManage modifyvm "$vm_name" \
+  --memory "$memory" \
+  --cpus "$cpus" \
+  --vram "$vram" \
+  --graphicscontroller vmsvga \
+  --audio-driver none \
+  --nic1 nat \
+  --mouse usbtablet \
+  --keyboard usb \
+  --usb-ehci on \
+  --boot1 disk \
+  --boot2 none \
+  --boot3 none \
+  --boot4 none >/dev/null
+
+VBoxManage storagectl "$vm_name" \
+  --name "SATA" \
+  --add sata \
+  --controller IntelAhci \
+  --hostiocache on \
+  --bootable on >/dev/null
+
+VBoxManage storageattach "$vm_name" \
+  --storagectl "SATA" \
+  --port 0 \
+  --device 0 \
+  --type hdd \
+  --medium "$vdi" >/dev/null
+
+VBoxManage export "$vm_name" \
+  --output "$out_ova" \
+  --ovf20 \
+  --manifest
+
+VBoxManage import "$out_ova" --dry-run >/dev/null
+sha256sum "$out_ova" > "$out_ova.sha256"
+
+printf '%s\n' "$out_ova"
