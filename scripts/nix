@@ -5,6 +5,10 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 portable_dir="$repo_root/.nix-portable"
 portable_bin="$portable_dir/bin/nix-portable"
 
+if [[ "${BASICS_USE_SYSTEM_NIX:-0}" == "1" ]] && command -v nix >/dev/null 2>&1; then
+  exec nix "$@"
+fi
+
 if [[ "$(uname -s)" == "Darwin" ]]; then
   if command -v nix >/dev/null 2>&1; then
     exec nix "$@"
