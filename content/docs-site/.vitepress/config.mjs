@@ -18,10 +18,8 @@ export default {
       { text: 'Start', link: '/' },
       { text: 'Use', link: '/use/' },
       { text: 'Advanced', link: '/build/' },
+      { text: 'GitHub', link: 'https://github.com/ZimengXiong/basicsvm' },
       { text: 'Report Issue', link: 'https://github.com/ZimengXiong/basicsvm/issues/new' }
-    ],
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/ZimengXiong/basicsvm' }
     ],
     sidebar: [
       {

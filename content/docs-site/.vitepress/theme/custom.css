@@ -92,7 +92,7 @@ body {
 }
 
 .VPNavBarExtra {
-  min-width: max-content;
+  display: none !important;
 }
 
 @media (max-width: 760px) {
