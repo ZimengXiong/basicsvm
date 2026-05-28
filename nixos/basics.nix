@@ -186,6 +186,7 @@ in
     BASICS_EXAMPLES = "/home/beaver/bASICs/examples";
     BASICS_TEMPLATES = "/home/beaver/bASICs/templates";
     BASICS_SKY130_OPEN_PDKS = "0fe599b2afb6708d281543108caf8310912f54af";
+    GIO_USE_VFS = "local";
   };
 
   environment.etc."profile.d/basics.sh".text = ''
@@ -193,6 +194,7 @@ in
     export PDK_ROOT=/opt/basics/pdks
     export BASICS_EXAMPLES=/home/beaver/bASICs/examples
     export BASICS_TEMPLATES=/home/beaver/bASICs/templates
+    export GIO_USE_VFS=local
   '';
 
   environment.etc."basics-release".text = ''

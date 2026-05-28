@@ -477,7 +477,7 @@ EOF
 (
   cd "$out"
   : > checksums/SHA256SUMS
-  if [[ "$raw_is_external" -ne 1 && -f raw/basicsvm-${arch_name}-linux.raw ]]; then
+  if [[ "$keep_raw" -eq 1 && "$raw_is_external" -ne 1 && -f raw/basicsvm-${arch_name}-linux.raw ]]; then
     sha256sum raw/basicsvm-${arch_name}-linux.raw > checksums/SHA256SUMS
   fi
   sha256sum "$format/$(basename "$image")" >> checksums/SHA256SUMS
