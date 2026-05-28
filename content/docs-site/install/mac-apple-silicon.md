@@ -7,6 +7,11 @@ Use this page for Macs with Apple Silicon processors: M1, M2, M3, M4, or newer.
 
 ## Install
 
+<VideoPlayer src="/videos/mac-apple-silicon-install-demo.mp4" title="macOS Apple Silicon install demo" />
+
+> [!NOTE]
+> The video assumes you have already downloaded all required files and installed UTM.
+
 1. Install [UTM 4.7.5](https://github.com/utmapp/UTM/releases/download/v4.7.5/UTM.dmg).
 2. Download [bASICs VM for Apple Silicon](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/55ea8cb/macos-apple-silicon/bASICs-VM-Apple-Silicon.utm.zip?download=true).
 3. Unzip the downloaded VM file.

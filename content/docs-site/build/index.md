@@ -16,19 +16,24 @@ These builds need enough local storage, CPU, and memory to keep the VM image and
 | Build time | About 6 to 10 minutes per release build |
 | ARM releases | A native ARM Linux builder |
 
+## Get the source
+
+```bash
+git clone https://github.com/ZimengXiong/basicsvm.git
+cd basicsvm
+```
+
 ## Build a local VM
 
 For a local x86_64 VM build:
 
 ```bash
-cd basicsvm
 scripts/build-vm x86_64
 ```
 
 On an ARM builder:
 
 ```bash
-cd basicsvm
 scripts/build-vm aarch64
 ```
 
@@ -44,7 +49,6 @@ out/result-vm-aarch64
 Use the target for the student platform you are publishing:
 
 ```bash
-cd basicsvm
 scripts/package-vm macos-apple-silicon
 scripts/package-vm macos-intel
 scripts/package-vm windows-x86
@@ -65,7 +69,6 @@ Linux ARM is not a supported student release target.
 For a full release batch:
 
 ```bash
-cd basicsvm
 scripts/build-release local
 scripts/build-release x86
 BASICS_ARM_BUILDER=xzm@xzm.local scripts/build-release arm
@@ -77,7 +80,6 @@ scripts/finalize-release
 Before publishing, run the checks:
 
 ```bash
-cd basicsvm
 scripts/nix flake check
 scripts/verify-source
 scripts/verify-fresh

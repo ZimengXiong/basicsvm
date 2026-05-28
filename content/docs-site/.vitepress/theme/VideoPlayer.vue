@@ -56,8 +56,19 @@ function triggerControlsVisibility() {
   }
 }
 
+function handleKeyDown(event) {
+  if (event.key === 'Escape' && wide.value) {
+    wide.value = false
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown)
+})
+
 onBeforeUnmount(() => {
   if (controlsTimeout) clearTimeout(controlsTimeout)
+  window.removeEventListener('keydown', handleKeyDown)
 })
 </script>
 
