@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd content/docs-site && npm install",
+  "buildCommand": "cd content/docs-site && npm run build",
+  "outputDirectory": "content/docs-site/.vitepress/dist"
+}
