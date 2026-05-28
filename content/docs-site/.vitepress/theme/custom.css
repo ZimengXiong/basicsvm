@@ -245,7 +245,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000000;
+  background: transparent;
   box-shadow: none !important;
   animation: videoFadeIn 0.22s ease-out forwards;
 }
@@ -260,10 +260,10 @@ body {
 }
 
 .video-shell.is-wide .video-container {
-  width: 100vw;
+  width: calc(100vw - 48px);
+  max-width: 1200px;
   height: auto;
-  max-width: 100%;
-  max-height: 100vh;
+  max-height: calc(100vh - 48px);
   border-radius: 0 !important;
   overflow: hidden;
 }
@@ -644,11 +644,6 @@ body {
 }
 
 @media (max-width: 720px) {
-  .video-shell.is-wide {
-    width: calc(100vw - 20px);
-    max-height: calc(100vh - 32px);
-    border-radius: 10px;
-  }
 
   .platform-rows {
     gap: 8px;
