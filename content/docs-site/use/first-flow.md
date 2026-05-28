@@ -26,22 +26,27 @@ openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
 
 ## What success looks like
 
-A successful flow creates a `runs` directory in your copied project. Each OpenLane run gets its own timestamped folder:
+A successful flow creates a `runs` directory in your copied project.
 
 ```text
-runs/RUN_<date>_<time>/
+my-sky130-counter
+├── config.yaml
+├── pin_order.cfg
+├── runs
+└── src
 ```
 
-Inside that run folder, OpenLane records the flow steps, logs, temporary files, and final outputs. The exact step list can change between OpenLane versions and designs, but it will look roughly like this:
+Each run gets its own timestamped folder:
+
+```text
+runs
+└── RUN_2026-05-27_16-51-04
+```
+
+Inside the run folder, you will see flow steps, logs, temporary files, and `final`:
 
 ```bash
-# List the runs created for this copied project.
-ls runs
-
-# Open one run directory. Your run name will be different.
 cd runs/RUN_2026-05-27_16-51-04
-
-# List the flow steps and top-level run files.
 ls
 ```
 
@@ -71,19 +76,11 @@ tmp
 warning.log
 ```
 
-## Check for generated files
-
-The `final` directory is the main place to look after the flow finishes:
+The `final` directory contains the main outputs:
 
 ```bash
-# From the copied project directory, list final output groups.
-tree runs/*/final -L 1
-
-# Print the final GDS file produced by the flow.
-find runs -path '*/final/gds/*.gds' -print
+tree final -L 1
 ```
-
-Example `final` directory:
 
 ```text
 final
@@ -107,16 +104,11 @@ final
 └── vh
 ```
 
-These are common output groups for this example, not a complete list of every file OpenLane can produce. Different designs, settings, or tool versions can add, remove, or rename outputs.
-
-To see the files inside each group, increase the tree depth:
+To see the files inside those folders:
 
 ```bash
-# Show files one level below each final output group.
-tree runs/*/final -L 2
+tree final -L 2
 ```
-
-Example:
 
 ```text
 final
@@ -133,6 +125,10 @@ final
 ├── metrics.csv
 └── metrics.json
 ```
+
+This is not an exhaustive list; the exact outputs can vary by design and tool settings.
+
+## Open the layout
 
 Open the generated layout with KLayout:
 
