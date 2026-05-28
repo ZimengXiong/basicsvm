@@ -26,7 +26,7 @@ openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
 
 ## What success looks like
 
-A successful flow creates a `runs` directory in your copied project.
+OpenLane writes run data into a `runs` directory in your copied project.
 
 ```text
 my-sky130-counter
@@ -36,7 +36,7 @@ my-sky130-counter
 └── src
 ```
 
-Each run gets its own timestamped folder:
+Each run gets its own timestamped folder. A completed run should include a `final` directory inside that folder.
 
 ```text
 runs
