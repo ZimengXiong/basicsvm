@@ -1,10 +1,10 @@
 # bASICs VM
 
-a prebuilt Linux desktop for that packages EDA tools, the SKY130 PDK, examples, templates, and documentation into VM images for supporting x86 and AArch64 across macOS, Windows, and Linux.
+A prebuilt Linux desktop that packages EDA tools, the SKY130 PDK, examples, templates, and documentation into VM images for x86 and AArch64 machines across macOS, Windows, and Linux.
 
 ![bASICs VM desktop](content/docs-site/public/images/desktop-auto-login.webp)
 
-RTD at [basics.alpacawebservices.com](https://basics.alpacawebservices.com).
+Docs: [basics.alpacawebservices.com](https://basics.alpacawebservices.com).
 
 This monorepo builds the VM from source. `flake.nix` is the main Nix entrypoint. The `nix/` directory defines the packaged tools, PDKs, templates, and docs. The `nixos/` directory defines the actual VM system (i.e. desktop setup, user account, filesystem layout, services, shortcuts, and environment variables.)
 
