@@ -86,6 +86,21 @@ body {
   border-color: var(--vp-c-border) !important;
 }
 
+.VPNavBarMenu {
+  display: flex !important;
+  min-width: max-content;
+}
+
+.VPNavBarExtra {
+  min-width: max-content;
+}
+
+@media (max-width: 760px) {
+  .VPNavBarMenu {
+    display: none !important;
+  }
+}
+
 .VPDoc h1,
 .VPDoc h2,
 .VPDoc h3 {

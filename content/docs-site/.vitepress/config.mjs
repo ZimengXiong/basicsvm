@@ -17,7 +17,11 @@ export default {
     nav: [
       { text: 'Start', link: '/' },
       { text: 'Use', link: '/use/' },
-      { text: 'Advanced', link: '/build/' }
+      { text: 'Advanced', link: '/build/' },
+      { text: 'Report Issue', link: 'https://github.com/ZimengXiong/basicsvm/issues/new' }
+    ],
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/ZimengXiong/basicsvm' }
     ],
     sidebar: [
       {
@@ -56,7 +60,7 @@ export default {
       }
     ],
     footer: {
-      message: 'Built from the bASICs VM repository.',
+      message: 'Run into an issue? <a href="https://github.com/ZimengXiong/basicsvm/issues/new">Report it on GitHub</a>.',
       copyright: 'Static docs for public hosting and offline VM bundling.'
     }
   }
