@@ -14,11 +14,6 @@ Use this page for Windows PCs with an ARM processor.
 5. Use the downloaded `.vdi` as the VM disk.
 6. Start the VM.
 
-The desktop logs in automatically. For SSH or terminal login:
-
-```text
-user: beaver
-password: works
-```
+The desktop logs in automatically.
 
 Next: [First Boot](../start/first-boot.md).

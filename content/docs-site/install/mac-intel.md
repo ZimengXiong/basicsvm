@@ -13,11 +13,6 @@ Use this page for Macs with an Intel processor.
 4. Open the `.utm` bundle in UTM.
 5. Start the VM.
 
-The desktop logs in automatically. For SSH or terminal login:
-
-```text
-user: beaver
-password: works
-```
+The desktop logs in automatically.
 
 Next: [First Boot](../start/first-boot.md).

@@ -22,7 +22,7 @@ The `bASICs` folder on the desktop and the `bASICs` folder in Documents both poi
 │   ├── templates
 │   │   ├── reference-upstream
 │   │   └── sky130-rtl2gds
-│   └── work
+│   └── work  <-- put your project files here
 ├── Desktop
 │   ├── bASICs -> /home/beaver/bASICs
 │   └── bASICs-Docs.desktop
