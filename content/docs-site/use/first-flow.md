@@ -5,13 +5,13 @@ This example checks that the VM, OpenLane, and SKY130 PDK are usable.
 ## Copy the example
 
 ```bash
-# Run from anywhere: move into the writable workspace.
+# ~/bASICs/work
 cd ~/bASICs/work
 
-# Run from ~/bASICs/work: copy the reference example.
+# ~/bASICs/work
 cp -R ../examples/sky130-counter my-sky130-counter
 
-# Run from ~/bASICs/work: enter your copied project.
+# ~/bASICs/work
 cd my-sky130-counter
 ```
 
@@ -20,7 +20,7 @@ cd my-sky130-counter
 Run OpenLane:
 
 ```bash
-# Run from ~/bASICs/work/my-sky130-counter.
+# ~/bASICs/work/my-sky130-counter
 openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
 ```
 
@@ -36,7 +36,7 @@ my-sky130-counter
 └── src
 ```
 
-Each run gets its own timestamped folder. A completed run should include a `final` directory inside that folder.
+Each run gets its own timestamped folder. In that folder, you can inspect available run artifacts.
 
 ```text
 runs
@@ -48,13 +48,15 @@ runs
 Move into the timestamped run folder and list its contents:
 
 ```bash
-# Run from ~/bASICs/work/my-sky130-counter.
+# ~/bASICs/work/my-sky130-counter
 cd runs/RUN_2026-05-27_16-51-04
 ls
 ```
 
 > [!NOTE]
 > Replace `RUN_2026-05-27_16-51-04` with the run folder that OpenLane created on your VM.
+
+A completed run should include a `final` directory inside that folder.
 
 Inside the run folder, you will see flow steps, logs, temporary files, and `final`.
 
@@ -90,7 +92,7 @@ warning.log
 The `final` directory contains the main outputs:
 
 ```bash
-# Run from ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04.
+# ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04
 tree final -L 1
 ```
 
@@ -119,7 +121,7 @@ final
 To see the files inside those folders:
 
 ```bash
-# Run from ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04.
+# ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04
 tree final -L 2
 ```
 
@@ -145,14 +147,14 @@ final
 Open the generated GDS layout with KLayout:
 
 ```bash
-# Run from ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04.
+# ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04
 klayout final/klayout_gds/counter.klayout.gds
 ```
 
 Open the Magic layout with the SKY130A tech file:
 
 ```bash
-# Run from ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04.
+# ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04
 cd final/mag
 magic -T "$PDK_ROOT/sky130A/libs.tech/magic/sky130A.tech" counter.mag
 ```
