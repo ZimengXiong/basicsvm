@@ -74,7 +74,7 @@ esac
 
 rm -rf "$bundle_path" "$zip_path"
 mkdir -p "$bundle_path/Data"
-cp -f "$source_image" "$bundle_path/Data/disk-0.qcow2"
+ln -f "$source_image" "$bundle_path/Data/disk-0.qcow2" 2>/dev/null || cp -f "$source_image" "$bundle_path/Data/disk-0.qcow2"
 rm -f "$bundle_path/Data/efi_vars.fd"
 
 cat > "$bundle_path/config.plist" <<EOF
