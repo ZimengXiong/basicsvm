@@ -13,6 +13,7 @@ Targets:
   windows-x86           x86_64 VirtualBox OVA
   windows-arm           aarch64 VirtualBox VDI
   linux-x86             x86_64 VirtualBox OVA
+  linux-arm             aarch64 QEMU qcow2 disk image
 
 Options:
   --out DIR                  output directory, default: out/release/TARGET
@@ -97,6 +98,11 @@ case "$target" in
     nix_system="aarch64-linux"
     arch_name="aarch64"
     format="virtualbox"
+    ;;
+  linux-arm)
+    nix_system="aarch64-linux"
+    arch_name="aarch64"
+    format="qemu"
     ;;
   *)
     echo "unsupported target: $target" >&2
@@ -285,7 +291,7 @@ assemble_from_repart_build_dir() {
   )
 }
 
-if [[ "$format" == "utm" && -z "$raw_input" && -z "$repart_build_dir" ]]; then
+if [[ ( "$format" == "utm" || "$format" == "qemu" ) && -z "$raw_input" && -z "$repart_build_dir" ]]; then
   require_qemu_img
   result_dir="$out/nix-qcow-result"
   rm -f "$result_dir"
@@ -295,24 +301,37 @@ if [[ "$format" == "utm" && -z "$raw_input" && -z "$repart_build_dir" ]]; then
   rm -f "$image"
   cp -f "$(find_built_qcow "$result_dir")" "$image"
   qemu-img info "$image" > "$pkg_dir/qemu-img-info.txt"
-  if [[ "$nix_system" == "aarch64-linux" ]]; then
-    utm_zip="$("$repo_root/scripts/create-utm-bundle" "$image" "$pkg_dir" "bASICs-VM-Apple-Silicon" aarch64)"
-  else
-    utm_zip="$("$repo_root/scripts/create-utm-bundle" "$image" "$pkg_dir" "bASICs-VM-Intel-Mac" x86_64)"
+  if [[ "$format" == "utm" ]]; then
+    if [[ "$nix_system" == "aarch64-linux" ]]; then
+      utm_zip="$("$repo_root/scripts/create-utm-bundle" "$image" "$pkg_dir" "bASICs-VM-Apple-Silicon" aarch64)"
+    else
+      utm_zip="$("$repo_root/scripts/create-utm-bundle" "$image" "$pkg_dir" "bASICs-VM-Intel-Mac" x86_64)"
+    fi
   fi
 
   cat > "$pkg_dir/README.txt" <<EOF
 bASICs VM - $target
 
-Recommended app: UTM
+Recommended app: $([[ "$format" == "utm" ]] && echo "UTM" || echo "QEMU or virt-manager")
 VM architecture: $nix_system
 Login user: beaver
 Password: works
 
+$([[ "$format" == "qemu" ]] && cat <<QEMU_TEXT
+Use this disk image with QEMU, virt-manager, or another Linux virtualization frontend:
+$(basename "$image")
+
+QEMU example:
+qemu-system-aarch64 -machine virt -cpu cortex-a72 -m 8192 -smp 4 -drive if=virtio,file=$(basename "$image") -device virtio-gpu-pci -device virtio-net-pci,netdev=net0 -netdev user,id=net0
+QEMU_TEXT
+)
+$([[ "$format" == "utm" ]] && cat <<UTM_TEXT
 For Mac, the preferred download is the bundled UTM VM:
 $(basename "$utm_zip")
 
 Unzip it, then open the .utm bundle in UTM.
+UTM_TEXT
+)
 
 Suggested VM resources:
 - RAM: 8 GB minimum
@@ -326,7 +345,9 @@ EOF
     cd "$out"
     : > checksums/SHA256SUMS
     sha256sum "$format/$(basename "$image")" >> checksums/SHA256SUMS
-    sha256sum "$format/$(basename "$utm_zip")" >> checksums/SHA256SUMS
+    if [[ "$format" == "utm" ]]; then
+      sha256sum "$format/$(basename "$utm_zip")" >> checksums/SHA256SUMS
+    fi
     sha256sum "$format/README.txt" >> checksums/SHA256SUMS
   )
 

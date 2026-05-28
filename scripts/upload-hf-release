@@ -126,6 +126,7 @@ manifest = {
         "windows-arm",
         "windows-x86",
         "linux-x86",
+        "linux-arm",
     ],
     "files": files,
 }

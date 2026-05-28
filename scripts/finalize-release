@@ -99,6 +99,7 @@ copy_target macos-intel utm '*.qcow2' '*.utm.zip'
 copy_target windows-arm virtualbox '*.vdi' '*.ova'
 copy_target windows-x86 virtualbox '*.ova'
 copy_target linux-x86 virtualbox '*.ova'
+copy_target linux-arm qemu '*.qcow2'
 
 cat <<EOF
 Final release tree ready:
@@ -110,4 +111,5 @@ Targets:
   windows-arm
   windows-x86
   linux-x86
+  linux-arm
 EOF
