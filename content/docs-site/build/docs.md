@@ -2,6 +2,13 @@
 
 The docs source is in `content/docs-site`.
 
+## Get the source
+
+```bash
+git clone https://github.com/ZimengXiong/basicsvm.git
+cd basicsvm
+```
+
 ## Preview
 
 ```bash
@@ -21,12 +28,4 @@ http://localhost:5173/
 ```bash
 cd content/docs-site
 npm run build
-```
-
-## VM docs launcher
-
-The VM does not include a separate offline docs build. The desktop docs launcher opens:
-
-```text
-https://basics.alpacawebservices.com
 ```

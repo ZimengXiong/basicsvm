@@ -2,10 +2,16 @@
 
 Local Nix is useful when you want to check packages, tools, examples, or PDK layout without booting the full VM.
 
+## Get the source
+
+```bash
+git clone https://github.com/ZimengXiong/basicsvm.git
+cd basicsvm
+```
+
 ## Enter the dev shell
 
 ```bash
-cd basicsvm
 scripts/dev-shell
 ```
 
@@ -20,11 +26,9 @@ BASICS_EXAMPLES=$PWD/examples
 ## Build the main outputs
 
 ```bash
-cd basicsvm
 scripts/nix build .#basics-profile -o out/result-profile
 scripts/nix build .#basics-templates -o out/result-templates
 scripts/nix build .#basics-pdks -o out/result-pdks
-scripts/nix build .#basics-docs-site -o out/result-docs
 ```
 
 ## Smoke test the tools
