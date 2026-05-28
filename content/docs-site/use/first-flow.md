@@ -21,7 +21,7 @@ Run OpenLane:
 
 ```bash
 # Run OpenLane with the VM-provided PDK location.
-openlane --pdk-root "$PDK_ROOT" config.yaml
+openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
 ```
 
 ## What success looks like

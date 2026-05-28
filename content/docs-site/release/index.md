@@ -62,5 +62,5 @@ Before publishing release artifacts:
 1. Confirm artifact names match the platform install pages.
 2. Boot one x86 target and one ARM target.
 3. Confirm login credentials from `/etc/basics-release`.
-4. Run `openlane --pdk-root "$PDK_ROOT" config.yaml` from a copied `sky130-counter`.
+4. Run `openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml` from a copied `sky130-counter`.
 5. Open the bundled docs from the desktop shortcut.

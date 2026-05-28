@@ -36,7 +36,7 @@ cd my-sky130-counter
 Run OpenLane:
 
 ```bash
-openlane --pdk-root "$PDK_ROOT" config.yaml
+openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
 ```
 
 ## Inspect outputs

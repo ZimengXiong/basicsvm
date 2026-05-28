@@ -25,7 +25,7 @@ Do not run the flow from the read-only example directory. Copy the project first
 cd ~/bASICs/work
 cp -R ../examples/sky130-counter debug-counter
 cd debug-counter
-openlane --pdk-root "$PDK_ROOT" config.yaml
+openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
 ```
 
 ## Find the failing step

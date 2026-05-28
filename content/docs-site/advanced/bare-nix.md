@@ -42,7 +42,7 @@ For an example flow:
 
 ```bash
 cd examples/sky130-counter
-openlane --pdk-root "$PDK_ROOT" config.yaml
+openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
 ```
 
 The dev shell is useful for source validation and local experimentation. The full VM remains the target environment for workshops.
