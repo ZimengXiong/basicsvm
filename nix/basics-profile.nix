@@ -66,7 +66,6 @@ markdown = mistune.create_markdown()
 
 pages = [
     pathlib.Path("index.md"),
-    pathlib.Path("start/index.md"),
     pathlib.Path("start/first-boot.md"),
     pathlib.Path("use/index.md"),
     pathlib.Path("use/first-flow.md"),

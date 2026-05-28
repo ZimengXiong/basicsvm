@@ -15,7 +15,7 @@ export default {
     logo: '/logo.webp',
     siteTitle: 'bASICs VM',
     nav: [
-      { text: 'Start', link: '/start/' },
+      { text: 'Start', link: '/' },
       { text: 'Use', link: '/use/' },
       { text: 'Advanced', link: '/build/' }
     ],
@@ -23,7 +23,7 @@ export default {
       {
         text: 'Start',
         items: [
-          { text: 'Start Here', link: '/start/' },
+          { text: 'Start Here', link: '/' },
           { text: 'macOS Apple Silicon', link: '/install/mac-apple-silicon' },
           { text: 'macOS Intel', link: '/install/mac-intel' },
           { text: 'Windows x86', link: '/install/windows-x86' },
