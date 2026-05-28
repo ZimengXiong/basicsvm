@@ -21,10 +21,3 @@ password: works
 ```
 
 Next: [First Boot](../start/first-boot.md).
-
-## Downloads
-
-| File | Direct link |
-| --- | --- |
-| bASICs VM | [bASICs-VM-Apple-Silicon.utm.zip](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/55ea8cb/macos-apple-silicon/bASICs-VM-Apple-Silicon.utm.zip?download=true) |
-| UTM | [UTM.dmg](https://github.com/utmapp/UTM/releases/download/v4.7.5/UTM.dmg) |
