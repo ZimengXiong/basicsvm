@@ -42,15 +42,11 @@
 }
 
 body {
-  background:
-    linear-gradient(180deg, rgba(204, 160, 0, 0.05), rgba(255, 255, 255, 0) 300px),
-    var(--vp-c-bg);
+  background: var(--vp-c-bg);
 }
 
 .dark body {
-  background:
-    linear-gradient(180deg, rgba(241, 207, 53, 0.04), rgba(30, 30, 32, 0) 300px),
-    var(--vp-c-bg);
+  background: var(--vp-c-bg);
 }
 
 .VPNavBarTitle .title {

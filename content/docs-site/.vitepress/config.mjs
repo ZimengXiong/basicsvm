@@ -1,10 +1,18 @@
 export default {
-  title: 'bASICs VM',
-  description: 'Static documentation for the bASICs VM open silicon desktop environment.',
+  title: 'Start Here - bASICs VM',
+  description: 'Start Here - bASICs VM',
   cleanUrls: true,
   ignoreDeadLinks: true,
   head: [
-    ['link', { rel: 'icon', href: '/favicon.png' }]
+    ['link', { rel: 'icon', href: '/favicon.png' }],
+    ['meta', { property: 'og:title', content: 'Start Here - bASICs VM' }],
+    ['meta', { property: 'og:description', content: 'Start Here - bASICs VM' }],
+    ['meta', { property: 'og:image', content: 'https://basics.alpacawebservices.com/images/desktop-auto-login.webp' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['meta', { name: 'twitter:title', content: 'Start Here - bASICs VM' }],
+    ['meta', { name: 'twitter:description', content: 'Start Here - bASICs VM' }],
+    ['meta', { name: 'twitter:image', content: 'https://basics.alpacawebservices.com/images/desktop-auto-login.webp' }]
   ],
   vite: {
     build: {
