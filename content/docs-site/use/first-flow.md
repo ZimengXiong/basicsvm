@@ -2,7 +2,7 @@
 
 This example checks that the VM, OpenLane, and SKY130 PDK are usable.
 
-<video controls src="https://raw.githubusercontent.com/ZimengXiong/basicsvm/main/content/docs-site/public/videos/first-flow-demo.mp4" style="width: 100%; border-radius: 8px;"></video>
+<VideoPlayer src="/videos/first-flow-demo.mp4" title="First Flow demo" />
 
 ## Copy the example
 

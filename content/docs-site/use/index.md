@@ -30,6 +30,17 @@ The `bASICs` folder on the desktop and the `bASICs` folder in Documents both poi
     └── bASICs -> /home/beaver/bASICs
 ```
 
+Only edit files inside `~/bASICs/work`. The `examples` and `templates` folders are read-only reference folders and cannot be written to.
+
+> [!WARNING]
+> Running flows directly inside `examples` or `templates` can fail. Copy the project into `work` first:
+>
+> ```bash
+> cd ~/bASICs/work
+> cp -R ../examples/sky130-counter my-sky130-counter
+> cd my-sky130-counter
+> ```
+
 ## PDK
 
 The PDK is configured through `$PDK_ROOT`. Use that environment variable when a tool asks for the PDK location.

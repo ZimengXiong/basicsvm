@@ -44,9 +44,7 @@ export default {
         text: 'Use',
         items: [
           { text: 'VM Basics', link: '/use/' },
-          { text: 'First Flow', link: '/use/first-flow' },
-          { text: 'Find Results', link: '/use/results' },
-          { text: 'Examples and Work', link: '/using/examples-templates-work' }
+          { text: 'First Flow', link: '/use/first-flow' }
         ]
       },
       {
