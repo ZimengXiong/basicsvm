@@ -17,9 +17,7 @@ export default {
     nav: [
       { text: 'Start', link: '/start/' },
       { text: 'Use', link: '/use/' },
-      { text: 'Build', link: '/build/' },
-      { text: 'Help', link: '/help/' },
-      { text: 'Reference', link: '/reference/tools' }
+      { text: 'Advanced', link: '/build/' }
     ],
     sidebar: [
       {
@@ -43,23 +41,13 @@ export default {
         ]
       },
       {
-        text: 'Build',
+        text: 'Advanced',
         items: [
           { text: 'Build from Source', link: '/build/' },
           { text: 'Local Nix Usage', link: '/build/local-nix' },
-          { text: 'Work on the Docs', link: '/build/docs' }
-        ]
-      },
-      {
-        text: 'Help',
-        items: [
+          { text: 'Work on the Docs', link: '/build/docs' },
           { text: 'VM Troubleshooting', link: '/help/' },
-          { text: 'OpenLane Troubleshooting', link: '/help/openlane' }
-        ]
-      },
-      {
-        text: 'Reference',
-        items: [
+          { text: 'OpenLane Troubleshooting', link: '/help/openlane' },
           { text: 'Reference', link: '/reference/tools' },
           { text: 'PDK Locations', link: '/using/pdk-locations' },
           { text: 'VM Filesystem Layout', link: '/using/filesystem-layout' },
