@@ -10,6 +10,7 @@ Options:
   --cpus N          virtual CPUs, default: 4
   --memory MB       RAM in MiB, default: 8192
   --vram MB         display RAM in MiB, default: 128
+  --ostype ID       VirtualBox OS type, default: Linux_64
   --workdir DIR     temporary VirtualBox home, default: OUT_OVA.work
 
 Creates a VirtualBox-importable .ova from an existing .vdi using VBoxManage.
@@ -30,6 +31,7 @@ name="bASICs VM"
 cpus="4"
 memory="8192"
 vram="128"
+ostype="Linux_64"
 workdir=""
 
 while [[ $# -gt 0 ]]; do
@@ -48,6 +50,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --vram)
       vram="${2:?missing --vram value}"
+      shift 2
+      ;;
+    --ostype)
+      ostype="${2:?missing --ostype value}"
       shift 2
       ;;
     --workdir)
@@ -106,7 +112,7 @@ trap cleanup EXIT
 
 VBoxManage createvm \
   --name "$vm_name" \
-  --ostype "Linux_64" \
+  --ostype "$ostype" \
   --basefolder "$vm_dir" \
   --register >/dev/null
 

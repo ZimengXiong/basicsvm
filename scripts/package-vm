@@ -417,7 +417,11 @@ case "$format" in
     qemu-img info "$image" > "$pkg_dir/qemu-img-info.txt"
     if [[ "$ova" -eq 1 ]]; then
       ova_path="$pkg_dir/bASICs-VM-${arch_name}.ova"
-      "$repo_root/scripts/create-virtualbox-appliance" "$image" "$ova_path"
+      ova_ostype="Linux_64"
+      if [[ "$arch_name" == "aarch64" ]]; then
+        ova_ostype="Debian_arm64"
+      fi
+      "$repo_root/scripts/create-virtualbox-appliance" "$image" "$ova_path" --ostype "$ova_ostype"
     fi
     ;;
   qemu)
