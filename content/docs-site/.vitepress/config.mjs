@@ -3,19 +3,21 @@ export default {
   description: 'Static documentation for the bASICs VM open silicon desktop environment.',
   cleanUrls: true,
   ignoreDeadLinks: true,
+  head: [
+    ['link', { rel: 'icon', href: '/favicon.png' }]
+  ],
   vite: {
     build: {
       minify: false
     }
   },
   themeConfig: {
-    logo: '/logo.svg',
+    logo: '/logo.webp',
     siteTitle: 'bASICs VM',
     nav: [
       { text: 'Start', link: '/' },
       { text: 'Use', link: '/use/' },
       { text: 'Build', link: '/build/' },
-      { text: 'Release', link: '/release/' },
       { text: 'Help', link: '/help/' },
       { text: 'Reference', link: '/reference/tools' }
     ],
@@ -56,28 +58,19 @@ export default {
         ]
       },
       {
-        text: 'Release',
-        items: [
-          { text: 'Release Images', link: '/release/' }
-        ]
-      },
-      {
         text: 'Help',
         items: [
-          { text: 'Troubleshooting', link: '/help/' },
-          { text: 'Install Problems', link: '/help/install' },
-          { text: 'Networking Problems', link: '/help/networking' },
-          { text: 'OpenLane Problems', link: '/help/openlane' }
+          { text: 'VM Troubleshooting', link: '/help/' },
+          { text: 'OpenLane Troubleshooting', link: '/help/openlane' }
         ]
       },
       {
         text: 'Reference',
         items: [
+          { text: 'Reference', link: '/reference/tools' },
           { text: 'PDK Locations', link: '/using/pdk-locations' },
           { text: 'VM Filesystem Layout', link: '/using/filesystem-layout' },
-          { text: 'Tools Inventory', link: '/reference/tools' },
-          { text: 'Check Environment', link: '/advanced/check-environment' },
-          { text: 'Legacy Getting Started', link: '/getting-started' }
+          { text: 'Check Environment', link: '/advanced/check-environment' }
         ]
       }
     ],

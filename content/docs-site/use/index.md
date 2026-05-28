@@ -30,27 +30,6 @@ The `bASICs` folder on the desktop and the `bASICs` folder in Documents both poi
     └── bASICs -> /home/beaver/bASICs
 ```
 
-## Work folder
-
-Use `~/bASICs/work` for anything you edit. It starts empty and is the only project area meant for your changes.
-
-```bash
-cd ~/bASICs/work
-```
-
-## Examples and templates
-
-The `examples` and `templates` folders are read-only reference material. Do not edit files there, and do not run project flows directly from those folders. Copy an example or template into `work` first, then run commands from the copied project. Running tools in the reference folders can fail because those directories are not meant to hold generated outputs.
-
-> [!WARNING]
-> Running flows directly inside `examples` or `templates` can fail. For example, copy the counter example into `work` before running it:
->
-> ```bash
-> cd ~/bASICs/work
-> cp -R ../examples/sky130-counter my-sky130-counter
-> cd my-sky130-counter
-> ```
-
 ## PDK
 
 The PDK is configured through `$PDK_ROOT`. Use that environment variable when a tool asks for the PDK location.

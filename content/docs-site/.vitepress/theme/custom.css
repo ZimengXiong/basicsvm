@@ -1,0 +1,94 @@
+:root {
+  --vp-c-brand-1: #7a6100;
+  --vp-c-brand-2: #a48600;
+  --vp-c-brand-3: #e2ba03;
+  --vp-c-brand-soft: rgba(226, 186, 3, 0.18);
+  --vp-c-bg: #fffbea;
+  --vp-c-bg-alt: #f8efc8;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-bg-soft: #fcf3cf;
+  --vp-c-text-1: #17140a;
+  --vp-c-text-2: #4d4427;
+  --vp-c-text-3: #766a40;
+  --vp-c-border: #dfd2a6;
+  --vp-c-divider: #eadfbd;
+  --vp-font-family-base: "Atkinson Hyperlegible", "Aptos", "Segoe UI", sans-serif;
+  --vp-font-family-mono: "IBM Plex Mono", "Cascadia Code", "SFMono-Regular", monospace;
+}
+
+.dark {
+  --vp-c-brand-1: #f1cf35;
+  --vp-c-brand-2: #e2ba03;
+  --vp-c-brand-3: #a48600;
+  --vp-c-brand-soft: rgba(226, 186, 3, 0.22);
+  --vp-c-bg: #10100d;
+  --vp-c-bg-alt: #18160f;
+  --vp-c-bg-elv: #1d1a11;
+  --vp-c-bg-soft: #18160f;
+  --vp-c-text-1: #f7f1df;
+  --vp-c-text-2: #d4c89f;
+  --vp-c-text-3: #a99d76;
+  --vp-c-border: #493b12;
+  --vp-c-divider: #32280d;
+}
+
+body {
+  background:
+    linear-gradient(180deg, rgba(226, 186, 3, 0.14), rgba(255, 251, 234, 0) 260px),
+    var(--vp-c-bg);
+}
+
+.dark body {
+  background:
+    linear-gradient(180deg, rgba(226, 186, 3, 0.10), rgba(16, 16, 13, 0) 260px),
+    var(--vp-c-bg);
+}
+
+.VPNavBarTitle .title {
+  color: var(--vp-c-brand-1);
+  font-weight: 800;
+}
+
+.VPNavBarTitle img {
+  border-radius: 4px;
+}
+
+.VPDoc h1,
+.VPDoc h2,
+.VPDoc h3 {
+  color: var(--vp-c-text-1);
+}
+
+.VPDoc a {
+  color: var(--vp-c-brand-1);
+  text-decoration-color: rgba(122, 97, 0, 0.42);
+}
+
+.VPDoc th {
+  background-color: var(--vp-c-bg-soft);
+}
+
+.VPDoc tr:nth-child(2n) {
+  background-color: rgba(226, 186, 3, 0.05);
+}
+
+.VPDoc div[class*='language-'],
+.VPDoc [class*='language-'] pre {
+  background-color: var(--vp-c-bg-alt);
+}
+
+.VPDoc :not(pre) > code {
+  color: var(--vp-c-text-1);
+  background-color: var(--vp-c-brand-soft);
+}
+
+.custom-block.note,
+.custom-block.warning {
+  border-color: var(--vp-c-brand-2);
+  background-color: var(--vp-c-brand-soft);
+}
+
+.VPSidebarItem.is-active > .item .link > .text,
+.VPNavBarMenuLink.active {
+  color: var(--vp-c-brand-1);
+}

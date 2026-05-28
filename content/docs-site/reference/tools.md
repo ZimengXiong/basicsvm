@@ -1,46 +1,100 @@
-# Tools Inventory
+# Reference
 
-The bASICs VM includes the tools used by the workshop flow.
+Repository:
 
-## Flow and implementation
+```text
+https://github.com/ZimengXiong/basicsvm/tree/main
+```
 
-| Tool | Purpose |
+## VM environment
+
+| Item | Value |
+| --- | --- |
+| User | `beaver` |
+| Password | `works` |
+| Workspace | `~/bASICs` |
+| Editable projects | `~/bASICs/work` |
+| PDK root | `$PDK_ROOT` |
+| Release metadata | `/etc/basics-release` |
+
+## User paths
+
+```text
+/home/beaver
+├── bASICs
+│   ├── docs -> /opt/basics/docs
+│   ├── examples
+│   ├── templates
+│   └── work
+├── Desktop
+│   ├── bASICs -> /home/beaver/bASICs
+│   └── bASICs-Docs.desktop
+└── Documents
+    └── bASICs -> /home/beaver/bASICs
+```
+
+## Packaged paths
+
+| Path | Purpose |
+| --- | --- |
+| `/opt/basics/docs` | Offline docs |
+| `/opt/basics/examples` | Packaged examples |
+| `/opt/basics/templates` | Packaged project templates |
+| `/opt/basics/pdks` | Pinned PDK data |
+| `/etc/profile.d/basics.sh` | Shell environment setup |
+
+## PDK
+
+Use `$PDK_ROOT` instead of hard-coding the install path.
+
+```bash
+echo "$PDK_ROOT"
+openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
+```
+
+Magic SKY130A tech file:
+
+```text
+$PDK_ROOT/sky130A/libs.tech/magic/sky130A.tech
+```
+
+## Main tools
+
+| Tool | Used for |
 | --- | --- |
 | OpenLane 2 | RTL-to-GDS flow |
-| OpenROAD | place, route, timing, and physical design |
+| OpenROAD | floorplanning, placement, routing, timing, reports |
 | OpenSTA | static timing analysis |
-| ABC / OpenROAD ABC | logic optimization and mapping |
 | Yosys | Verilog synthesis |
-| YoWASP Yosys | WebAssembly-packaged Yosys Python tooling |
-
-## Verification and simulation
-
-| Tool | Purpose |
-| --- | --- |
-| Verilator | Verilog/SystemVerilog simulation and linting |
+| Verilator | linting and simulation |
 | Icarus Verilog | Verilog simulation |
-
-## Layout, circuit, and viewing
-
-| Tool | Purpose |
-| --- | --- |
-| KLayout | layout viewing and scripting |
-| Magic VLSI | layout editing and DRC |
+| KLayout | GDS viewing |
+| Magic | layout viewing, editing, DRC |
 | Netgen | LVS |
-
-## Support utilities
-
-| Tool | Purpose |
-| --- | --- |
-| Python with EDA packages | scripting and flow support |
-| Git, Make, jq, rsync, curl | project and shell utilities |
+| Python | scripting and flow support |
+| Git, Make, jq, rsync, curl | project utilities |
 | Vim, nano, tree | editing and inspection |
 
-Check versions in the VM:
+Check versions:
 
 ```bash
 openlane --version
 openroad -version
 yosys -V
 klayout -v
+magic --version
 ```
+
+## Build commands
+
+```bash
+scripts/build-vm x86_64
+scripts/build-vm aarch64
+scripts/package-vm macos-apple-silicon
+scripts/package-vm macos-intel
+scripts/package-vm windows-x86
+scripts/package-vm windows-arm
+scripts/package-vm linux-x86
+```
+
+See [Build from Source](../build/index.md) for prerequisites and release targets.

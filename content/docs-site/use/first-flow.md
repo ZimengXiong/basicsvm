@@ -2,6 +2,8 @@
 
 This example checks that the VM, OpenLane, and SKY130 PDK are usable.
 
+<video controls src="https://raw.githubusercontent.com/ZimengXiong/basicsvm/main/content/docs-site/public/videos/first-flow-demo.mp4" style="width: 100%; border-radius: 8px;"></video>
+
 ## Copy the example
 
 ```bash
@@ -159,6 +161,6 @@ cd final/mag
 magic -T "$PDK_ROOT/sky130A/libs.tech/magic/sky130A.tech" counter.mag
 ```
 
-If the `runs` directory is missing or no final GDS appears, go to [OpenLane Troubleshooting](../help/openlane.md).
+![Magic layout output](../../public/images/magic-output.png)
 
-Next: [Find Results](./results.md).
+If the `runs` directory is missing or no final GDS appears, go to [OpenLane Troubleshooting](../help/openlane.md).
