@@ -1,9 +1,9 @@
 :root {
   /* Premium, Crisp Light/Dark design system (Light Mode) */
-  --vp-c-brand-1: #b45309;
-  --vp-c-brand-2: #d97706;
-  --vp-c-brand-3: #f59e0b;
-  --vp-c-brand-soft: rgba(180, 83, 9, 0.08);
+  --vp-c-brand-1: #cca000;
+  --vp-c-brand-2: #b28c00;
+  --vp-c-brand-3: #8c6e00;
+  --vp-c-brand-soft: rgba(204, 160, 0, 0.1);
   
   --vp-c-bg: #ffffff;
   --vp-c-bg-alt: #f6f6f7;
@@ -43,7 +43,7 @@
 
 body {
   background:
-    linear-gradient(180deg, rgba(180, 83, 9, 0.04), rgba(255, 255, 255, 0) 300px),
+    linear-gradient(180deg, rgba(204, 160, 0, 0.05), rgba(255, 255, 255, 0) 300px),
     var(--vp-c-bg);
 }
 
@@ -151,14 +151,37 @@ body {
 .video-shell.is-wide {
   position: fixed;
   z-index: 100;
-  left: 50%;
-  top: 50%;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: none !important;
+  animation: videoFadeIn 0.22s ease-out forwards;
+}
+
+@keyframes videoFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.video-shell.is-wide .video-container {
   width: min(1200px, calc(100vw - 32px));
   max-height: calc(100vh - 64px);
-  transform: translate(-50%, -50%);
-  box-shadow:
-    0 0 0 9999px rgba(0, 0, 0, 0.75),
-    0 30px 90px rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .video-container {
