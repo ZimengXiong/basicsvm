@@ -1,24 +1,12 @@
 # PDK Locations
 
-Inside the VM:
+The PDK is configured through the `PDK_ROOT` environment variable:
 
 ```text
-PDK_ROOT=/opt/basics/pdks
+$PDK_ROOT
 ```
 
-The VM also exposes the same value through `/etc/profile.d/basics.sh`.
-
-## Installed PDK paths
-
-| PDK | Path |
-| --- | --- |
-| SKY130 A | `/opt/basics/pdks/sky130A` |
-
-The PDK is installed from pinned Volare release assets. Current symlinks are under:
-
-```text
-/opt/basics/pdks/volare/sky130/current
-```
+Use `$PDK_ROOT` rather than typing a fixed path. The VM sets it for shell sessions.
 
 ## OpenLane use
 

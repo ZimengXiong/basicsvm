@@ -179,6 +179,10 @@ Suggested VM resources:
 - Disk: image virtual size is about 30 GiB
 
 The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
+
+Host folder sharing:
+- In VirtualBox, add a Shared Folder in VM settings with Auto-mount enabled.
+- The beaver user is already in the vboxsf group, so auto-mounted folders are usable under /media/sf_<name>.
 EOF
 
   (
@@ -244,6 +248,18 @@ find_built_raw() {
   printf '%s\n' "$found"
 }
 
+find_built_qcow() {
+  local result_dir="$1"
+  local found
+  result_dir="$(host_path_for_nix_result "$result_dir")"
+  found="$(find "$result_dir" -maxdepth 2 \( -name '*.qcow2' -o -name '*.qcow' \) -type f | head -1)"
+  if [[ -z "$found" ]]; then
+    echo "Nix image build did not produce a .qcow or .qcow2 under $result_dir" >&2
+    exit 1
+  fi
+  printf '%s\n' "$found"
+}
+
 assemble_from_repart_build_dir() {
   local build_dir="$1"
   if [[ ! -f "$build_dir/.attrs.sh" || ! -d "$build_dir/amended-repart.d" ]]; then
@@ -272,6 +288,73 @@ assemble_from_repart_build_dir() {
     "$systemd_repart" "${systemdRepartFlags[@]}" "$raw_path" | tee "$raw_dir/repart-output.json"
   )
 }
+
+if [[ "$format" == "utm" && -z "$raw_input" && -z "$repart_build_dir" ]]; then
+  require_qemu_img
+  result_dir="$out/nix-qcow-result"
+  rm -f "$result_dir"
+  "$repo_root/scripts/nix" build ".#packages.${nix_system}.basics-image-qcow" -o "$result_dir" --print-build-logs
+
+  image="$pkg_dir/basicsvm-${arch_name}-linux.qcow2"
+  rm -f "$image"
+  cp -f "$(find_built_qcow "$result_dir")" "$image"
+  qemu-img info "$image" > "$pkg_dir/qemu-img-info.txt"
+  if [[ "$nix_system" == "aarch64-linux" ]]; then
+    utm_zip="$("$repo_root/scripts/create-utm-bundle" "$image" "$pkg_dir" "bASICs-VM-Apple-Silicon" aarch64)"
+  else
+    utm_zip="$("$repo_root/scripts/create-utm-bundle" "$image" "$pkg_dir" "bASICs-VM-Intel-Mac" x86_64)"
+  fi
+
+  cat > "$pkg_dir/README.txt" <<EOF
+bASICs VM - $target
+
+Recommended app: UTM
+VM architecture: $nix_system
+Login user: beaver
+Password: works
+
+For Mac, the preferred download is the bundled UTM VM:
+$(basename "$utm_zip")
+
+Unzip it, then open the .utm bundle in UTM.
+
+Suggested VM resources:
+- RAM: 8 GB minimum
+- CPU: 4 cores minimum
+- Disk: image virtual size is about 30 GiB
+
+The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
+
+Host folder sharing:
+- In UTM, choose a shared directory in VM settings.
+- The guest exposes the UTM VirtFS share at /mnt/host and on the desktop as Host.
+EOF
+
+  (
+    cd "$out"
+    : > checksums/SHA256SUMS
+    sha256sum "$format/$(basename "$image")" >> checksums/SHA256SUMS
+    sha256sum "$format/$(basename "$utm_zip")" >> checksums/SHA256SUMS
+    sha256sum "$format/README.txt" >> checksums/SHA256SUMS
+  )
+
+  if [[ "$archive" -eq 1 ]]; then
+    archive_path="$out/basicsvm-$target.tar.zst"
+    rm -f "$archive_path"
+    tar --zstd -cf "$archive_path" -C "$out" "$format" checksums
+  fi
+
+  cat <<EOF
+Packaged $target
+  image: $image
+  info:  $pkg_dir/qemu-img-info.txt
+  sums:  $checksum_dir/SHA256SUMS
+EOF
+  if [[ "${archive:-0}" -eq 1 ]]; then
+    echo "  archive: $archive_path"
+  fi
+  exit 0
+fi
 
 if [[ -n "$raw_input" ]]; then
   copy_or_decompress_raw "$raw_input"
@@ -361,6 +444,18 @@ Suggested VM resources:
 - Disk: image virtual size is about 30 GiB
 
 The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
+
+Host folder sharing:
+$([[ "$format" == "utm" ]] && cat <<UTM_SHARE
+- In UTM, choose a shared directory in VM settings.
+- The guest exposes the UTM VirtFS share at /mnt/host and on the desktop as Host.
+UTM_SHARE
+)
+$([[ "$format" == "virtualbox" ]] && cat <<VBOX_SHARE
+- In VirtualBox, add a Shared Folder in VM settings with Auto-mount enabled.
+- The beaver user is already in the vboxsf group, so auto-mounted folders are usable under /media/sf_<name>.
+VBOX_SHARE
+)
 EOF
 
 (

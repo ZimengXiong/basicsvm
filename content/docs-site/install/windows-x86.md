@@ -1,28 +1,29 @@
-# Install on Windows x86
+# Windows x86
 
-Use VirtualBox first on x86 Windows hosts.
+Use this page for Windows PCs with an Intel or AMD processor.
 
-## Host target
+> [!WARNING]
+> Make sure your computer has at least 30 GB of free storage for the VM download and import.
 
-| Host | Recommended VM app | VM architecture |
-| --- | --- | --- |
-| Windows on Intel or AMD | VirtualBox | `x86_64-linux` |
+## Install
 
-## Steps
+1. Download [bASICs VM for Windows x86](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/55ea8cb/windows-x86/basicsvm-x86_64-linux.ova?download=true).
+2. Open VirtualBox.
+3. Choose **File > Import Appliance**.
+4. Select the downloaded `.ova`.
+5. Start the VM.
 
-1. Install VirtualBox from <https://www.virtualbox.org/>.
-2. Use the bASICs `x86_64` VM image when available.
-3. Create or import a Linux VM.
-4. Allocate at least 8 GB RAM, 4 CPU cores, and 64 GB disk.
-5. Enable network access. NAT with port forwarding is enough for most workshop use.
-6. Boot the VM and log in as `beaver` with password `works`.
+The desktop logs in automatically. For SSH or terminal login:
 
-## Useful port forwards
+```text
+user: beaver
+password: works
+```
 
-| Host port | Guest port | Use |
-| --- | --- | --- |
-| `2222` | `22` | SSH |
-| `5901` | `5901` | VNC |
-| `6080` | `6080` | Browser desktop through noVNC |
+Next: [First Boot](../start/first-boot.md).
 
-Open `http://localhost:6080/` after forwarding `6080`.
+## Downloads
+
+| File | Direct link |
+| --- | --- |
+| bASICs VM | [basicsvm-x86_64-linux.ova](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/55ea8cb/windows-x86/basicsvm-x86_64-linux.ova?download=true) |

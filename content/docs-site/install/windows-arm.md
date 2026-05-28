@@ -1,25 +1,29 @@
-# Install on Windows ARM
+# Windows ARM
 
-Use the ARM VirtualBox package for Windows on ARM hosts.
+Use this page for Windows PCs with an ARM processor.
 
-## Host target
+> [!WARNING]
+> Make sure your computer has at least 30 GB of free storage for the VM download and import.
 
-| Host | Recommended VM app | VM architecture |
-| --- | --- | --- |
-| Windows on ARM | VirtualBox | `aarch64-linux` |
+## Install
 
-## Guidance
+1. Download [bASICs VM for Windows ARM](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/55ea8cb/windows-arm/basicsvm-aarch64-linux.vdi?download=true).
+2. Open VirtualBox.
+3. Create a new Linux VM.
+4. Use the downloaded `.vdi` as the VM disk.
+5. Start the VM.
 
-1. Install VirtualBox for Windows ARM.
-2. Use the bASICs `windows-arm` VirtualBox package.
-3. Allocate at least 8 GB RAM, 4 CPU cores, and 64 GB disk.
-4. Forward ports `22`, `5901`, and `6080` if you need host access.
-5. Boot the VM and log in as `beaver` with password `works`.
+The desktop logs in automatically. For SSH or terminal login:
 
-## Build target
-
-The release image is generated from an ARM Linux builder:
-
-```bash
-scripts/package-vm windows-arm
+```text
+user: beaver
+password: works
 ```
+
+Next: [First Boot](../start/first-boot.md).
+
+## Downloads
+
+| File | Direct link |
+| --- | --- |
+| bASICs VM | [basicsvm-aarch64-linux.vdi](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/55ea8cb/windows-arm/basicsvm-aarch64-linux.vdi?download=true) |

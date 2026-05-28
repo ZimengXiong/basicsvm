@@ -1,8 +1,17 @@
-# Reproduce the VM
+# Build from Source
 
-This page is kept for older links. The current source build docs start at [Build from Source](../build/index.md).
+This section is for people rebuilding the VM from source, validating package contents, or checking that a release can be regenerated.
 
-The `basicsvm` repository is a flake-based build. The repo-local scripts use `nix-portable` under `.nix-portable` and keep build outputs under `out`.
+The repository is a Nix flake. The repo-local scripts use `nix-portable` under `.nix-portable` and keep local build outputs under `out`.
+
+## Prerequisites
+
+| Need | Notes |
+| --- | --- |
+| Linux builder | Native NixOS or a Linux host that can run the repo scripts |
+| Disk space | VM images and PDK closures are large; keep substantial free space |
+| CPU/RAM | More cores and memory reduce rebuild time |
+| ARM builder | Required for native `aarch64-linux` release builds |
 
 ## Build a dev VM
 
@@ -40,8 +49,6 @@ scripts/verify-fresh
 
 ## NixOS VM definitions
 
-The flake defines:
-
 | Attribute | Architecture |
 | --- | --- |
 | `nixosConfigurations.basics-x86_64` | `x86_64-linux` |
@@ -49,7 +56,18 @@ The flake defines:
 
 The VM configuration is in `nixos/basics.nix`.
 
-## Package release images
+## Inspect outputs
+
+After a build, inspect symlink targets:
+
+```bash
+readlink -f out/result-vm-x86_64
+readlink -f out/result-vm-aarch64
+```
+
+Use [Release Images](../release/index.md) when you need distributable UTM, VirtualBox, or QEMU artifacts rather than a local dev VM result.
+
+## Release targets
 
 Release packaging uses named host targets:
 

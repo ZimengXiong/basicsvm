@@ -1,28 +1,30 @@
-# Install on macOS Apple Silicon
+# macOS Apple Silicon
 
-Use UTM first on Apple Silicon Macs. UTM runs Apple Virtualization and QEMU-based virtual machines and is the most direct fit for an `aarch64-linux` bASICs VM image.
+Use this page for Macs with Apple Silicon processors: M1, M2, M3, M4, or newer.
 
-## Host target
+> [!WARNING]
+> Make sure your computer has at least 30 GB of free storage for the VM download and import.
 
-| Host | Recommended VM app | VM architecture |
-| --- | --- | --- |
-| M1, M2, M3, or newer Mac | UTM | `aarch64-linux` |
+## Install
 
-## Steps
+1. Install [UTM 4.7.5](https://github.com/utmapp/UTM/releases/download/v4.7.5/UTM.dmg).
+2. Download [bASICs VM for Apple Silicon](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/55ea8cb/macos-apple-silicon/bASICs-VM-Apple-Silicon.utm.zip?download=true).
+3. Unzip the downloaded VM file.
+4. Open the `.utm` bundle in UTM.
+5. Start the VM.
 
-1. Install UTM from <https://mac.getutm.app/>.
-2. Use the bASICs `aarch64` VM image when available.
-3. Create or import a Linux VM in UTM.
-4. Allocate at least 8 GB RAM, 4 CPU cores, and 64 GB disk.
-5. Enable networking with port forwarding if you want host access to services.
-6. Boot the VM and log in as `beaver` with password `works`.
+The desktop logs in automatically. For SSH or terminal login:
 
-## Useful port forwards
+```text
+user: beaver
+password: works
+```
 
-| Host port | Guest port | Use |
-| --- | --- | --- |
-| `2222` | `22` | SSH |
-| `5901` | `5901` | VNC |
-| `6080` | `6080` | Browser desktop through noVNC |
+Next: [First Boot](../start/first-boot.md).
 
-After forwarding `6080`, open `http://localhost:6080/` on the Mac.
+## Downloads
+
+| File | Direct link |
+| --- | --- |
+| bASICs VM | [bASICs-VM-Apple-Silicon.utm.zip](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/55ea8cb/macos-apple-silicon/bASICs-VM-Apple-Silicon.utm.zip?download=true) |
+| UTM | [UTM.dmg](https://github.com/utmapp/UTM/releases/download/v4.7.5/UTM.dmg) |

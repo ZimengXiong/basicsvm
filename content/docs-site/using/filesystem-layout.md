@@ -2,6 +2,24 @@
 
 ## User-visible layout
 
+```text
+/home/beaver
+├── bASICs
+│   ├── docs -> /opt/basics/docs
+│   ├── examples
+│   │   ├── picorv32a-sky130
+│   │   └── sky130-counter
+│   ├── templates
+│   │   ├── reference-upstream
+│   │   └── sky130-rtl2gds
+│   └── work
+├── Desktop
+│   ├── bASICs -> /home/beaver/bASICs
+│   └── bASICs-Docs.desktop
+└── Documents
+    └── bASICs -> /home/beaver/bASICs
+```
+
 | Path | Owner | Purpose |
 | --- | --- | --- |
 | `/home/beaver/bASICs` | `beaver` | Main user-facing bASICs directory |

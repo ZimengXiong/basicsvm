@@ -1,33 +1,25 @@
 # Getting Started
 
-## Log in
+This page is kept for older links. New users should start with [Start Here](./start/index.md).
 
-The VM account is:
+## Desktop login
+
+When the VM finishes booting, the desktop opens automatically as the `beaver` user. You do not need to type a username or password for normal desktop use.
+
+Use these credentials only when connecting over SSH or signing in from a text terminal:
 
 ```text
 user: beaver
 password: works
 ```
 
-The desktop auto-login is enabled in the NixOS VM configuration. If you use SSH or a terminal login, use the same account.
-
 ## Open a terminal
 
-Use the XFCE terminal from the panel or application menu. The VM exports the important paths for shell sessions:
+For the work in these docs, open a terminal from the bASICs folder on the desktop: right-click the folder, then choose **Open Terminal Here**.
 
-```bash
-echo "$PDK_ROOT"
-echo "$BASICS_EXAMPLES"
-echo "$BASICS_TEMPLATES"
-```
+![Open Terminal Here from the bASICs desktop folder](/images/open-terminal-here.gif)
 
-Expected values inside the VM:
-
-```text
-PDK_ROOT=/opt/basics/pdks
-BASICS_EXAMPLES=/home/beaver/bASICs/examples
-BASICS_TEMPLATES=/home/beaver/bASICs/templates
-```
+You can also open a terminal from the dock at the bottom, the application menu in the top-left corner, or the desktop right-click menu.
 
 ## Copy before editing
 
@@ -46,8 +38,6 @@ Run upstream OpenLane directly:
 ```bash
 openlane --pdk-root "$PDK_ROOT" config.yaml
 ```
-
-Some examples include a `Makefile` as a local convenience. It runs the same upstream tool flow and is not a bASICs wrapper layer.
 
 ## Inspect outputs
 

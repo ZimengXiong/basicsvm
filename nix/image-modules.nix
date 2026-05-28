@@ -41,7 +41,7 @@
 
           echo "creating VirtualBox VM..."
           vmName="${cfg.vmName}"
-          VBoxManage createvm --name "$vmName" --register --ostype Linux26_64
+          VBoxManage createvm --name "$vmName" --register --ostype Linux_64
           VBoxManage modifyvm "$vmName" \
             --memory ${toString cfg.memorySize} \
             ${lib.cli.toGNUCommandLineShell { } cfg.params}
@@ -89,7 +89,7 @@
 
           VBoxManage convertfromraw "$diskImage" disk.vdi
           vmName="${cfg.vmName}"
-          VBoxManage createvm --name "$vmName" --register --ostype Linux26_64
+          VBoxManage createvm --name "$vmName" --register --ostype Linux_64
           VBoxManage modifyvm "$vmName" \
             --memory ${toString cfg.memorySize} \
             ${lib.cli.toGNUCommandLineShell { } cfg.params}
