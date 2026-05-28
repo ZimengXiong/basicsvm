@@ -218,7 +218,7 @@ in
     deps = [ "users" "groups" ];
     text = ''
     # Managed reference surface:
-    #   /opt/basics, ~/bASICs/examples, ~/bASICs/templates, ~/bASICs/docs,
+    #   /opt/basics, ~/bASICs/examples, ~/bASICs/templates,
     #   selected desktop/theme files, and the bASICs launcher/docs symlinks
     #   are recreated on every NixOS switch. Student work in ~/bASICs/work,
     #   ~/Documents, and ~/Downloads is preserved.
@@ -232,7 +232,6 @@ in
     ln -sfnT ${basics.basicsExamples}/share/basics/examples /opt/basics/examples
     ln -sfnT ${basics.basicsTemplates}/share/basics/templates /opt/basics/templates
     ln -sfnT ${basics.basicsPdks}/share/basics/pdks /opt/basics/pdks
-    ln -sfnT ${basics.basicsDocsSite}/share/basics/docs-site /opt/basics/docs
     chown 0:0 /opt/basics
 
     rm -rf /home/beaver/bASICs/examples /home/beaver/bASICs/templates
@@ -247,14 +246,13 @@ in
       /home/beaver/Documents/bASICs \
       /home/beaver/Desktop/bASICs \
       /home/beaver/Desktop/bASICs-Docs.desktop
-    ln -sfnT /opt/basics/docs /home/beaver/bASICs/docs
     ln -sfnT /home/beaver/bASICs /home/beaver/Documents/bASICs
     ln -sfnT /home/beaver/bASICs /home/beaver/Desktop/bASICs
     cat > /home/beaver/Desktop/bASICs-Docs.desktop <<'EOF'
 [Desktop Entry]
 Type=Application
 Name=bASICs Docs
-Exec=firefox /opt/basics/docs/index.html
+Exec=firefox https://basics.alpacawebservices.com
 Icon=help-browser
 Terminal=false
 Categories=Education;Documentation;
@@ -441,7 +439,6 @@ EOF
       chown -R beaver:users /home/beaver/Desktop /home/beaver/Documents /home/beaver/Downloads /home/beaver/bASICs /home/beaver/.config /home/beaver/.local
       chown -R root:root /home/beaver/bASICs/examples /home/beaver/bASICs/templates
 	      chown -h beaver:users \
-	        /home/beaver/bASICs/docs \
 	        /home/beaver/Documents/bASICs \
 	        /home/beaver/Desktop/bASICs
 	      chown beaver:users /home/beaver/Desktop/bASICs-Docs.desktop

@@ -18,13 +18,12 @@ Repository: [ZimengXiong/basicsvm](https://github.com/ZimengXiong/basicsvm/tree/
 ```text
 /home/beaver
 ├── bASICs
-│   ├── docs -> /opt/basics/docs
 │   ├── examples
 │   ├── templates
 │   └── work
 ├── Desktop
 │   ├── bASICs -> /home/beaver/bASICs
-│   └── bASICs-Docs.desktop
+│   └── bASICs-Docs.desktop -> https://basics.alpacawebservices.com
 └── Documents
     └── bASICs -> /home/beaver/bASICs
 ```
@@ -33,7 +32,6 @@ Repository: [ZimengXiong/basicsvm](https://github.com/ZimengXiong/basicsvm/tree/
 
 | Path | Purpose |
 | --- | --- |
-| `/opt/basics/docs` | Offline docs |
 | `/opt/basics/examples` | Packaged examples |
 | `/opt/basics/templates` | Packaged project templates |
 | `/opt/basics/pdks` | Pinned PDK data |

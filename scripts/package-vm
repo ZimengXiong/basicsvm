@@ -184,7 +184,7 @@ Suggested VM resources:
 - CPU: 4 cores minimum
 - Disk: image virtual size is about 30 GiB
 
-The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
+The VM contains the EDA toolchain, SKY130 PDK, examples, and templates. Docs open at https://basics.alpacawebservices.com.
 EOF
 
   (
@@ -338,7 +338,7 @@ Suggested VM resources:
 - CPU: 4 cores minimum
 - Disk: image virtual size is about 30 GiB
 
-The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
+The VM contains the EDA toolchain, SKY130 PDK, examples, and templates. Docs open at https://basics.alpacawebservices.com.
 EOF
 
   (
@@ -475,7 +475,7 @@ Suggested VM resources:
 - CPU: 4 cores minimum
 - Disk: image virtual size is about 30 GiB
 
-The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
+The VM contains the EDA toolchain, SKY130 PDK, examples, and templates. Docs open at https://basics.alpacawebservices.com.
 EOF
 
 (

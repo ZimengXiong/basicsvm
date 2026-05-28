@@ -15,7 +15,6 @@ The `bASICs` folder on the desktop and the `bASICs` folder in Documents both poi
 ```text
 /home/beaver
 ├── bASICs
-│   ├── docs -> /opt/basics/docs
 │   ├── examples
 │   │   ├── picorv32a-sky130
 │   │   └── sky130-counter
@@ -25,7 +24,7 @@ The `bASICs` folder on the desktop and the `bASICs` folder in Documents both poi
 │   └── work
 ├── Desktop
 │   ├── bASICs -> /home/beaver/bASICs
-│   └── bASICs-Docs.desktop
+│   └── bASICs-Docs.desktop -> https://basics.alpacawebservices.com
 └── Documents
     └── bASICs -> /home/beaver/bASICs
 ```
