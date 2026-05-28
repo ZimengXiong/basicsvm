@@ -1,10 +1,6 @@
 # Reference
 
-Repository:
-
-```text
-https://github.com/ZimengXiong/basicsvm/tree/main
-```
+Repository: [ZimengXiong/basicsvm](https://github.com/ZimengXiong/basicsvm/tree/main)
 
 ## VM environment
 
@@ -45,8 +41,6 @@ https://github.com/ZimengXiong/basicsvm/tree/main
 
 ## PDK
 
-Use `$PDK_ROOT` instead of hard-coding the install path.
-
 ```bash
 echo "$PDK_ROOT"
 openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
@@ -75,7 +69,7 @@ $PDK_ROOT/sky130A/libs.tech/magic/sky130A.tech
 | Git, Make, jq, rsync, curl | project utilities |
 | Vim, nano, tree | editing and inspection |
 
-Check versions:
+Version commands:
 
 ```bash
 openlane --version
@@ -96,5 +90,3 @@ scripts/package-vm windows-x86
 scripts/package-vm windows-arm
 scripts/package-vm linux-x86
 ```
-
-See [Build from Source](../build/index.md) for prerequisites and release targets.

@@ -15,19 +15,13 @@ export default {
     logo: '/logo.webp',
     siteTitle: 'bASICs VM',
     nav: [
-      { text: 'Start', link: '/' },
+      { text: 'Start', link: '/start/' },
       { text: 'Use', link: '/use/' },
       { text: 'Build', link: '/build/' },
       { text: 'Help', link: '/help/' },
       { text: 'Reference', link: '/reference/tools' }
     ],
     sidebar: [
-      {
-        text: 'Home',
-        items: [
-          { text: 'Overview', link: '/' }
-        ]
-      },
       {
         text: 'Start',
         items: [

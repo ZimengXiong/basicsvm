@@ -45,12 +45,36 @@ body {
 }
 
 .VPNavBarTitle .title {
+  display: inline-flex;
+  align-items: center;
   color: var(--vp-c-brand-1);
   font-weight: 800;
 }
 
 .VPNavBarTitle img {
+  display: block;
   border-radius: 4px;
+}
+
+.VPNavBarTitle .container {
+  display: flex;
+  align-items: center;
+}
+
+.VPNav,
+.VPNavBar,
+.VPNavBar .content,
+.VPNavBar.has-sidebar .content {
+  background-color: var(--vp-c-bg) !important;
+}
+
+.VPNavBar .divider {
+  background-color: var(--vp-c-divider);
+}
+
+.VPSwitchAppearance {
+  background-color: var(--vp-c-bg-soft) !important;
+  border-color: var(--vp-c-border) !important;
 }
 
 .VPDoc h1,
@@ -93,74 +117,57 @@ body {
   color: var(--vp-c-brand-1);
 }
 
+
 .video-shell {
   margin: 24px 0;
   border: 1px solid var(--vp-c-border);
   border-radius: 10px;
   overflow: hidden;
-  background: var(--vp-c-bg-alt);
+  background: var(--vp-c-bg-elv);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
 }
 
 .video-shell.is-wide {
   position: fixed;
   z-index: 80;
-  inset: 72px 24px 24px;
-  display: flex;
-  flex-direction: column;
+  left: 50%;
+  top: 50%;
+  width: min(1180px, calc(100vw - 48px));
+  max-height: calc(100vh - 72px);
+  transform: translate(-50%, -50%);
   border-color: var(--vp-c-brand-2);
-  background: var(--vp-c-bg);
+  background: var(--vp-c-bg-elv);
+  box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.56),
+    0 24px 80px rgba(0, 0, 0, 0.42);
 }
 
 .video-frame {
-  position: relative;
   background: #000;
-}
-
-.video-shell.is-wide .video-frame {
-  flex: 1;
-  min-height: 0;
 }
 
 .video-frame video {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: contain;
+  height: auto;
   background: #000;
 }
 
 .video-shell.is-wide .video-frame video {
-  height: 100%;
-  aspect-ratio: auto;
-}
-
-.video-center {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  border: 1px solid rgba(226, 186, 3, 0.82);
-  border-radius: 999px;
-  padding: 10px 18px;
-  color: #17140a;
-  background: rgba(226, 186, 3, 0.92);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.video-frame:hover .video-center,
-.video-center:focus-visible {
-  opacity: 1;
+  max-height: calc(100vh - 132px);
+  width: 100%;
+  height: auto;
 }
 
 .video-controls {
   display: grid;
-  grid-template-columns: auto auto 1fr auto auto auto;
+  grid-template-columns: auto auto 1fr auto;
   align-items: center;
   gap: 10px;
   padding: 10px;
   color: var(--vp-c-text-1);
+  background: var(--vp-c-bg-elv);
+  border-top: 1px solid var(--vp-c-divider);
 }
 
 .video-controls button {
@@ -168,7 +175,7 @@ body {
   border-radius: 6px;
   padding: 6px 10px;
   color: var(--vp-c-text-1);
-  background: var(--vp-c-bg-elv);
+  background: var(--vp-c-bg-soft);
   cursor: pointer;
 }
 
@@ -181,17 +188,74 @@ body {
   accent-color: var(--vp-c-brand-2);
 }
 
+.video-time {
+  min-width: 76px;
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+}
+
+.start-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 24px 0 22px;
+}
+
+.start-card {
+  display: flex;
+  min-height: 128px;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid #b69500;
+  border-radius: 10px;
+  padding: 18px;
+  color: #17140a !important;
+  text-decoration: none !important;
+  background: #e2ba03;
+  transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.start-card:hover {
+  border-color: #6f5700;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+}
+
+.start-kicker {
+  color: #4f3f00;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.start-card strong {
+  display: block;
+  margin-top: 16px;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.start-card span:last-child {
+  color: #4f3f00;
+}
+
 @media (max-width: 720px) {
   .video-shell.is-wide {
-    inset: 56px 0 0;
-    border-radius: 0;
+    width: calc(100vw - 20px);
+    max-height: calc(100vh - 32px);
+    border-radius: 10px;
   }
 
   .video-controls {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr auto auto;
   }
 
-  .video-controls span {
+  .video-time {
     display: none;
+  }
+
+  .start-grid {
+    grid-template-columns: 1fr;
   }
 }
