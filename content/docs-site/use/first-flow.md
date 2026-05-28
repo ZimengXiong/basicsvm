@@ -161,6 +161,6 @@ cd final/mag
 magic -T "$PDK_ROOT/sky130A/libs.tech/magic/sky130A.tech" counter.mag
 ```
 
-![Magic layout output](../../public/images/magic-output.png)
+![Magic layout output](/images/magic-output.png)
 
 If the `runs` directory is missing or no final GDS appears, go to [OpenLane Troubleshooting](../help/openlane.md).

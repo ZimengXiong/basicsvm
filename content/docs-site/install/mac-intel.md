@@ -7,6 +7,11 @@ Use this page for Macs with an Intel processor.
 
 ## Install
 
+<VideoPlayer src="/videos/mac-intel-install-demo.mp4" title="macOS Intel install demo" />
+
+> [!NOTE]
+> The video assumes you have already downloaded all required files and installed UTM.
+
 1. Install [UTM 4.7.5](https://github.com/utmapp/UTM/releases/download/v4.7.5/UTM.dmg).
 2. Download [bASICs VM for Intel Mac](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/55ea8cb/macos-intel/bASICs-VM-Intel-Mac.utm.zip?download=true).
 3. Unzip the downloaded VM file.

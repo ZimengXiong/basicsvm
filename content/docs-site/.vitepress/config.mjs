@@ -31,6 +31,7 @@ export default {
           { text: 'Windows x86', link: '/install/windows-x86' },
           { text: 'Windows ARM', link: '/install/windows-arm' },
           { text: 'Linux x86', link: '/install/linux-x86' },
+          { text: 'Linux ARM', link: '/install/linux-arm' },
           { text: 'First Boot', link: '/start/first-boot' }
         ]
       },

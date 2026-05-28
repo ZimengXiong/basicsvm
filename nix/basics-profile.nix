@@ -75,6 +75,7 @@ pages = [
     pathlib.Path("install/windows-x86.md"),
     pathlib.Path("install/windows-arm.md"),
     pathlib.Path("install/linux-x86.md"),
+    pathlib.Path("install/linux-arm.md"),
     pathlib.Path("build/index.md"),
     pathlib.Path("build/local-nix.md"),
     pathlib.Path("build/docs.md"),
