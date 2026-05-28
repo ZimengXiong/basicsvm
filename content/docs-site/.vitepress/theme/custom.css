@@ -501,7 +501,6 @@ body {
 }
 
 .vp-doc a.platform-row:hover {
-  transform: translateX(4px);
   border-color: var(--vp-c-brand-1) !important;
   background: var(--vp-c-bg-soft);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
@@ -576,7 +575,6 @@ body {
 }
 
 .vp-doc a.platform-row:hover svg.arrow-icon {
-  transform: translateX(4px);
   color: var(--vp-c-brand-1);
 }
 
