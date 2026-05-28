@@ -1,6 +1,6 @@
 # Start Here
 
-<p class="start-subtitle">Select your operating system and hardware architecture to view the step-by-step setup instructions for the bASICs VM.</p>
+<p class="start-subtitle">Select your operating system and hardware architecture below</p>
 
 <div class="start-sections">
 
