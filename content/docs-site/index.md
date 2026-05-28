@@ -12,8 +12,6 @@ Use these docs by task:
 | Package a release | [Release Images](./release/index.md) |
 | Fix a problem | [Troubleshooting](./help/index.md) |
 
-The VM workflow uses upstream commands directly. There are no bASICs wrapper commands.
-
 ## Fast facts
 
 | Item | Value |
@@ -34,6 +32,6 @@ The VM workflow uses upstream commands directly. There are no bASICs wrapper com
 2. Install the VM with the page for your host system.
 3. Start the VM; the desktop logs in automatically.
 4. Copy an example or template into `~/bASICs/work`.
-5. Run OpenLane, Yosys, OpenROAD, KLayout, and other tools directly.
+5. Run OpenLane, Yosys, OpenROAD, KLayout, and other tools from your copied project.
 
 Start with [Start Here](./start/index.md).

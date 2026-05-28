@@ -33,7 +33,7 @@ cd my-sky130-counter
 
 ## Run the SKY130 counter example
 
-Run upstream OpenLane directly:
+Run OpenLane:
 
 ```bash
 openlane --pdk-root "$PDK_ROOT" config.yaml

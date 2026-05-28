@@ -56,5 +56,5 @@ xdg-open out/result-docs/share/basics/docs-site/index.html
 - Put user tasks before reference material.
 - Keep install pages specific to one host family.
 - Show exact commands and expected paths.
-- Prefer upstream tool names and commands.
+- Use the tool names and commands users will type in the VM.
 - Keep bASICs-specific behavior limited to VM layout, packaging, and pinned paths.

@@ -29,7 +29,7 @@ scripts/nix build .#basics-docs-site -o out/result-docs
 
 ## Run tools
 
-Inside the dev shell, run upstream tools directly:
+Inside the dev shell, check tool availability:
 
 ```bash
 openlane --version

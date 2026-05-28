@@ -30,7 +30,7 @@ scripts/nix build .#basics-pdks -o out/result-pdks
 
 ## Run tools
 
-Inside the dev shell, run upstream tools directly:
+Inside the dev shell, check tool availability:
 
 ```bash
 openlane --version

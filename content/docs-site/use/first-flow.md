@@ -17,7 +17,7 @@ cd my-sky130-counter
 
 ## Run OpenLane
 
-Run the upstream OpenLane command directly:
+Run OpenLane:
 
 ```bash
 # Run OpenLane with the VM-provided PDK location.

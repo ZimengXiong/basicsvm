@@ -1,6 +1,6 @@
 # Tools Inventory
 
-The bASICs VM installs upstream tools and expects users to run them directly.
+The bASICs VM includes the tools used by the workshop flow.
 
 ## Flow and implementation
 
@@ -36,7 +36,7 @@ The bASICs VM installs upstream tools and expects users to run them directly.
 | Git, Make, jq, rsync, curl | project and shell utilities |
 | Vim, nano, tree | editing and inspection |
 
-Check versions in the VM with normal upstream commands:
+Check versions in the VM:
 
 ```bash
 openlane --version
