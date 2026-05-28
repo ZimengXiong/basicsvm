@@ -14,7 +14,7 @@ These builds need enough local storage, CPU, and memory to keep the VM image and
 | Free storage | At least 600 GB for VM images, PDK closures, and intermediate output |
 | CPU and memory | At least 12 CPU cores and 32 GB RAM |
 | Build time | About 6 to 10 minutes per release build |
-| ARM releases | A native ARM Linux builder |
+| Build machines | One of each architecture |
 
 ## Get the source
 

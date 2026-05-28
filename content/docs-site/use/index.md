@@ -45,4 +45,4 @@ Only edit files inside `~/bASICs/work`. The `examples` and `templates` folders a
 
 The PDK is configured through `$PDK_ROOT`. Use that environment variable when a tool asks for the PDK location.
 
-Start with [First Flow: SKY130 Counter](./first-flow.md).
+Start with [First Flow: Counter](./first-flow.md).

@@ -1,8 +1,8 @@
-# First Flow: SKY130 Counter
+# First Flow: Counter
 
 This example checks that the VM, OpenLane, and SKY130 PDK are usable.
 
-<VideoPlayer src="/videos/first-flow-demo.mp4" title="First Flow demo" />
+<VideoPlayer src="/videos/first-flow-demo.mp4" title="First Flow: Counter demo" />
 
 ## Copy the example
 

@@ -37,7 +37,7 @@ export default {
         text: 'Use',
         items: [
           { text: 'VM Basics', link: '/use/' },
-          { text: 'First Flow', link: '/use/first-flow' }
+          { text: 'First Flow: Counter', link: '/use/first-flow' }
         ]
       },
       {

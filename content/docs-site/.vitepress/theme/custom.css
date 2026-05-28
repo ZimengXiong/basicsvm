@@ -226,7 +226,7 @@ body {
 /* Premium Custom Video Player */
 .video-shell {
   margin: 32px 0;
-  border: 1px solid var(--vp-c-border);
+  border: 1.5px solid var(--vp-c-border) !important;
   border-radius: 0;
   overflow: hidden;
   background: #000000;
@@ -490,7 +490,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid var(--vp-c-border) !important;
+  border: 1.5px solid var(--vp-c-border) !important;
   border-radius: 10px;
   padding: 14px 20px;
   background: var(--vp-c-bg-elv);
@@ -498,12 +498,21 @@ body {
   color: var(--vp-c-text-1) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.015);
   transition: all 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  outline: none !important;
+  background-clip: padding-box !important;
 }
 
 .vp-doc a.platform-row:hover {
+  text-decoration: none !important;
   border-color: var(--vp-c-brand-1) !important;
-  background: var(--vp-c-bg-soft);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  background: var(--vp-c-bg-soft) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+  outline: none !important;
+}
+
+.dark .vp-doc a.platform-row:hover {
+  background: #2e2e32 !important;
+  box-shadow: 0 0 12px rgba(241, 207, 53, 0.15) !important;
 }
 
 .platform-row-left {
@@ -639,6 +648,27 @@ body {
 
 .vp-doc a.start-footer-btn:hover svg.arrow-icon {
   transform: translateX(3px);
+}
+
+/* Premium Pagination Pager Cards ("Next Page / Previous Page" navigation links) */
+.VPDocFooter .prev-next a {
+  border: 1.5px solid var(--vp-c-divider) !important;
+  transition: all 200ms cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  background-clip: padding-box !important;
+  outline: none !important;
+  text-decoration: none !important;
+}
+
+.VPDocFooter .prev-next a:hover {
+  border-color: var(--vp-c-brand-1) !important;
+  background: var(--vp-c-bg-soft) !important;
+  text-decoration: none !important;
+  outline: none !important;
+}
+
+.dark .VPDocFooter .prev-next a:hover {
+  background: #2e2e32 !important;
+  box-shadow: 0 0 12px rgba(241, 207, 53, 0.15) !important;
 }
 
 @media (max-width: 720px) {
