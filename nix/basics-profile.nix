@@ -225,6 +225,7 @@ PY
     vim
     nano
     tree
+    blender
 
     openlane2.packages.${system}.openlane
     openlane2.packages.${system}.openroad

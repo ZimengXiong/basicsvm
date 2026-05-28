@@ -179,10 +179,6 @@ Suggested VM resources:
 - Disk: image virtual size is about 30 GiB
 
 The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
-
-Host folder sharing:
-- In VirtualBox, add a Shared Folder in VM settings with Auto-mount enabled.
-- The beaver user is already in the vboxsf group, so auto-mounted folders are usable under /media/sf_<name>.
 EOF
 
   (
@@ -324,10 +320,6 @@ Suggested VM resources:
 - Disk: image virtual size is about 30 GiB
 
 The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
-
-Host folder sharing:
-- In UTM, choose a shared directory in VM settings.
-- The guest exposes the UTM VirtFS share at /mnt/host and on the desktop as Host.
 EOF
 
   (
@@ -444,18 +436,6 @@ Suggested VM resources:
 - Disk: image virtual size is about 30 GiB
 
 The VM contains the EDA toolchain, SKY130 PDK, examples, templates, and HTML docs.
-
-Host folder sharing:
-$([[ "$format" == "utm" ]] && cat <<UTM_SHARE
-- In UTM, choose a shared directory in VM settings.
-- The guest exposes the UTM VirtFS share at /mnt/host and on the desktop as Host.
-UTM_SHARE
-)
-$([[ "$format" == "virtualbox" ]] && cat <<VBOX_SHARE
-- In VirtualBox, add a Shared Folder in VM settings with Auto-mount enabled.
-- The beaver user is already in the vboxsf group, so auto-mounted folders are usable under /media/sf_<name>.
-VBOX_SHARE
-)
 EOF
 
 (

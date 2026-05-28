@@ -143,10 +143,9 @@ in
   users.mutableUsers = false;
   users.users.beaver = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "vboxsf" ];
+    extraGroups = [ "wheel" "networkmanager" "video" ];
     hashedPassword = "$6$RtamX2LzbF4b7DhH$VI.8wwYHbSUKI5IReuf8obvVMAnMZasVcJIOU80WM4ArOGJwRuS2.7s6HMScBJqOQQcaasrhi3jN4FaJrPFpM.";
   };
-  users.groups.vboxsf = { };
 
   services.xserver.enable = true;
   services.xserver.desktopManager.xfce.enable = true;
@@ -174,7 +173,6 @@ in
     pkgs.xfce.xfce4-panel
     pkgs.xfce.thunar
     pkgs.xfce.xfce4-terminal
-    pkgs.spice-vdagent
   ] ++ lib.optionals (builtins.hasAttr "papirus-icon-theme" pkgs) [
     pkgs."papirus-icon-theme"
   ] ++ lib.optionals (builtins.hasAttr "greybird" pkgs) [
@@ -212,25 +210,7 @@ in
     "d /home/beaver/Downloads 0755 beaver users -"
     "d /home/beaver/bASICs 0755 beaver users -"
     "d /home/beaver/bASICs/work 0755 beaver users -"
-    "d /mnt/host 0755 beaver users -"
   ];
-
-  fileSystems."/mnt/host" = {
-    device = "share";
-    fsType = "9p";
-    options = [
-      "trans=virtio"
-      "version=9p2000.L"
-      "nofail"
-      "x-systemd.automount"
-      "x-systemd.idle-timeout=60"
-      "uid=1000"
-      "gid=100"
-      "dfltuid=1000"
-      "dfltgid=100"
-      "msize=104857600"
-    ];
-  };
 
   system.activationScripts.basicsExamples = {
     deps = [ "users" "groups" ];
@@ -245,8 +225,7 @@ in
       /home/beaver/Documents \
       /home/beaver/Downloads \
       /home/beaver/bASICs \
-      /home/beaver/bASICs/work \
-      /mnt/host
+      /home/beaver/bASICs/work
     rm -rf /opt/basics/examples /opt/basics/templates /opt/basics/pdks /opt/basics/docs
     ln -sfnT ${basics.basicsExamples}/share/basics/examples /opt/basics/examples
     ln -sfnT ${basics.basicsTemplates}/share/basics/templates /opt/basics/templates
@@ -263,16 +242,12 @@ in
     find /home/beaver/bASICs/examples /home/beaver/bASICs/templates -type f \( -name Makefile -o -name '*.sh' \) -exec chmod u+rw,go+r {} +
     rm -f \
       /home/beaver/bASICs/docs \
-      /home/beaver/Host \
       /home/beaver/Documents/bASICs \
       /home/beaver/Desktop/bASICs \
-      /home/beaver/Desktop/Host \
       /home/beaver/Desktop/bASICs-Docs.desktop
     ln -sfnT /opt/basics/docs /home/beaver/bASICs/docs
-    ln -sfnT /mnt/host /home/beaver/Host
     ln -sfnT /home/beaver/bASICs /home/beaver/Documents/bASICs
     ln -sfnT /home/beaver/bASICs /home/beaver/Desktop/bASICs
-    ln -sfnT /mnt/host /home/beaver/Desktop/Host
     cat > /home/beaver/Desktop/bASICs-Docs.desktop <<'EOF'
 [Desktop Entry]
 Type=Application
@@ -462,14 +437,11 @@ EOF
 
     if id -u beaver >/dev/null 2>&1; then
       chown -R beaver:users /home/beaver/Desktop /home/beaver/Documents /home/beaver/Downloads /home/beaver/bASICs /home/beaver/.config /home/beaver/.local
-      chown beaver:users /mnt/host
       chown -R root:root /home/beaver/bASICs/examples /home/beaver/bASICs/templates
 	      chown -h beaver:users \
 	        /home/beaver/bASICs/docs \
-	        /home/beaver/Host \
 	        /home/beaver/Documents/bASICs \
-	        /home/beaver/Desktop/bASICs \
-	        /home/beaver/Desktop/Host
+	        /home/beaver/Desktop/bASICs
 	      chown beaver:users /home/beaver/Desktop/bASICs-Docs.desktop
 	    fi
     '';
