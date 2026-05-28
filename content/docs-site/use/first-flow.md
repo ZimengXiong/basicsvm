@@ -5,13 +5,13 @@ This example checks that the VM, OpenLane, and SKY130 PDK are usable.
 ## Copy the example
 
 ```bash
-# Move into the writable workspace.
+# Run from anywhere: move into the writable workspace.
 cd ~/bASICs/work
 
-# Copy the read-only reference example into your workspace.
+# Run from ~/bASICs/work: copy the reference example.
 cp -R ../examples/sky130-counter my-sky130-counter
 
-# Work from the copied project, not from the reference example.
+# Run from ~/bASICs/work: enter your copied project.
 cd my-sky130-counter
 ```
 
@@ -20,7 +20,7 @@ cd my-sky130-counter
 Run OpenLane:
 
 ```bash
-# Run OpenLane with the VM-provided PDK location.
+# Run from ~/bASICs/work/my-sky130-counter.
 openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
 ```
 
@@ -43,12 +43,22 @@ runs
 └── RUN_2026-05-27_16-51-04
 ```
 
-Inside the run folder, you will see flow steps, logs, temporary files, and `final`:
+## Go into the run folder
+
+Move into the timestamped run folder and list its contents:
 
 ```bash
+# Run from ~/bASICs/work/my-sky130-counter.
 cd runs/RUN_2026-05-27_16-51-04
 ls
 ```
+
+> [!NOTE]
+> Replace `RUN_2026-05-27_16-51-04` with the run folder that OpenLane created on your VM.
+
+Inside the run folder, you will see flow steps, logs, temporary files, and `final`.
+
+If you do not see `final`, the flow likely failed before producing final outputs.
 
 Example output:
 
@@ -79,6 +89,7 @@ warning.log
 The `final` directory contains the main outputs:
 
 ```bash
+# Run from ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04.
 tree final -L 1
 ```
 
@@ -107,6 +118,7 @@ final
 To see the files inside those folders:
 
 ```bash
+# Run from ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04.
 tree final -L 2
 ```
 
@@ -123,18 +135,25 @@ final
 ├── mag_gds
 │   └── counter.magic.gds
 ├── metrics.csv
-└── metrics.json
+├── metrics.json
+└── ...
 ```
-
-This is not an exhaustive list; the exact outputs can vary by design and tool settings.
 
 ## Open the layout
 
-Open the generated layout with KLayout:
+Open the generated GDS layout with KLayout:
 
 ```bash
-# Open the final layout in KLayout.
-klayout runs/*/final/gds/*.gds
+# Run from ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04.
+klayout final/klayout_gds/counter.klayout.gds
+```
+
+Open the Magic layout with the SKY130A tech file:
+
+```bash
+# Run from ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04.
+cd final/mag
+magic -T "$PDK_ROOT/sky130A/libs.tech/magic/sky130A.tech" counter.mag
 ```
 
 If the `runs` directory is missing or no final GDS appears, go to [OpenLane Troubleshooting](../help/openlane.md).
