@@ -420,18 +420,33 @@ case "$format" in
       "$repo_root/scripts/create-virtualbox-appliance" "$image" "$ova_path"
     fi
     ;;
+  qemu)
+    image="$pkg_dir/basicsvm-${arch_name}-linux.qcow2"
+    rm -f "$image"
+    qemu-img convert -p -f raw -O qcow2 "$raw_path" "$image"
+    qemu-img info "$image" > "$pkg_dir/qemu-img-info.txt"
+    ;;
 esac
 
 cat > "$pkg_dir/README.txt" <<EOF
 bASICs VM - $target
 
-Recommended app: $([[ "$format" == "utm" ]] && echo "UTM" || echo "VirtualBox")
+Recommended app: $(case "$format" in utm) echo "UTM" ;; qemu) echo "QEMU or virt-manager" ;; *) echo "VirtualBox" ;; esac)
 VM architecture: $nix_system
 Login user: beaver
 Password: works
 
 Import/use the disk image in this folder:
 $(basename "$image")
+
+$([[ "$format" == "qemu" ]] && cat <<QEMU_TEXT
+
+Use this disk image with QEMU, virt-manager, or another Linux virtualization frontend.
+
+QEMU example:
+qemu-system-aarch64 -machine virt -cpu cortex-a72 -m 8192 -smp 4 -drive if=virtio,file=$(basename "$image") -device virtio-gpu-pci -device virtio-net-pci,netdev=net0 -netdev user,id=net0
+QEMU_TEXT
+)
 
 $([[ -n "$ova_path" ]] && cat <<OVA_TEXT
 
