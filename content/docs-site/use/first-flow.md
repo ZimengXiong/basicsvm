@@ -58,7 +58,8 @@ ls
 
 Inside the run folder, you will see flow steps, logs, temporary files, and `final`.
 
-If you do not see `final`, the flow likely failed before producing final outputs.
+> [!NOTE]
+> If you do not see `final`, the flow likely failed before producing final outputs.
 
 Example output:
 
