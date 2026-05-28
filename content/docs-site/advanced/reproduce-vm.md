@@ -59,6 +59,7 @@ scripts/package-vm macos-intel
 scripts/package-vm windows-x86
 scripts/package-vm windows-arm
 scripts/package-vm linux-x86
+scripts/package-vm linux-arm
 ```
 
-Linux ARM is not a supported student release target.
+Linux ARM is packaged as a QEMU disk image rather than a VirtualBox appliance.

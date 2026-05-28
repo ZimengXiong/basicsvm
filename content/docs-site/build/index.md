@@ -54,17 +54,19 @@ scripts/package-vm macos-intel
 scripts/package-vm windows-x86
 scripts/package-vm windows-arm
 scripts/package-vm linux-x86
+scripts/package-vm linux-arm
 ```
 
-Linux ARM is not a supported student release target.
+Linux ARM is provided as a QEMU disk image rather than a VirtualBox appliance.
 
 | Target | Architecture | Output | Student host |
 | --- | --- | --- | --- |
-| `macos-apple-silicon` | `aarch64-linux` | zipped UTM bundle and QCOW2 | Apple Silicon Mac |
-| `macos-intel` | `x86_64-linux` | zipped UTM bundle and QCOW2 | Intel Mac |
+| `macos-apple-silicon` | `aarch64-linux` | zipped UTM bundle | Apple Silicon Mac |
+| `macos-intel` | `x86_64-linux` | zipped UTM bundle | Intel Mac |
 | `windows-x86` | `x86_64-linux` | VirtualBox OVA | Windows on Intel or AMD |
-| `windows-arm` | `aarch64-linux` | VirtualBox VDI | Windows on ARM |
-| `linux-x86` | `x86_64-linux` | VirtualBox OVA or QCOW2 | Linux on Intel or AMD |
+| `windows-arm` | `aarch64-linux` | VirtualBox OVA | Windows on ARM |
+| `linux-x86` | `x86_64-linux` | VirtualBox OVA | Linux on Intel or AMD |
+| `linux-arm` | `aarch64-linux` | QEMU QCOW2 | Linux on ARM |
 
 For a full release batch:
 

@@ -13,7 +13,7 @@ Use this page for Linux machines with an ARM processor.
 
 ## Install
 
-1. Download [bASICs VM for Linux ARM](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/0d09c41/linux-arm/basicsvm-aarch64-linux.qcow2?download=true).
+1. Download [bASICs VM for Linux ARM](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/659b8cc/linux-arm/basicsvm-aarch64-linux.qcow2?download=true).
 2. Create an ARM virtual machine with QEMU.
 3. Attach the downloaded `.qcow2` as the VM disk.
 4. Setup VNC or `virt-manager` to attach into your VM

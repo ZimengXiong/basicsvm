@@ -13,7 +13,7 @@ Use this page for Windows PCs with an ARM processor.
 > The video assumes you have already downloaded all required files and installed VirtualBox.
 
 1. Install [VirtualBox 7.2.8 for Windows](https://download.virtualbox.org/virtualbox/7.2.8/VirtualBox-7.2.8-173730-Win.exe).
-2. Download [bASICs VM for Windows ARM](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/0d09c41/windows-arm/bASICs-VM-Windows-ARM.ova?download=true).
+2. Download [bASICs VM for Windows ARM](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/659b8cc/windows-arm/bASICs-VM-Windows-ARM.ova?download=true).
 3. Open VirtualBox.
 4. Drag the downloaded `.ova` file into the VirtualBox window, or choose **File > Import Appliance** and select it.
 5. Start the VM.

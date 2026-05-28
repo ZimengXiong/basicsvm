@@ -13,7 +13,7 @@ Use this page for Macs with Apple Silicon processors: M1, M2, M3, M4, or newer.
 > The video assumes you have already downloaded all required files and installed UTM.
 
 1. Install [UTM 4.7.5](https://github.com/utmapp/UTM/releases/download/v4.7.5/UTM.dmg).
-2. Download [bASICs VM for Apple Silicon](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/0d09c41/macos-apple-silicon/bASICs-VM-Apple-Silicon.utm.zip?download=true).
+2. Download [bASICs VM for Apple Silicon](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/659b8cc/macos-apple-silicon/bASICs-VM-Apple-Silicon.utm.zip?download=true).
 3. Unzip the downloaded VM file.
 4. Open the `.utm` bundle in UTM.
 5. Start the VM.
