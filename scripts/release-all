@@ -47,11 +47,19 @@ for path in out/release out/final out/final-current; do
 done
 mkdir -p out/release
 
-echo "Building x86 release targets"
-scripts/build-release x86
+echo "Building x86 and ARM release targets"
+scripts/build-release x86 &
+x86_pid=$!
+BASICS_ARM_BUILDER="$arm_builder" BASICS_ARM_LIMA="$arm_lima" scripts/build-release arm &
+arm_pid=$!
 
-echo "Building ARM release targets"
-BASICS_ARM_BUILDER="$arm_builder" BASICS_ARM_LIMA="$arm_lima" scripts/build-release arm
+status=0
+wait "$x86_pid" || status=$?
+wait "$arm_pid" || status=$?
+if [[ "$status" -ne 0 ]]; then
+  echo "release target build failed" >&2
+  exit "$status"
+fi
 
 echo "Finalizing release tree"
 scripts/finalize-release
