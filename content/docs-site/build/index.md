@@ -79,16 +79,9 @@ scripts/finalize-release
 
 ## ARM builder
 
-The ARM release builder is a small Apple Silicon Mac at `zimengx@osxserver.lan`. It runs the `basics-arm-builder` Lima VM, which contains the Linux tools needed for aarch64 Nix builds. The machine only has 6 GB of RAM, so ARM builds are reproducible but not fast.
+The ARM release builder is a small Apple Silicon Mac at `zimengx@osxserver.lan`. It runs the `basics-arm-builder` Lima VM, which contains the Linux tools needed for aarch64 Nix builds. The machine has 8 GB of RAM and the VM uses swap, so ARM builds are reproducible but not fast.
 
-Set it up from a fresh checkout with:
-
-```bash
-ssh-copy-id zimengx@osxserver.lan
-scripts/setup-arm-builder zimengx@osxserver.lan
-```
-
-After setup, run ARM release targets from the main x86 checkout:
+Run ARM release targets from the main x86 checkout:
 
 ```bash
 BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release arm
