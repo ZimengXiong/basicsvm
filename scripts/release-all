@@ -40,7 +40,7 @@ echo "Release version: $version"
 echo "Cleaning generated release outputs while preserving caches"
 for path in out/release out/final out/final-current; do
   if [[ -e "$path" ]]; then
-    rm -rf "$path" 2>/dev/null || sudo rm -rf "$path"
+    rm -rf "$path" 2>/dev/null || mv "$path" "out/stale-$(basename "$path")-$(date +%Y%m%d%H%M%S)"
   fi
 done
 mkdir -p out/release
