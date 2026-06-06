@@ -41,8 +41,17 @@ For full release batches:
 ```bash
 ./scripts/build-release local
 ./scripts/build-release x86
-BASICS_ARM_BUILDER=xzm@xzm.local ./scripts/build-release arm
+BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder ./scripts/build-release arm
 ./scripts/finalize-release
+```
+
+The ARM builder is `zimengx@osxserver.lan` running the `basics-arm-builder` Lima VM. The ARM MacBook Air has limited memory, so treat it as a slow but reproducible builder.
+
+Bootstrap it with:
+
+```bash
+ssh-copy-id zimengx@osxserver.lan
+./scripts/setup-arm-builder zimengx@osxserver.lan
 ```
 
 ## Validation before publishing

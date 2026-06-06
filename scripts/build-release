@@ -12,22 +12,24 @@ Targets:
   all                  build every supported release target
   local                build local preview VM only
   x86                  build macos-intel, windows-x86, linux-x86
-  arm                  build macos-apple-silicon, windows-arm
+  arm                  build macos-apple-silicon, windows-arm, linux-arm
   macos-apple-silicon
   macos-intel
   windows-x86
   windows-arm
   linux-x86
+  linux-arm
 
 Environment:
   BASICS_ARM_BUILDER   ssh host that can run aarch64-linux builds
   BASICS_ARM_REPO      repo path on ARM builder, default: ~/Projects/basicsvm
+  BASICS_ARM_LIMA      Lima instance on BASICS_ARM_BUILDER, optional
 
 Examples:
   scripts/build-release local
   scripts/build-release x86
-  BASICS_ARM_BUILDER=xzm@xzm.local scripts/build-release arm
-  BASICS_ARM_BUILDER=xzm@xzm.local scripts/build-release all
+  BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release arm
+  BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release all
 EOF
 }
 
@@ -40,7 +42,7 @@ targets=()
 for arg in "$@"; do
   case "$arg" in
     all)
-      targets+=(macos-intel windows-x86 linux-x86 macos-apple-silicon windows-arm)
+      targets+=(macos-intel windows-x86 linux-x86 macos-apple-silicon windows-arm linux-arm)
       ;;
     local)
       targets+=(local)
@@ -49,9 +51,9 @@ for arg in "$@"; do
       targets+=(macos-intel windows-x86 linux-x86)
       ;;
     arm)
-      targets+=(macos-apple-silicon windows-arm)
+      targets+=(macos-apple-silicon windows-arm linux-arm)
       ;;
-    macos-apple-silicon|macos-intel|windows-x86|windows-arm|linux-x86)
+    macos-apple-silicon|macos-intel|windows-x86|windows-arm|linux-x86|linux-arm)
       targets+=("$arg")
       ;;
     *)
@@ -81,17 +83,97 @@ run_arm_target() {
   local target="$1"
   local builder="${BASICS_ARM_BUILDER:-}"
   local arm_repo="${BASICS_ARM_REPO:-~/Projects/basicsvm}"
+  local lima="${BASICS_ARM_LIMA:-}"
+  local remote_cmd
+  local remote_tar_cmd
 
   if [[ -z "$builder" ]]; then
     cat >&2 <<EOF
 $target needs an aarch64-linux builder.
 Set BASICS_ARM_BUILDER, for example:
-  BASICS_ARM_BUILDER=xzm@xzm.local scripts/build-release $target
+  BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release $target
 EOF
     exit 1
   fi
 
-  ssh "$builder" "cd $arm_repo && git pull --ff-only && scripts/package-vm $target"
+  remote_cmd="cd $arm_repo && git pull --ff-only && BASICS_USE_SYSTEM_NIX=1 scripts/package-vm $target"
+  if [[ -n "$lima" ]]; then
+    run_lima_command "$builder" "$lima" "$remote_cmd"
+    remote_tar_cmd="cd $arm_repo/out/release && tar -cf - $target"
+    mkdir -p "$repo_root/out/release"
+    run_lima_command "$builder" "$lima" "$remote_tar_cmd" \
+      | tar -C "$repo_root/out/release" -xf -
+  else
+    ssh "$builder" "$remote_cmd"
+    mkdir -p "$repo_root/out/release"
+    ssh "$builder" "cd $arm_repo/out/release && tar -cf - $target" \
+      | tar -C "$repo_root/out/release" -xf -
+  fi
+
+  if [[ "$target" == "windows-arm" ]]; then
+    ensure_windows_arm_ova
+  fi
+}
+
+run_lima_command() {
+  local builder="$1"
+  local lima="$2"
+  local command="$3"
+
+  ssh "$builder" /bin/bash -s -- "$lima" "$command" <<'REMOTE'
+set -euo pipefail
+lima="$1"
+command="$2"
+limactl shell "$lima" -- bash -lc "$command"
+REMOTE
+}
+
+ensure_windows_arm_ova() {
+  local pkg_dir="$repo_root/out/release/windows-arm/virtualbox"
+  local vdi="$pkg_dir/basicsvm-aarch64-linux.vdi"
+  local ova="$pkg_dir/bASICs-VM-Windows-ARM.ova"
+  local readme="$pkg_dir/README.txt"
+
+  if [[ -f "$ova" ]]; then
+    return 0
+  fi
+  if [[ ! -f "$vdi" ]]; then
+    echo "windows-arm packaging did not produce $vdi or $ova" >&2
+    exit 1
+  fi
+
+  if command -v VBoxManage >/dev/null 2>&1; then
+    "$repo_root/scripts/create-virtualbox-appliance" "$vdi" "$ova" --ostype Debian_arm64
+  else
+    "$repo_root/scripts/nix" shell nixpkgs#virtualbox --command \
+      "$repo_root/scripts/create-virtualbox-appliance" "$vdi" "$ova" --ostype Debian_arm64
+  fi
+
+  cat > "$readme" <<EOF
+bASICs VM - windows-arm
+
+Recommended app: VirtualBox
+VM architecture: aarch64-linux
+Login user: beaver
+Password: works
+
+Import this appliance in VirtualBox:
+$(basename "$ova")
+
+Suggested VM resources:
+- RAM: 8 GB minimum
+- CPU: 4 cores minimum
+- Disk: image virtual size is about 30 GiB
+
+The VM contains the EDA toolchain, SKY130 PDK, examples, and templates. Docs open at https://basics.alpacawebservices.com.
+EOF
+
+  (
+    cd "$repo_root/out/release/windows-arm"
+    : > checksums/SHA256SUMS
+    sha256sum "virtualbox/$(basename "$ova")" >> checksums/SHA256SUMS
+    sha256sum "virtualbox/README.txt" >> checksums/SHA256SUMS
+  )
 }
 
 for target in "${targets[@]}"; do
@@ -99,7 +181,7 @@ for target in "${targets[@]}"; do
     local|macos-intel|windows-x86|linux-x86)
       run_local_target "$target"
       ;;
-    macos-apple-silicon|windows-arm)
+    macos-apple-silicon|windows-arm|linux-arm)
       run_arm_target "$target"
       ;;
   esac

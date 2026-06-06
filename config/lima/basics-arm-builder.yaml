@@ -1,0 +1,50 @@
+arch: aarch64
+cpus: 3
+memory: 3GiB
+disk: 180GiB
+
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: aarch64
+
+mounts: []
+
+provision:
+  - mode: system
+    script: |
+      set -eux
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y \
+        bubblewrap \
+        ca-certificates \
+        curl \
+        git \
+        qemu-utils \
+        rsync \
+        sudo \
+        uidmap \
+        xz-utils \
+        zstd
+
+      if [ ! -f /swapfile-basics ]; then
+        fallocate -l 16G /swapfile-basics || dd if=/dev/zero of=/swapfile-basics bs=1M count=16384
+        chmod 600 /swapfile-basics
+        mkswap /swapfile-basics
+      fi
+      grep -q '^/swapfile-basics ' /etc/fstab || echo '/swapfile-basics none swap sw 0 0' >> /etc/fstab
+      swapon /swapfile-basics || true
+
+      if [ ! -x /nix/var/nix/profiles/default/bin/nix ]; then
+        curl -L https://nixos.org/nix/install | sh -s -- --daemon --yes
+      fi
+
+      mkdir -p /etc/nix
+      touch /etc/nix/nix.conf
+      grep -q '^experimental-features = nix-command flakes' /etc/nix/nix.conf || echo 'experimental-features = nix-command flakes' >> /etc/nix/nix.conf
+      grep -q '^accept-flake-config = true' /etc/nix/nix.conf || echo 'accept-flake-config = true' >> /etc/nix/nix.conf
+      grep -q '^trusted-users = root @sudo' /etc/nix/nix.conf || echo 'trusted-users = root @sudo' >> /etc/nix/nix.conf
+
+containerd:
+  system: false
+  user: false

@@ -63,3 +63,20 @@ scripts/package-vm linux-arm
 ```
 
 Linux ARM is packaged as a QEMU disk image rather than a VirtualBox appliance.
+
+## ARM builder
+
+The current ARM builder host is `zimengx@osxserver.lan`. It runs an aarch64 Linux builder environment on the Apple Silicon Mac.
+
+Bootstrap it with:
+
+```bash
+ssh-copy-id zimengx@osxserver.lan
+scripts/setup-arm-builder zimengx@osxserver.lan
+```
+
+After setup, build ARM releases from the main checkout with:
+
+```bash
+BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release arm
+```

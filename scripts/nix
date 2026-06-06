@@ -5,6 +5,12 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 portable_dir="$repo_root/.nix-portable"
 portable_bin="$portable_dir/bin/nix-portable"
 
+export NIX_CONFIG="${NIX_CONFIG:-}
+experimental-features = nix-command flakes
+accept-flake-config = true
+extra-substituters = https://cache.nixos.org
+"
+
 if [[ "${BASICS_USE_SYSTEM_NIX:-0}" == "1" ]] && command -v nix >/dev/null 2>&1; then
   exec nix "$@"
 fi
@@ -47,10 +53,4 @@ export HOME="$portable_dir/home"
 export NP_LOCATION="$portable_dir/state"
 export NP_RUNTIME="bwrap"
 export TMPDIR="$repo_root/out/tmp"
-export NIX_CONFIG="${NIX_CONFIG:-}
-experimental-features = nix-command flakes
-accept-flake-config = true
-extra-substituters = https://cache.nixos.org
-"
-
 exec "$portable_bin" nix "$@"
