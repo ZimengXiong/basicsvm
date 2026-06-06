@@ -270,7 +270,7 @@ assemble_from_repart_build_dir() {
   fi
   if [[ "$(id -u)" -ne 0 ]]; then
     echo "--repart-build-dir must run as root because systemd-repart mounts loop filesystems." >&2
-    echo "Rerun with sudo, preserving this repo path and output path." >&2
+    echo "This fallback is for local debugging only; release builds must use the normal Nix image target." >&2
     exit 1
   fi
   local work="$raw_dir/repart-work"
@@ -380,10 +380,8 @@ else
     cat >&2 <<EOF
 
 Nix built the system closure but failed during final image assembly.
-If the log says "keeping build directory", rerun this target on the same
-builder with:
-
-  sudo $repo_root/scripts/package-vm $target --repart-build-dir /nix/var/nix/builds/...
+Release builds are intentionally noninteractive. Fix the Nix image assembly
+failure above, then rerun scripts/release-all.
 
 EOF
     exit 1
