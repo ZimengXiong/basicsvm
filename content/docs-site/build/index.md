@@ -11,7 +11,7 @@ These builds need enough local storage, CPU, and memory to keep the VM image and
 | Requirement | What to use |
 | --- | --- |
 | Builder OS | NixOS or another Linux host for x86; macOS with Lima for ARM |
-| Free storage | At least 600 GB for VM images, PDK closures, and intermediate output |
+| Free storage | At least 200 GB free on each builder, plus room for Nix caches |
 | CPU and memory | At least 12 CPU cores and 32 GB RAM for fast builds; the ARM builder can run smaller with swap |
 | Build time | About 6 to 10 minutes per release build |
 | Build machines | One of each architecture |
@@ -71,15 +71,12 @@ Linux ARM is provided as a QEMU disk image rather than a VirtualBox appliance.
 For a full release batch:
 
 ```bash
-scripts/build-release local
-scripts/build-release x86
-BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release arm
-scripts/finalize-release
+scripts/release-all
 ```
 
 ## ARM builder
 
-The ARM release builder is a small Apple Silicon Mac at `zimengx@osxserver.lan`. It runs the `basics-arm-builder` Lima VM, which contains the Linux tools needed for aarch64 Nix builds. The machine has 8 GB of RAM and the VM uses swap, so ARM builds are reproducible but not fast.
+The ARM release builder is a small Apple Silicon Mac at `zimengx@osxserver.lan`. It runs the `basics-arm-builder` Lima VM, which contains the Linux tools needed for aarch64 Nix builds. The machine has limited RAM and the VM uses swap, so ARM builds are reproducible but not fast.
 
 Run ARM release targets from the main x86 checkout:
 

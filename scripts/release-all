@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+usage() {
+  cat >&2 <<'EOF'
+usage: scripts/release-all
+
+Builds every VM target, finalizes the release tree, uploads it to Hugging Face,
+updates docs download links, builds docs, commits the docs link update, and
+pushes main.
+
+Requires a clean git tree before it starts.
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ $# -ne 0 ]]; then
+  usage
+  exit 2
+fi
+
+if [[ -n "$(git status --short)" ]]; then
+  echo "git tree is dirty; commit or stash changes before running release-all" >&2
+  git status --short >&2
+  exit 1
+fi
+
+version="$(git rev-parse --short HEAD)"
+arm_builder="${BASICS_ARM_BUILDER:-zimengx@osxserver.lan}"
+arm_lima="${BASICS_ARM_LIMA:-basics-arm-builder}"
+
+echo "Release version: $version"
+echo "Cleaning generated release outputs while preserving caches"
+rm -rf out/release out/final out/final-current
+mkdir -p out/release
+
+echo "Building x86 release targets"
+scripts/build-release x86
+
+echo "Building ARM release targets"
+BASICS_ARM_BUILDER="$arm_builder" BASICS_ARM_LIMA="$arm_lima" scripts/build-release arm
+
+echo "Finalizing release tree"
+scripts/finalize-release
+
+echo "Uploading release to Hugging Face"
+scripts/upload-hf-release --source out/final --version "$version"
+
+echo "Updating docs download links"
+scripts/update-release-links "$version"
+
+echo "Building docs"
+npm --prefix content/docs-site run build
+
+if [[ -n "$(git status --short content/docs-site)" ]]; then
+  git add content/docs-site
+  git commit -m "Update docs for release $version"
+  git push
+else
+  echo "Docs already pointed at release $version; nothing to commit."
+fi
+
+echo "Release complete:"
+echo "  https://huggingface.co/datasets/zimengxiong/basicsvm/tree/main/releases/$version"

@@ -11,7 +11,7 @@ Targets:
   macos-apple-silicon   aarch64 zipped UTM bundle
   macos-intel           x86_64 zipped UTM bundle
   windows-x86           x86_64 VirtualBox OVA
-  windows-arm           aarch64 VirtualBox VDI
+  windows-arm           aarch64 VirtualBox VDI, or OVA with --ova/build-release
   linux-x86             x86_64 VirtualBox OVA
   linux-arm             aarch64 QEMU qcow2 disk image
 
@@ -26,7 +26,7 @@ Options:
 Examples:
   scripts/package-vm windows-x86
   scripts/package-vm macos-apple-silicon --raw /path/to/basicsvm-aarch64-linux.raw
-  scripts/package-vm windows-arm --repart-build-dir /nix/var/nix/builds/nix-...-...
+  scripts/package-vm windows-arm --ova
 EOF
 }
 
@@ -180,7 +180,7 @@ Import this appliance in VirtualBox:
 $(basename "$ova_path")
 
 Suggested VM resources:
-- RAM: 8 GB minimum
+- RAM: 6 GB minimum
 - CPU: 4 cores minimum
 - Disk: image virtual size is about 30 GiB
 
@@ -334,7 +334,7 @@ UTM_TEXT
 )
 
 Suggested VM resources:
-- RAM: 8 GB minimum
+- RAM: 6 GB minimum
 - CPU: 4 cores minimum
 - Disk: image virtual size is about 30 GiB
 
@@ -471,7 +471,7 @@ UTM_TEXT
 )
 
 Suggested VM resources:
-- RAM: 8 GB minimum
+- RAM: 6 GB minimum
 - CPU: 4 cores minimum
 - Disk: image virtual size is about 30 GiB
 

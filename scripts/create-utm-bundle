@@ -211,7 +211,7 @@ cat > "$bundle_path/config.plist" <<EOF
     <key>JITCacheSize</key>
     <integer>0</integer>
     <key>MemorySize</key>
-    <integer>8192</integer>
+    <integer>6144</integer>
     <key>Target</key>
     <string>${target}</string>
   </dict>
@@ -224,6 +224,7 @@ if [[ "$zip_bundle" -eq 1 ]]; then
     cd "$out_dir"
     python3 -m zipfile -c "$(basename "$zip_path")" "$(basename "$bundle_path")"
   )
+  rm -rf "$bundle_path"
 fi
 
 printf '%s\n' "$([[ "$zip_bundle" -eq 1 ]] && echo "$zip_path" || echo "$bundle_path")"

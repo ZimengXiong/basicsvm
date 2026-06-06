@@ -8,7 +8,7 @@ usage: scripts/create-virtualbox-appliance VDI OUT_OVA [options]
 Options:
   --name NAME       VM/appliance name, default: bASICs VM
   --cpus N          virtual CPUs, default: 4
-  --memory MB       RAM in MiB, default: 8192
+  --memory MB       RAM in MiB, default: 6144
   --vram MB         display RAM in MiB, default: 128
   --ostype ID       VirtualBox OS type, default: Linux_64
   --workdir DIR     temporary VirtualBox home, default: OUT_OVA.work
@@ -29,7 +29,7 @@ shift 2
 
 name="bASICs VM"
 cpus="4"
-memory="8192"
+memory="6144"
 vram="128"
 ostype="Linux_64"
 workdir=""

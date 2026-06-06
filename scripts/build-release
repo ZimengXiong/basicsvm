@@ -161,7 +161,7 @@ Import this appliance in VirtualBox:
 $(basename "$ova")
 
 Suggested VM resources:
-- RAM: 8 GB minimum
+- RAM: 6 GB minimum
 - CPU: 4 cores minimum
 - Disk: image virtual size is about 30 GiB
 

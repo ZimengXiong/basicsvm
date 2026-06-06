@@ -15,12 +15,7 @@ This section is for people packaging VM images and preparing release artifacts.
 ## Release image packaging
 
 ```bash
-./scripts/package-vm macos-apple-silicon
-./scripts/package-vm macos-intel
-./scripts/package-vm windows-x86
-./scripts/package-vm windows-arm
-./scripts/package-vm linux-x86
-./scripts/package-vm linux-arm
+./scripts/release-all
 ```
 
 ## Target matrix
@@ -36,7 +31,7 @@ This section is for people packaging VM images and preparing release artifacts.
 
 Linux ARM is provided as a QEMU disk image rather than a VirtualBox appliance.
 
-For full release batches:
+For manual release batches:
 
 ```bash
 ./scripts/build-release local

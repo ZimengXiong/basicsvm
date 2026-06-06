@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  cat >&2 <<'EOF'
+usage: scripts/update-release-links VERSION
+
+Updates docs install pages to point at the given Hugging Face release version.
+EOF
+  exit 0
+fi
+
+version="${1:-}"
+if [[ -z "$version" ]]; then
+  cat >&2 <<'EOF'
+usage: scripts/update-release-links VERSION
+
+Updates docs install pages to point at the given Hugging Face release version.
+EOF
+  exit 2
+fi
+
+base="https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/$version"
+
+replace_download() {
+  local file="$1"
+  local label="$2"
+  local url="$3"
+  python3 - "$file" "$label" "$url" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+label = re.escape(sys.argv[2])
+url = sys.argv[3]
+text = path.read_text()
+pattern = re.compile(rf"(\[bASICs VM for {label}\]\()https://huggingface\.co/datasets/zimengxiong/basicsvm/resolve/main/releases/[^)]+(\))")
+updated, count = pattern.subn(rf"\1{url}\2", text)
+if count != 1:
+    raise SystemExit(f"expected exactly one download link for {sys.argv[2]} in {path}, found {count}")
+path.write_text(updated)
+PY
+}
+
+replace_download content/docs-site/install/windows-x86.md "Windows x86" "$base/windows-x86/basicsvm-x86_64-linux.ova?download=true"
+replace_download content/docs-site/install/windows-arm.md "Windows ARM" "$base/windows-arm/bASICs-VM-Windows-ARM.ova?download=true"
+replace_download content/docs-site/install/linux-x86.md "Linux x86" "$base/linux-x86/basicsvm-x86_64-linux.ova?download=true"
+replace_download content/docs-site/install/linux-arm.md "Linux ARM" "$base/linux-arm/basicsvm-aarch64-linux.qcow2?download=true"
+replace_download content/docs-site/install/mac-intel.md "Intel Mac" "$base/macos-intel/bASICs-VM-Intel-Mac.utm.zip?download=true"
+replace_download content/docs-site/install/mac-apple-silicon.md "Apple Silicon" "$base/macos-apple-silicon/bASICs-VM-Apple-Silicon.utm.zip?download=true"
+
+echo "Updated docs install links to release $version"

@@ -12,6 +12,8 @@ Files under `content/` are what get placed into the VM for users. That includes 
 
 The `assets/` directory holds the visual pieces used by the VM, including logos, wallpaper, and desktop-facing images. The docs site also has its own public assets under `content/docs-site/public`, including screenshots and demo videos.
 
+Maintainers should start with [MAINTAINER_GUIDE.md](MAINTAINER_GUIDE.md).
+
 ## License
 
 This repository is licensed under the MIT License. See [LICENSE](LICENSE).
