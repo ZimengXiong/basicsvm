@@ -22,7 +22,7 @@ Targets:
 
 Environment:
   BASICS_ARM_BUILDER   ssh host that can run aarch64-linux builds
-  BASICS_ARM_REPO      repo path on ARM builder, default: ~/Projects/basicsvm
+  BASICS_ARM_REPO      repo path inside the ARM builder, default: /home/zimengx.guest/Projects/basicsvm
   BASICS_ARM_LIMA      Lima instance on BASICS_ARM_BUILDER, optional
 
 Examples:
@@ -82,10 +82,11 @@ run_local_target() {
 run_arm_target() {
   local target="$1"
   local builder="${BASICS_ARM_BUILDER:-}"
-  local arm_repo="${BASICS_ARM_REPO:-~/Projects/basicsvm}"
+  local arm_repo="${BASICS_ARM_REPO:-/home/zimengx.guest/Projects/basicsvm}"
   local lima="${BASICS_ARM_LIMA:-}"
   local remote_cmd
   local remote_tar_cmd
+  local quoted_arm_repo
 
   if [[ -z "$builder" ]]; then
     cat >&2 <<EOF
@@ -96,10 +97,11 @@ EOF
     exit 1
   fi
 
-  remote_cmd="cd $arm_repo && git pull --ff-only && BASICS_USE_SYSTEM_NIX=1 scripts/package-vm $target"
+  printf -v quoted_arm_repo '%q' "$arm_repo"
+  remote_cmd="cd $quoted_arm_repo && git pull --ff-only && BASICS_USE_SYSTEM_NIX=1 scripts/package-vm $target"
   if [[ -n "$lima" ]]; then
     run_lima_command "$builder" "$lima" "$remote_cmd"
-    remote_tar_cmd="cd $arm_repo/out/release && tar -cf - $target"
+    remote_tar_cmd="cd $quoted_arm_repo/out/release && tar -cf - $target"
     mkdir -p "$repo_root/out/release"
     run_lima_command "$builder" "$lima" "$remote_tar_cmd" \
       | tar -C "$repo_root/out/release" -xf -
