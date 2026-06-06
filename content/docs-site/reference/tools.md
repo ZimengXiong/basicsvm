@@ -63,6 +63,12 @@ $PDK_ROOT/sky130A/libs.tech/magic/sky130A.tech
 | KLayout | GDS viewing |
 | Magic | layout viewing, editing, DRC |
 | Netgen | LVS |
+| ngspice | SPICE simulation |
+| GTKWave | waveform viewing |
+| Xschem | schematic capture |
+| Graphviz, xdot | graph viewing |
+| SymbiYosys, Z3, Yices, Boolector, Bitwuzla, cvc5 | formal verification |
+| Surelog, UHDM | SystemVerilog parsing |
 | Python | scripting and flow support |
 | Git, Make, jq, rsync, curl | project utilities |
 | Vim, nano, tree | editing and inspection |
@@ -75,6 +81,10 @@ openroad -version
 yosys -V
 klayout -v
 magic --version
+ngspice --version
+gtkwave --version
+xschem -h
+sby -h
 ```
 
 ## Build commands

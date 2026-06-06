@@ -55,7 +55,8 @@ test ! -e "$PDK_ROOT/gf180mcuD"
 echo "== command availability =="
 for cmd in \
   openlane openroad yosys magic netgen verilator iverilog klayout \
-  yowasp-yosys python
+  ngspice gtkwave xschem dot xdot sby z3 yices boolector bitwuzla \
+  surelog uhdm-dump ciel cvc5 yowasp-yosys python
 do
   command -v "$cmd" >/dev/null
 done
@@ -83,6 +84,19 @@ magic --version >/dev/null
 verilator --version >/dev/null
 iverilog -V >/dev/null || true
 klayout -v >/dev/null
+ngspice --version >/dev/null
+gtkwave --version >/dev/null
+xschem -h >/dev/null
+dot -V >/dev/null
+sby -h >/dev/null
+z3 --version >/dev/null
+yices --version >/dev/null
+boolector --version >/dev/null
+bitwuzla --version >/dev/null
+surelog -version >/dev/null
+uhdm-dump 2>&1 | grep "Usage:" >/dev/null
+ciel --version >/dev/null
+cvc5 --version >/dev/null
 yowasp-yosys -V >/dev/null
 
 echo "== templates and TinyTapeout support scripts =="

@@ -228,9 +228,23 @@ PY
     yosys
     magic-vlsi
     netgen
+    ngspice
     klayout
     verilator
     (pkgs.iverilog or pkgs.verilog)
+    gtkwave
+    xschem
+    graphviz
+    xdot
+    symbiyosys
+    z3
+    yices
+    boolector
+    bitwuzla
+    surelog
+    uhdm
+    ciel
+    cvc5
   ];
 in
 {
