@@ -42,6 +42,8 @@ https://huggingface.co/datasets/zimengxiong/basicsvm/tree/main/releases/<version
 
 x86 targets build on the main Linux workstation. ARM targets build on `zimengx@osxserver.lan` through the `basics-arm-builder` Lima VM. The ARM builder is small and uses swap, so ARM builds are expected to be slow.
 
+The ARM Lima VM does not allow the privileged user namespace setup needed by the Nix repart image assembly. For `windows-arm`, `scripts/package-vm` therefore builds the reproducible aarch64 qcow image and converts it to a VirtualBox VDI; `scripts/build-release` then wraps the returned VDI into the final `bASICs-VM-Windows-ARM.ova` on the main Linux workstation.
+
 Check the ARM builder with:
 
 ```bash

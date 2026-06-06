@@ -86,6 +86,8 @@ BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scri
 
 `scripts/build-release` copies completed ARM artifacts back into local `out/release`. For `windows-arm`, it wraps the returned ARM VDI into the final VirtualBox OVA locally when the ARM builder cannot run VirtualBox itself.
 
+The ARM Lima VM cannot run the privileged user namespace setup used by the Nix repart image assembly. The `windows-arm` package path therefore builds the same aarch64 qcow image used by the other ARM targets and converts it to a VirtualBox VDI before the local OVA wrapping step.
+
 ## Verify the build
 
 Before publishing, run the checks:
