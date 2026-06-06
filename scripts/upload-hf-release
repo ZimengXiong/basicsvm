@@ -17,6 +17,8 @@ Options:
   --dry-run          Write manifest but do not create/upload
 
 Uploads the polished bASICs VM release folders to Hugging Face.
+After upload, the script verifies that every local file is visible under
+releases/<version> with the expected byte count.
 EOF
 }
 
@@ -150,5 +152,39 @@ api.upload_folder(
     path_in_repo=f"releases/{version}",
     commit_message=f"Upload bASICs VM release {version}",
 )
+
+expected = {
+    f"releases/{version}/{entry['path']}": entry["bytes"]
+    for entry in files
+}
+expected[f"releases/{version}/{manifest_path.name}"] = manifest_path.stat().st_size
+remote = {
+    item.path: item.size
+    for item in api.list_repo_tree(
+        repo_id=repo_id,
+        repo_type=repo_type,
+        path_in_repo=f"releases/{version}",
+        recursive=True,
+    )
+    if getattr(item, "size", None) is not None
+}
+missing = sorted(path for path in expected if path not in remote)
+wrong_size = sorted(
+    (path, expected[path], remote[path])
+    for path in expected
+    if path in remote and expected[path] != remote[path]
+)
+if missing or wrong_size:
+    if missing:
+        print("Missing remote files:")
+        for path in missing:
+            print(f"  {path}")
+    if wrong_size:
+        print("Remote files with unexpected byte counts:")
+        for path, expected_size, remote_size in wrong_size:
+            print(f"  {path}: expected {expected_size}, got {remote_size}")
+    raise SystemExit(1)
+
+print(f"Verified {len(expected)} remote files.")
 print(f"Uploaded to https://huggingface.co/{repo_type}s/{repo_id}/tree/main/releases/{version}")
 PY
