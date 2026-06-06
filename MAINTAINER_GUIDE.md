@@ -30,6 +30,8 @@ scripts/release-all
 
 That command cleans generated release outputs, preserves caches, builds every target, finalizes `out/final`, uploads the release to Hugging Face, updates docs install links, builds docs, commits the docs link update, and pushes `main`.
 
+On the main workstation, `scripts/release-all` first runs `scripts/setup-release-storage`. That keeps the source checkout on `/` but stores ignored build output at `/mnt/4TB/vms/basicsvm/out` through the repo's `out` symlink. If a different builder needs another large disk, set `BASICS_OUT_ROOT` once before running release commands.
+
 The release version is the short git SHA at the start of the run. Published files go to:
 
 ```text
@@ -104,5 +106,7 @@ result-*
 ```
 
 Do not delete `.nix-portable`, `/nix`, `out/hf-venv`, or the remote builder's Nix store unless intentionally doing a cold-cache rebuild.
+
+Use `scripts/setup-release-storage` after a fresh checkout on the main workstation. It is noninteractive and moves any existing ignored `out` contents to the external output root.
 
 UTM packaging removes the unzipped `.utm` bundle after creating the zip. Raw images are removed unless `--keep-raw` is explicitly used. If final output contains raw images, unzipped `.utm` bundles, or duplicate disk fallbacks, fix the packaging script rather than editing the upload tree by hand.

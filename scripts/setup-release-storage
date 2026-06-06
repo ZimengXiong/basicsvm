@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+usage() {
+  cat >&2 <<'EOF'
+usage: scripts/setup-release-storage
+
+Ensures ignored build and release output lives outside the source checkout.
+On this builder the default location is /mnt/4TB/vms/basicsvm/out.
+
+Environment:
+  BASICS_OUT_ROOT   override output directory
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ $# -ne 0 ]]; then
+  usage
+  exit 2
+fi
+
+if [[ -n "${BASICS_OUT_ROOT:-}" ]]; then
+  out_root="$BASICS_OUT_ROOT"
+elif [[ -d /mnt/4TB && -w /mnt/4TB ]]; then
+  out_root="/mnt/4TB/vms/basicsvm/out"
+else
+  out_root="$repo_root/out"
+fi
+
+out_root="$(mkdir -p "$out_root" && cd "$out_root" && pwd)"
+
+if [[ "$out_root" == "$repo_root/out" ]]; then
+  mkdir -p "$repo_root/out/tmp" "$repo_root/out/release"
+  printf '%s\n' "$repo_root/out"
+  exit 0
+fi
+
+mkdir -p "$out_root/tmp" "$out_root/release"
+
+if [[ -L "$repo_root/out" ]]; then
+  current="$(readlink -f "$repo_root/out")"
+  if [[ "$current" != "$out_root" ]]; then
+    rm "$repo_root/out"
+    ln -s "$out_root" "$repo_root/out"
+  fi
+elif [[ -d "$repo_root/out" ]]; then
+  shopt -s dotglob nullglob
+  for item in "$repo_root"/out/*; do
+    mv "$item" "$out_root"/
+  done
+  shopt -u dotglob nullglob
+  rmdir "$repo_root/out"
+  ln -s "$out_root" "$repo_root/out"
+else
+  ln -s "$out_root" "$repo_root/out"
+fi
+
+printf '%s\n' "$out_root"

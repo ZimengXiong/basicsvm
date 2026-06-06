@@ -1,6 +1,7 @@
 .nix-portable/
 .antigravitycli/
 cache/
+out
 out/
 result
 result-*

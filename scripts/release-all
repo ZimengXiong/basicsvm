@@ -35,8 +35,10 @@ fi
 version="$(git rev-parse --short HEAD)"
 arm_builder="${BASICS_ARM_BUILDER:-zimengx@osxserver.lan}"
 arm_lima="${BASICS_ARM_LIMA:-basics-arm-builder}"
+out_root="$(scripts/setup-release-storage)"
 
 echo "Release version: $version"
+echo "Output root: $out_root"
 echo "Cleaning generated release outputs while preserving caches"
 for path in out/release out/final out/final-current; do
   if [[ -e "$path" ]]; then
