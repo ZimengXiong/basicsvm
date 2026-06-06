@@ -121,8 +121,12 @@ run_lima_command() {
   local builder="$1"
   local lima="$2"
   local command="$3"
+  local quoted_lima
+  local quoted_command
 
-  ssh "$builder" /bin/bash -s -- "$lima" "$command" <<'REMOTE'
+  printf -v quoted_lima '%q' "$lima"
+  printf -v quoted_command '%q' "$command"
+  ssh "$builder" "/bin/bash -s -- $quoted_lima $quoted_command" <<'REMOTE'
 set -euo pipefail
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 lima="$1"
