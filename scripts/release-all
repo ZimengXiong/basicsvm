@@ -38,7 +38,11 @@ arm_lima="${BASICS_ARM_LIMA:-basics-arm-builder}"
 
 echo "Release version: $version"
 echo "Cleaning generated release outputs while preserving caches"
-rm -rf out/release out/final out/final-current
+for path in out/release out/final out/final-current; do
+  if [[ -e "$path" ]]; then
+    rm -rf "$path" 2>/dev/null || sudo rm -rf "$path"
+  fi
+done
 mkdir -p out/release
 
 echo "Building x86 release targets"
