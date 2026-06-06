@@ -53,13 +53,15 @@ x86_pid=$!
 BASICS_ARM_BUILDER="$arm_builder" BASICS_ARM_LIMA="$arm_lima" scripts/build-release arm &
 arm_pid=$!
 
-status=0
-wait "$x86_pid" || status=$?
-wait "$arm_pid" || status=$?
-if [[ "$status" -ne 0 ]]; then
+if ! wait -n "$x86_pid" "$arm_pid"; then
+  kill "$x86_pid" "$arm_pid" 2>/dev/null || true
+  wait "$x86_pid" 2>/dev/null || true
+  wait "$arm_pid" 2>/dev/null || true
   echo "release target build failed" >&2
-  exit "$status"
+  exit 1
 fi
+wait "$x86_pid"
+wait "$arm_pid"
 
 echo "Finalizing release tree"
 scripts/finalize-release

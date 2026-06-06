@@ -122,6 +122,7 @@ run_lima_command() {
 
   ssh "$builder" /bin/bash -s -- "$lima" "$command" <<'REMOTE'
 set -euo pipefail
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 lima="$1"
 command="$2"
 limactl shell "$lima" -- bash -lc "$command"
