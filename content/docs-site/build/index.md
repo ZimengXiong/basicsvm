@@ -4,6 +4,12 @@ The entire repository is a Nix flake. The flake pins the build inputs so the VM,
 
 ## Philosophy
 
+Everything should be managed from one repo.
+
+Docs, scripts, templates, package lists, PDK setup, and release config should stay in sync through Git. We should not need to hop between separate repos or hand-maintained setup notes to understand what is in a VM release.
+
+Nix is used so the repo tracks the build inputs directly. The same revision should define the VM image, local shell, PDK install, templates, and release packages.
+
 ```mermaid
 flowchart TD
   repo["Git repo<br/>flake, docs, templates, scripts"]
