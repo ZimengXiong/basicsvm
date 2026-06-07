@@ -1,0 +1,34 @@
+.vp-doc details > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.vp-doc details > summary::marker {
+  content: '';
+}
+
+.vp-doc details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.vp-doc details > summary::before {
+  content: '';
+  width: 0;
+  height: 0;
+  margin-right: 10px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid currentColor;
+  flex: 0 0 auto;
+}
+
+.vp-doc details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.vp-doc details div[class*='language-'] {
+  margin-top: 12px;
+}
