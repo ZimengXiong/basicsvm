@@ -327,32 +327,37 @@ The run can take several minutes. Near the end, a passing run prints `Flow compl
 
 GDS is the final layout format. It contains geometry on manufacturing layers, not Verilog behavior.
 
-Find the newest run directory:
+Go to the OpenLane runs folder and list the run directories:
 
 ```bash
-run_dir="$(find runs -maxdepth 1 -mindepth 1 -type d | sort | tail -1)"
-echo "$run_dir"
+cd runs
+ls
 ```
 
-- `find runs -maxdepth 1 -mindepth 1 -type d` lists the run directories.
-- `sort | tail -1` selects the newest run by its timestamped directory name.
-- `run_dir="..."` stores that path in a shell variable.
-- `echo "$run_dir"` prints the selected run directory.
+- `cd runs` enters the folder where OpenLane writes each run.
+- `ls` lists the OpenLane run directories.
+- Each run directory is named with a timestamp.
+
+Change into the run directory that OpenLane just created. Type `cd `, then the directory name you see from `ls`.
+
+```bash
+cd RUN...
+```
 
 Look at the final layout outputs and check that the GDS exists:
 
 ```bash
-tree "$run_dir/final" -L 1
-test -s "$run_dir/final/gds/adder2.gds"
+tree final -L 1
+test -s final/gds/adder2.gds
 ```
 
-- `tree "$run_dir/final" -L 1` lists the top level of the final output directory.
-- `test -s .../adder2.gds` checks that the GDS file exists and is not empty.
+- `tree final -L 1` lists the top level of the final output directory.
+- `test -s final/gds/adder2.gds` checks that the GDS file exists and is not empty.
 
 Open the final GDS:
 
 ```bash
-klayout "$run_dir/final/klayout_gds/adder2.klayout.gds"
+klayout final/klayout_gds/adder2.klayout.gds
 ```
 
 - `klayout` opens the layout viewer.
