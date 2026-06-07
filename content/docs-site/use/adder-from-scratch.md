@@ -1,21 +1,21 @@
 # Adder From Scratch
 
-Build a tiny 2-bit registered adder by writing the Verilog yourself, simulating it, synthesizing it, choosing a PDK, and running OpenLane all the way to a GDS layout.
+In this guide, you will build a tiny 2-bit registered adder by writing Verilog, simulating it, synthesizing it, choosing a PDK, and running OpenLane all the way to a GDS layout.
 
-You are going to make a small digital circuit and then turn it into the kind of layout file that a chip factory can manufacture.
+That sounds like a lot, but the circuit is deliberately small. The goal is to see the whole path once: a few lines of hardware description become gates, the gates become placed and routed chip geometry, and the final result is a layout file that chip tools can inspect.
 
-- **Verilog** is the text language you will use to describe the circuit.
-- **RTL** means register-transfer level. It describes what happens between registers on each clock cycle.
-- **Simulation** runs your Verilog like a program so you can check the behavior before making a layout.
-- **Synthesis** turns RTL into a netlist made of standard cells such as gates and flip-flops.
-- **A PDK** is the process design kit. It tells the tools the design rules and cell libraries for a real manufacturing process.
-- **OpenLane** places the cells, routes wires between them, checks the result, and writes the final layout files.
+- **Verilog** is the text language we will use to describe the circuit.
+- **RTL** means register-transfer level. It is the style of Verilog that describes what hardware should do on each clock cycle.
+- **Simulation** runs the Verilog so we can check the behavior before we ask layout tools to do slower work.
+- **Synthesis** turns RTL into a netlist made from standard cells such as gates and flip-flops.
+- **A PDK** is the process design kit. It gives the tools the design rules, timing data, and cell libraries for a real manufacturing process.
+- **OpenLane** takes the synthesized design, places the cells, routes wires, checks the result, and writes the final layout files.
 
-The circuit is intentionally small. The point is to see every part of the RTL-to-GDS path once, not to build a useful calculator.
+You do not need to know all of those words before you start. Each one will come up again at the point where you need it.
 
 ## Create the project
 
-Start in `~/bASICs/work`, the writable workspace in the VM. A project is just a folder with source files, constraints, configuration, and tool output.
+Start in `~/bASICs/work`, the writable workspace in the VM. For this flow, a project is just a folder that holds the Verilog source, a few setup files for the tools, and the output that the tools generate.
 
 ```bash
 cd ~/bASICs/work
@@ -25,13 +25,13 @@ cd adder2
 
 ## Write the RTL
 
-RTL is the part of the project that describes the hardware you want. For this design, the hardware is one register named `sum` and a small adder feeding it. The register matters because real chips usually update data on clock edges instead of changing every signal at any time.
+The RTL is the actual hardware design. Here, the hardware is one register named `sum` and a small adder that feeds it. The register matters because real synchronous chips usually update stored values on clock edges, instead of letting every output change at any random time.
 
 Create `src/adder2.v` in your editor.
 
-Start with a module named `adder2`. Give it a clock, an active-low reset, two 2-bit inputs named `a` and `b`, and a 3-bit registered output named `sum`.
+The design will be a module named `adder2`. It has a clock, an active-low reset, two 2-bit inputs named `a` and `b`, and a 3-bit registered output named `sum`.
 
-Write your own version first. Open the solution only when you want to compare it against a complete implementation.
+Type the RTL below into your file and read the comments as you go. The comments are part of the lesson: they explain what each signal and block is doing.
 
 ::: details Show one working RTL solution
 
@@ -59,11 +59,11 @@ endmodule
 
 ## Write a testbench
 
-Before making a layout, check that the RTL behaves correctly. A testbench is simulation-only Verilog. It is not part of the chip layout; it drives your RTL, waits for clock edges, and checks the answers.
+Before making a layout, check that the RTL behaves correctly. A testbench is also Verilog, but it is only for simulation. It is not part of the chip. Its job is to drive inputs into your design, wait for clock edges, and check that the outputs are what you expect.
 
 Create `src/adder2_tb.v`.
 
-Make the testbench reset the design, try at least two input pairs, fail if the output is wrong, and write a waveform named `adder2.vcd`.
+This testbench resets the design, tries two input pairs, stops with an error if the output is wrong, and writes a waveform named `adder2.vcd` so you can inspect the signals later.
 
 ::: details Show one working testbench
 
@@ -118,7 +118,7 @@ endmodule
 
 ## Simulate
 
-Simulation is your first feedback loop. It answers: “Does my RTL do the thing I meant?” It does not prove the circuit can be manufactured, but it catches basic logic mistakes before the slower physical-design flow.
+Simulation is the first feedback loop. It answers a simple question: does the RTL behave the way you meant? It does not prove the circuit can be manufactured, but it catches basic logic mistakes before you spend time running the physical-design flow.
 
 Run a lint check first:
 
@@ -141,7 +141,7 @@ gtkwave adder2.vcd
 
 ## Synthesize RTL
 
-Synthesis changes the design from “behavior described in Verilog” into “connected hardware cells.” Yosys reads the RTL, chooses gates and flip-flops, and writes a synthesized Verilog netlist. The netlist is still text, but it is much closer to the physical circuit OpenLane will place and route.
+Synthesis changes the design from behavior described in Verilog into connected hardware cells. Yosys reads the RTL, chooses gates and flip-flops, and writes a synthesized Verilog netlist. The netlist is still text, but it is much closer to the physical circuit that OpenLane will place and route.
 
 Ask Yosys to read your Verilog, synthesize the `adder2` top module, and write the synthesized netlist:
 
@@ -154,7 +154,7 @@ The synthesized Verilog is written to `runs/adder2.synth.v`.
 
 ## Pick the PDK
 
-A chip layout depends on the manufacturing process. The PDK contains the rules for that process: metal layers, spacing rules, standard cells, timing data, and tool setup. This VM includes SKY130A, an open 130 nm PDK.
+A chip layout depends on the manufacturing process. The PDK contains the rules for that process: metal layers, spacing rules, standard cells, timing data, and tool setup. This VM includes SKY130A, an open 130 nm process that works well for learning this flow.
 
 Use the SKY130A PDK that is already installed in the VM:
 
@@ -165,7 +165,7 @@ test -d "$PDK_ROOT/sky130A"
 
 ## Add Timing Constraints
 
-OpenLane needs to know how fast the clock should be. Timing constraints say, “build and check this circuit as if `clk` has this period.” A 10 ns clock period means a 100 MHz clock.
+OpenLane needs to know how fast the clock should be. Timing constraints tell the tools to build and check the circuit as if `clk` has a specific period. A 10 ns clock period means a 100 MHz clock.
 
 Create `src/impl.sdc`:
 
@@ -202,7 +202,7 @@ This places `clk` and `rst_n` on the north side, and the input and output buses 
 
 ## Write OpenLane Config
 
-The OpenLane config connects your project files to the physical-design flow. It names the top module, points at the RTL and constraint files, chooses the clock, sets simple floorplan options, and selects the SKY130 standard-cell library.
+The OpenLane config ties the project together. It names the top module, points at the RTL and constraint files, chooses the clock, sets simple floorplan options, and selects the SKY130 standard-cell library.
 
 Create `config.yaml`:
 
@@ -242,7 +242,7 @@ Check the important parts before you run the flow:
 
 ## Run OpenLane
 
-OpenLane now runs the physical implementation flow. It will lint the design, synthesize it again for the full flow, floorplan the chip block, place cells, route wires, run checks, and write final layout outputs.
+Now run the physical implementation flow. OpenLane will lint the design, synthesize it again for the full flow, create a floorplan, place cells, route wires, run checks, and write final layout outputs.
 
 ```bash
 openlane --manual-pdk --pdk sky130A --pdk-root "$PDK_ROOT" config.yaml
