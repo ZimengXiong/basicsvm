@@ -18,22 +18,26 @@ flowchart LR
 
 Terms in this circuit:
 
-- `a[1:0]` and `b[1:0]` are 2-bit buses. The bits are numbered 1 down to 0.
-- `sum[2:0]` is a 3-bit bus. The extra bit holds the carry from the addition.
-- `clk` is the clock. A clock is a signal that repeatedly changes between 0 and 1.
-- A **rising edge** is the moment when `clk` changes from 0 to 1.
-- A **register** stores a value. Here, `sum` stores the adder result on the rising edge of `clk`.
-- `rst_n` is an active-low reset. The `_n` suffix means the reset is active when the signal is 0.
-- When reset is active, `sum` is forced to 0 instead of storing `a + b`.
+| Term | Meaning |
+| --- | --- |
+| `a[1:0]`, `b[1:0]` | 2-bit input buses. The bits are numbered 1 down to 0. |
+| `sum[2:0]` | A 3-bit output bus. The extra bit holds the carry from the addition. |
+| `clk` | The clock. It repeatedly changes between 0 and 1. |
+| **Rising edge** | The moment when `clk` changes from 0 to 1. |
+| **Register** | Storage for a value. Here, `sum` stores the adder result on the rising edge of `clk`. |
+| `rst_n` | Active-low reset. The `_n` suffix means the reset is active when the signal is 0. |
+| Reset behavior | When reset is active, `sum` is forced to 0 instead of storing `a + b`. |
 
 You will use these terms throughout the guide:
 
-- **Verilog** is the text language we will use to describe the circuit.
-- **RTL** means register-transfer level. It describes hardware behavior around registers and clock cycles.
-- **Simulation** runs the Verilog so we can check the circuit's behavior.
-- **Synthesis** turns RTL into a netlist made from standard cells such as gates and flip-flops.
-- **A PDK** is the process design kit. It provides design rules, timing data, and cell libraries for a manufacturing process.
-- **OpenLane** places the cells, routes wires, checks the result, and writes the layout files.
+| Term | Meaning |
+| --- | --- |
+| **Verilog** | The text language we will use to describe the circuit. |
+| **RTL** | Register-transfer level. It describes hardware behavior around registers and clock cycles. |
+| **Simulation** | Runs the Verilog so we can check the circuit's behavior. |
+| **Synthesis** | Turns RTL into a netlist made from standard cells such as gates and flip-flops. |
+| **PDK** | Process design kit. It provides design rules, timing data, and cell libraries for a manufacturing process. |
+| **OpenLane** | Places the cells, routes wires, checks the result, and writes the layout files. |
 
 ## Create the project
 

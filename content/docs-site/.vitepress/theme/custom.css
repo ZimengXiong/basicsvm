@@ -94,58 +94,29 @@ body {
   justify-content: center;
   align-self: center;
   box-sizing: border-box;
+  overflow: visible;
   height: 22px;
-  padding: 0 10px 0 14px;
+  padding: 5px 10px 0;
   border-radius: 999px;
   background-color: #f1cf35;
   color: #422006 !important;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   line-height: 1;
-  transform: translateY(-1px);
-  text-indent: 2px;
-}
-
-.VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new']::before {
-  content: "";
-  position: absolute;
-  left: -3px;
-  top: 50%;
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  background-color: #fff7cc;
-  box-shadow: 0 0 0 2px #f1cf35;
-  transform: translateY(-50%);
-}
-
-.VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new']::after {
-  content: "!";
-  position: absolute;
-  left: 1px;
-  top: 50%;
-  color: #7c2d12;
-  font-size: 10px;
-  font-weight: 900;
-  line-height: 1;
-  transform: translateY(-54%);
+  transform: none;
+  text-indent: 0;
 }
 
 .VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new']:hover {
   background-color: #e2ba03;
   color: #422006 !important;
   text-decoration: none;
-  transform: translateY(-2px) rotate(-1deg);
+  transform: none;
 }
 
 .dark .VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new'] {
   background-color: #f1cf35;
   color: #1f1600 !important;
-}
-
-.dark .VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new']::before {
-  background-color: #fff3a3;
-  box-shadow: 0 0 0 2px #f1cf35;
 }
 
 .dark .VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new']:hover {
