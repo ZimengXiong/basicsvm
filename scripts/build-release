@@ -98,7 +98,7 @@ EOF
   fi
 
   printf -v quoted_arm_repo '%q' "$arm_repo"
-  remote_cmd="cd $quoted_arm_repo && git pull --ff-only && BASICS_USE_SYSTEM_NIX=1 scripts/package-vm $target"
+  remote_cmd="cd $quoted_arm_repo && git pull --ff-only && rm -rf out/release/$target && BASICS_USE_SYSTEM_NIX=1 scripts/package-vm $target"
   if [[ -n "$lima" ]]; then
     run_lima_command "$builder" "$lima" "$remote_cmd"
     remote_tar_cmd="cd $quoted_arm_repo/out/release && tar -cf - $target"
