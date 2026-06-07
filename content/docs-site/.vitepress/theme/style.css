@@ -36,3 +36,18 @@
 .vp-doc details:not([open]) > summary {
   margin-bottom: 0;
 }
+
+.vp-doc .mermaid-diagram {
+  margin: 20px 0;
+  padding: 16px;
+  overflow-x: auto;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-soft);
+}
+
+.vp-doc .mermaid-diagram svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}

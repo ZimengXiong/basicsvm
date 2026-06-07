@@ -6,13 +6,15 @@ The circuit has two 2-bit inputs, `a` and `b`. Each input can hold a number from
 
 The output is 3 bits wide because the largest result is `3 + 3 = 6`, and 6 needs 3 bits in binary.
 
-Signal path:
-
-- `a[1:0]` and `b[1:0]` go into the adder.
-- The adder computes `a + b`.
-- The `sum` register stores that result on the rising edge of `clk`.
-- `sum[2:0]` is the stored output.
-- If `rst_n` is 0, `sum` is reset to 0.
+```mermaid
+flowchart LR
+  a["a[1:0]<br/>0 to 3"] --> add["2-bit adder<br/>a + b"]
+  b["b[1:0]<br/>0 to 3"] --> add
+  add --> reg["sum register<br/>stores on rising edge"]
+  clk["clk<br/>0 to 1"] --> reg
+  rst["rst_n<br/>0 resets sum"] --> reg
+  reg --> sum["sum[2:0]<br/>0 to 6"]
+```
 
 Terms in this circuit:
 
