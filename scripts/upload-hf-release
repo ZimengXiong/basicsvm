@@ -91,6 +91,7 @@ export BASICS_HF_MANIFEST="$manifest"
 import json
 import os
 import subprocess
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -104,6 +105,7 @@ source = Path(os.environ["BASICS_HF_SOURCE"]).resolve()
 private = os.environ["BASICS_HF_PRIVATE"] == "1"
 dry_run = os.environ["BASICS_HF_DRY_RUN"] == "1"
 manifest_path = Path(os.environ["BASICS_HF_MANIFEST"]).resolve()
+upload_timeout = int(os.environ.get("BASICS_HF_UPLOAD_TIMEOUT", "600"))
 
 git_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
 git_status = subprocess.check_output(["git", "status", "--short"], text=True).strip()
@@ -180,13 +182,41 @@ def upload_one(local_path, remote_path, expected_size):
             return
 
         print(f"Uploading {remote_path} ({expected_size:,} bytes), attempt {attempt}/3")
-        api.upload_file(
-            repo_id=repo_id,
-            repo_type=repo_type,
-            path_or_fileobj=str(local_path),
-            path_in_repo=remote_path,
-            commit_message=f"Upload {remote_path}",
+        child_env = os.environ.copy()
+        child_env.update(
+            {
+                "BASICS_HF_UPLOAD_LOCAL": str(local_path),
+                "BASICS_HF_UPLOAD_REMOTE": remote_path,
+                "BASICS_HF_UPLOAD_MESSAGE": f"Upload {remote_path}",
+            }
         )
+        try:
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-c",
+                    """
+import os
+from huggingface_hub import HfApi
+
+api = HfApi()
+api.upload_file(
+    repo_id=os.environ["BASICS_HF_REPO_ID"],
+    repo_type=os.environ["BASICS_HF_REPO_TYPE"],
+    path_or_fileobj=os.environ["BASICS_HF_UPLOAD_LOCAL"],
+    path_in_repo=os.environ["BASICS_HF_UPLOAD_REMOTE"],
+    commit_message=os.environ["BASICS_HF_UPLOAD_MESSAGE"],
+)
+""",
+                ],
+                check=True,
+                env=child_env,
+                timeout=upload_timeout,
+            )
+        except subprocess.TimeoutExpired:
+            print(f"Timed out uploading {remote_path} after {upload_timeout}s")
+        except subprocess.CalledProcessError as exc:
+            print(f"Upload command failed for {remote_path}: exit {exc.returncode}")
 
         remote = remote_sizes()
         if remote.get(remote_path) == expected_size:
