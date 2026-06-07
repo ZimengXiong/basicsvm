@@ -1,0 +1,7 @@
+.git
+.nix-portable
+out
+result
+basics-smoke.qcow2
+content/docs-site/node_modules
+content/docs-site/.vitepress/cache
