@@ -56,13 +56,7 @@ export default {
         items: [
           { text: 'Build from Source', link: '/build/' },
           { text: 'Local Nix Usage', link: '/build/local-nix' },
-          { text: 'Work on the Docs', link: '/build/docs' },
-          { text: 'VM Troubleshooting', link: '/help/' },
-          { text: 'OpenLane Troubleshooting', link: '/help/openlane' },
-          { text: 'Reference', link: '/reference/tools' },
-          { text: 'PDK Locations', link: '/using/pdk-locations' },
-          { text: 'VM Filesystem Layout', link: '/using/filesystem-layout' },
-          { text: 'Check Environment', link: '/advanced/check-environment' }
+          { text: 'Work on the Docs', link: '/build/docs' }
         ]
       }
     ],

@@ -1,16 +1,16 @@
 # Build from Source
 
-Use this page when you are rebuilding the VM from the repository or preparing release images for students.
+Use this when you want to build the VM yourself or cut a new set of release images.
 
-The project is a Nix flake, but you should use the scripts in this repository instead of calling Nix directly. They use the repo-local `nix-portable` setup and keep build output under `out`.
+The repo is a Nix flake, but the scripts here do the boring setup for you. They use the repo-local Nix setup and put build output under `out`.
 
 ## Prerequisites
 
-These builds need enough local storage, CPU, and memory to keep the VM image and PDK builds moving.
+You want a real build machine for this. The VM image and PDK outputs are large, and release packaging moves a lot of data around.
 
 | Requirement | What to use |
 | --- | --- |
-| Builder OS | NixOS or another Linux host for x86; macOS with Lima for ARM |
+| Builder OS | NixOS or another Linux host for x86; an ARM Linux builder for ARM |
 | Free storage | At least 200 GB free on each builder, plus room for Nix caches |
 | CPU and memory | At least 12 CPU cores and 32 GB RAM for fast builds; the ARM builder can run smaller with swap |
 | Build time | About 6 to 10 minutes per release build |
@@ -25,7 +25,7 @@ cd basicsvm
 
 ## Build a local VM
 
-For a local x86_64 VM build:
+For a local x86 VM build:
 
 ```bash
 scripts/build-vm x86_64
@@ -37,7 +37,7 @@ On an ARM builder:
 scripts/build-vm aarch64
 ```
 
-The result links are written under `out`:
+The result links show up under `out`:
 
 ```text
 out/result-vm-x86_64
@@ -46,7 +46,7 @@ out/result-vm-aarch64
 
 ## Package release images
 
-Use the target for the student platform you are publishing:
+Package the target you want to publish:
 
 ```bash
 scripts/package-vm macos-apple-silicon
@@ -57,7 +57,7 @@ scripts/package-vm linux-x86
 scripts/package-vm linux-arm
 ```
 
-Linux ARM is provided as a QEMU disk image rather than a VirtualBox appliance.
+Linux ARM ships as a QEMU disk image instead of a VirtualBox appliance.
 
 | Target | Architecture | Output | Student host |
 | --- | --- | --- | --- |
@@ -68,7 +68,7 @@ Linux ARM is provided as a QEMU disk image rather than a VirtualBox appliance.
 | `linux-x86` | `x86_64-linux` | VirtualBox OVA | Linux on Intel or AMD |
 | `linux-arm` | `aarch64-linux` | QEMU QCOW2 | Linux on ARM |
 
-For a full release batch:
+To build the full release batch:
 
 ```bash
 scripts/release-all
@@ -76,17 +76,17 @@ scripts/release-all
 
 ## ARM builder
 
-The ARM release builder is a small Apple Silicon Mac at `zimengx@osxserver.lan`. It runs the `basics-arm-builder` Lima VM, which contains the Linux tools needed for aarch64 Nix builds. The machine has limited RAM and the VM uses swap, so ARM builds are reproducible but not fast.
+ARM release targets need an ARM Linux builder. That can be a real ARM Linux machine or a Linux VM running on an ARM host.
 
-Run ARM release targets from the main x86 checkout:
+Point the release script at that builder with environment variables:
 
 ```bash
-BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release arm
+BASICS_ARM_BUILDER=user@arm-builder BASICS_ARM_LIMA=lima-vm-name scripts/build-release arm
 ```
 
-`scripts/build-release` copies completed ARM artifacts back into local `out/release`. For `windows-arm`, it wraps the returned ARM VDI into the final VirtualBox OVA locally when the ARM builder cannot run VirtualBox itself.
+`BASICS_ARM_BUILDER` is the SSH target for the ARM host. If that host uses Lima, set `BASICS_ARM_LIMA` to the Lima VM name. If your ARM builder is already a Linux machine, leave the Lima variable out.
 
-The ARM Lima VM cannot run the privileged user namespace setup used by the Nix repart image assembly. The `windows-arm` package path therefore builds the same aarch64 qcow image used by the other ARM targets and converts it to a VirtualBox VDI before the local OVA wrapping step.
+The script copies finished ARM artifacts back into local `out/release`. Some ARM hosts cannot run every packaging tool directly, so the scripts do the final wrapping locally when needed.
 
 ## Verify the build
 
@@ -98,6 +98,6 @@ scripts/verify-source
 scripts/verify-fresh
 ```
 
-`verify-fresh` rebuilds the profile, templates, and PDK packages. It also checks that the expected tools, Python imports, PDK links, and packaged templates are present.
+`verify-fresh` rebuilds the profile, templates, and PDK packages, then checks the tool installs, Python imports, PDK links, and templates.
 
-After the scripted checks pass, boot or import at least one x86 release and one ARM release. In each VM, run the SKY130 counter flow from [First Flow](../use/first-flow.md).
+After that, boot at least one x86 release and one ARM release. In each VM, run the SKY130 counter flow from [First Flow](../use/first-flow.md).

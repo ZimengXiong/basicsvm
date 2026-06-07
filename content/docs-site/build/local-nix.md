@@ -1,6 +1,6 @@
 # Local Nix Usage
 
-Local Nix is useful when you want to check packages, tools, examples, or PDK layout without booting the full VM.
+Use this when you want to poke at the VM environment without booting the VM. It is handy for checking tools, examples, and PDK paths from your normal shell.
 
 ## Get the source
 
@@ -15,7 +15,7 @@ cd basicsvm
 scripts/dev-shell
 ```
 
-The shell sets the same paths the project expects:
+The shell sets the paths the project expects:
 
 ```text
 BASICS_ROOT=$PWD/out/basics-root/opt/basics
@@ -25,6 +25,8 @@ BASICS_EXAMPLES=$PWD/examples
 
 ## Build the main outputs
 
+These are the main pieces that end up in the VM:
+
 ```bash
 scripts/nix build .#basics-profile -o out/result-profile
 scripts/nix build .#basics-templates -o out/result-templates
@@ -33,7 +35,7 @@ scripts/nix build .#basics-pdks -o out/result-pdks
 
 ## Smoke test the tools
 
-Inside the dev shell:
+Inside the dev shell, try a few tools:
 
 ```bash
 openlane --version
@@ -41,7 +43,7 @@ openroad -version
 yosys -V
 ```
 
-You can also run the counter example locally:
+You can also run the counter example without starting a VM:
 
 ```bash
 cd examples/sky130-counter
