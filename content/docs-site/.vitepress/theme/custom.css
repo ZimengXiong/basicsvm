@@ -134,6 +134,31 @@ body {
   font-weight: 600;
 }
 
+.docs-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+
+.docs-pill-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.dark .docs-pill-warning {
+  background-color: #45340d;
+  color: #fde68a;
+  border-color: #d97706;
+}
+
 /* Premium, Elegant Custom Blocks (Notes, Tips, Warnings, Danger) */
 .custom-block {
   margin: 20px 0;
