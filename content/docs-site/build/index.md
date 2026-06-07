@@ -6,13 +6,21 @@ The repo is a Nix flake, but the scripts here do the boring setup for you. They 
 
 ## Philosophy
 
-The VM is meant to come from one source tree. The docs, templates, packages, PDK setup, examples, and release images all live here so they can move together.
+The point of the build setup is to keep versions pinned.
 
-Nix is what makes that practical. Instead of asking every maintainer to hand-install the same EDA stack, the flake pins the package set and builds the environment from that. If a tool changes, we change it once in the repo, rebuild, and the VM images, local shell, and verification scripts all see the same thing.
+When we do a full build, these things should come from the same repo revision:
 
-The release images are split by CPU architecture. x86 targets come from the x86 build, and ARM targets come from the ARM build. The platform packages then wrap those builds for the student host: UTM for macOS, VirtualBox where it fits, and a QEMU disk for Linux ARM.
+| Thing | What should match |
+| --- | --- |
+| VM image | Same tool versions as the flake |
+| Local Nix shell | Same tool versions as the VM |
+| PDK install | Same PDK files used by the VM and local checks |
+| Templates | Same example files bundled into the VM |
+| Docs | Same commands and paths that the built VM expects |
 
-That is the main idea: keep the course distribution reproducible, keep the docs honest, and avoid a world where the downloadable VM, local Nix shell, and source tree all drift apart.
+Nix is used because it gives us a pinned package set. We do not want one person building with one OpenLane version, another person testing docs with a different Yosys version, and the released VM shipping something else.
+
+Release images are still split by CPU architecture. x86 release targets are built from the x86 build. ARM release targets are built from the ARM build. Packaging then wraps those outputs for the host platform: UTM for macOS, VirtualBox where it fits, and a QEMU disk for Linux ARM.
 
 ## Prerequisites
 
