@@ -87,6 +87,33 @@ body {
   min-width: max-content;
 }
 
+.VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new'] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: #f1cf35;
+  color: #422006 !important;
+  font-weight: 800;
+}
+
+.VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new']:hover {
+  background-color: #e2ba03;
+  color: #422006 !important;
+  text-decoration: none;
+}
+
+.dark .VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new'] {
+  background-color: #f1cf35;
+  color: #1f1600 !important;
+}
+
+.dark .VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new']:hover {
+  background-color: #fde047;
+  color: #1f1600 !important;
+}
+
 .VPNavBarExtra {
   display: none !important;
 }
@@ -132,31 +159,6 @@ body {
   padding: 3px 6px;
   border-radius: 4px;
   font-weight: 600;
-}
-
-.docs-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 22px;
-  padding: 2px 9px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.2;
-  vertical-align: 1px;
-  white-space: nowrap;
-}
-
-.docs-pill-warning {
-  background-color: #fef3c7;
-  color: #92400e;
-  border: 1px solid #f59e0b;
-}
-
-.dark .docs-pill-warning {
-  background-color: #45340d;
-  color: #fde68a;
-  border-color: #d97706;
 }
 
 /* Premium, Elegant Custom Blocks (Notes, Tips, Warnings, Danger) */

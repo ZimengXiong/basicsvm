@@ -238,7 +238,7 @@ b.*
 sum.*
 ```
 
-<span class="docs-pill docs-pill-warning">Pin-order syntax</span> `#N` is the north-side pin directive. `#S` is the south-side pin directive. The `.*` patterns match every bit in each bus, such as `a[0]` and `a[1]`.
+`#N` is the north-side pin directive. `#S` is the south-side pin directive. The `.*` patterns match every bit in each bus, such as `a[0]` and `a[1]`.
 
 ## Write OpenLane Config
 
