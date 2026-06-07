@@ -6,7 +6,7 @@ The repo is a Nix flake, but the scripts here do the boring setup for you. They 
 
 ## Philosophy
 
-The point of the build setup is to keep versions pinned.
+The point of the build setup is to keep versions pinned and managed through Git.
 
 When we do a full build, these things should come from the same repo revision:
 
@@ -18,7 +18,7 @@ When we do a full build, these things should come from the same repo revision:
 | Templates | Same example files bundled into the VM |
 | Docs | Same commands and paths that the built VM expects |
 
-Nix is used because it gives us a pinned package set. We do not want one person building with one OpenLane version, another person testing docs with a different Yosys version, and the released VM shipping something else.
+Nix is used because it gives us a pinned package set. Git is used because it gives us one place to review and update the docs, templates, scripts, package list, and release config. We do not want one person building with one OpenLane version, another person testing docs with a different Yosys version, and the released VM shipping something else.
 
 Release images are still split by CPU architecture. x86 release targets are built from the x86 build. ARM release targets are built from the ARM build. Packaging then wraps those outputs for the host platform: UTM for macOS, VirtualBox where it fits, and a QEMU disk for Linux ARM.
 
