@@ -69,6 +69,7 @@ pages = [
     pathlib.Path("start/first-boot.md"),
     pathlib.Path("use/index.md"),
     pathlib.Path("use/first-flow.md"),
+    pathlib.Path("use/adder-from-scratch.md"),
     pathlib.Path("install/mac-apple-silicon.md"),
     pathlib.Path("install/mac-intel.md"),
     pathlib.Path("install/windows-x86.md"),

@@ -88,8 +88,11 @@ Run these when changing VM contents, packaging scripts, or release docs:
 scripts/nix flake check
 scripts/verify-source
 scripts/verify-fresh
+scripts/verify-adder-doc
 npm --prefix content/docs-site run build
 ```
+
+`scripts/verify-adder-doc` uses the repo-local Nix wrapper, so run it on both an `x86_64-linux` host and an `aarch64-linux` host when changing the adder guide or the EDA toolchain.
 
 After a full release build, boot or import at least one x86 artifact and one ARM artifact. In the VM, run the SKY130 counter flow from the docs and confirm the desktop docs shortcut opens `https://basics.alpacawebservices.com`.
 
