@@ -40,14 +40,15 @@ You will use these terms throughout the guide:
 Start in `~/bASICs/work`, the writable workspace in the VM. Put the Verilog source in `src`; the tools will write outputs under `runs`.
 
 ```bash
+# Move into the writable workspace.
 cd ~/bASICs/work
+
+# Create the project folder and the src folder for Verilog files.
 mkdir -p adder2/src
+
+# Move into the project folder.
 cd adder2
 ```
-
-- `cd ~/bASICs/work` moves into the writable workspace.
-- `mkdir -p adder2/src` creates the project folder and the `src` folder for source files.
-- `cd adder2` moves into the project folder.
 
 ## Write the RTL
 
@@ -149,35 +150,26 @@ Simulation checks the RTL behavior before you run the slower physical-design flo
 Run a lint check first:
 
 ```bash
+# Check the Verilog without building or running a simulator.
 verilator --lint-only src/adder2.v
 ```
-
-- `verilator` is the lint tool.
-- `--lint-only` checks the Verilog without building or running a simulator.
-- `src/adder2.v` is the RTL file to check.
 
 Compile and run the testbench:
 
 ```bash
+# Compile the RTL and testbench into a simulation program.
 iverilog -g2012 -o adder2_tb src/adder2.v src/adder2_tb.v
+
+# Run the compiled simulation.
 vvp adder2_tb
 ```
-
-- `iverilog` compiles the RTL and testbench into a simulation program.
-- `-g2012` enables SystemVerilog 2012 syntax support.
-- `-o adder2_tb` names the compiled simulation output.
-- `src/adder2.v` is the design.
-- `src/adder2_tb.v` is the testbench.
-- `vvp adder2_tb` runs the compiled simulation.
 
 The simulation writes `adder2.vcd`. Open it when you want to inspect the clock, reset, inputs, and registered output:
 
 ```bash
+# Open the waveform file written by the testbench.
 gtkwave adder2.vcd
 ```
-
-- `gtkwave` opens waveform files.
-- `adder2.vcd` contains the signal history written by the testbench.
 
 ## Synthesize RTL
 
@@ -186,16 +178,12 @@ Synthesis turns the RTL into connected hardware cells. Yosys reads the Verilog, 
 Ask Yosys to read your Verilog, synthesize the `adder2` top module, and write the synthesized netlist:
 
 ```bash
+# Create the output folder if it does not already exist.
 mkdir -p runs
+
+# Read the RTL, synthesize the adder2 top module, and write a synthesized netlist.
 yosys -p "read_verilog src/adder2.v; synth -top adder2; write_verilog runs/adder2.synth.v"
 ```
-
-- `mkdir -p runs` creates the output folder if it does not already exist.
-- `yosys` runs the synthesis tool.
-- `-p` passes a short Yosys script on the command line.
-- `read_verilog src/adder2.v` loads the RTL.
-- `synth -top adder2` synthesizes the module named `adder2`.
-- `write_verilog runs/adder2.synth.v` writes the synthesized netlist.
 
 The synthesized Verilog is written to `runs/adder2.synth.v`.
 
@@ -206,12 +194,12 @@ A chip layout depends on the manufacturing process. The PDK contains the metal l
 Use the SKY130A PDK that is already installed in the VM:
 
 ```bash
+# Print the PDK install location.
 echo "$PDK_ROOT"
+
+# Check that the SKY130A PDK directory exists.
 test -d "$PDK_ROOT/sky130A"
 ```
-
-- `echo "$PDK_ROOT"` prints the PDK install location.
-- `test -d "$PDK_ROOT/sky130A"` checks that the SKY130A PDK directory exists.
 
 ## Add Timing Constraints
 
@@ -220,24 +208,18 @@ OpenLane needs a clock period for timing checks. A 10 ns clock period means a 10
 Create `src/impl.sdc`:
 
 ```tcl
+# Define a 10 ns clock named clk on the top-level clk port.
 create_clock [get_ports clk] -name clk -period 10
 ```
-
-- `create_clock` defines a clock for timing analysis.
-- `[get_ports clk]` attaches the clock to the top-level port named `clk`.
-- `-name clk` names the clock.
-- `-period 10` sets the period to 10 ns.
 
 Create `src/signoff.sdc` with the same line:
 
 ```tcl
+# Define the same 10 ns clock for final timing checks.
 create_clock [get_ports clk] -name clk -period 10
 ```
 
-These files tell OpenLane that `clk` has a 10 ns period.
-
-- `impl.sdc` is used during place and route.
-- `signoff.sdc` is used during final timing checks.
+`impl.sdc` is used during place and route. `signoff.sdc` is used during final timing checks.
 
 ## Add Pin Order
 
@@ -256,10 +238,7 @@ b.*
 sum.*
 ```
 
-- `#N` starts the north-side pin list.
-- `clk` and `rst_n` are placed on the north side.
-- `#S` starts the south-side pin list.
-- `a.*`, `b.*`, and `sum.*` match every bit in each bus, such as `a[0]` and `a[1]`.
+This file format does not support ordinary explanatory comments. `#N` is the north-side pin directive. `#S` is the south-side pin directive. The `.*` patterns match every bit in each bus, such as `a[0]` and `a[1]`.
 
 ## Write OpenLane Config
 
@@ -268,18 +247,26 @@ The OpenLane config names the top module, points at the RTL and constraint files
 Create `config.yaml`:
 
 ```yaml
+# Top module name. This must match the Verilog module.
 DESIGN_NAME: adder2
+
+# RTL source file. dir:: means the path is relative to this config file.
 VERILOG_FILES: dir::src/adder2.v
+
+# Clock port and period in ns.
 CLOCK_PORT: clk
 CLOCK_PERIOD: 10
 
+# Timing constraints and pin placement files.
 PNR_SDC_FILE: dir::src/impl.sdc
 SIGNOFF_SDC_FILE: dir::src/signoff.sdc
 FP_PIN_ORDER_CFG: dir::pin_order.cfg
 
+# Keep placement loose for this very small design.
 FP_CORE_UTIL: 30
 PL_TARGET_DENSITY_PCT: 55
 
+# Simple power grid settings for the tiny block.
 FP_PDN_VOFFSET: 5
 FP_PDN_HOFFSET: 5
 FP_PDN_VWIDTH: 2
@@ -288,38 +275,19 @@ FP_PDN_VPITCH: 30
 FP_PDN_HPITCH: 30
 FP_PDN_SKIPTRIM: true
 
+# Use the SKY130 high-density standard-cell library when the selected PDK is SKY130.
 pdk::sky130*:
   STD_CELL_LIBRARY: sky130_fd_sc_hd
 ```
-
-Check the important parts before you run the flow:
-
-- `DESIGN_NAME` matches the top module name.
-- `VERILOG_FILES` points at the RTL file. `dir::` means the path is relative to this config file.
-- `CLOCK_PORT` names the clock signal.
-- `CLOCK_PERIOD` gives the clock period in ns.
-- `PNR_SDC_FILE` and `SIGNOFF_SDC_FILE` point at the timing constraints.
-- `FP_PIN_ORDER_CFG` points at the pin placement file.
-- `FP_CORE_UTIL` sets the target percentage of the core area used by cells.
-- `PL_TARGET_DENSITY_PCT` sets the target placement density.
-- `FP_PDN_*` settings describe the power grid offsets, wire widths, and stripe spacing.
-- `FP_PDN_SKIPTRIM: true` keeps the generated power grid simple for this small design.
-- `pdk::sky130*` applies the settings below it only when the selected PDK matches `sky130*`.
-- `STD_CELL_LIBRARY` selects the SKY130 standard-cell library.
 
 ## Run OpenLane
 
 Now run the physical implementation flow. OpenLane will synthesize the design, create a floorplan, place cells, route wires, run checks, and write final outputs.
 
 ```bash
+# Run the RTL-to-GDS flow with the installed SKY130A PDK.
 openlane --manual-pdk --pdk sky130A --pdk-root "$PDK_ROOT" config.yaml
 ```
-
-- `openlane` runs the RTL-to-GDS flow.
-- `--manual-pdk` tells OpenLane to use the PDK path you provide.
-- `--pdk sky130A` selects the SKY130A process variant.
-- `--pdk-root "$PDK_ROOT"` points to the PDK root directory.
-- `config.yaml` is the project configuration file.
 
 The run can take several minutes. Near the end, a passing run prints `Flow complete`.
 
@@ -330,35 +298,33 @@ GDS is the final layout format. It contains geometry on manufacturing layers, no
 Go to the OpenLane runs folder and list the run directories:
 
 ```bash
+# Enter the folder where OpenLane writes each run.
 cd runs
+
+# List the timestamped run directories.
 ls
 ```
-
-- `cd runs` enters the folder where OpenLane writes each run.
-- `ls` lists the OpenLane run directories.
-- Each run directory is named with a timestamp.
 
 Change into the run directory that OpenLane just created. Type `cd `, then the directory name you see from `ls`.
 
 ```bash
+# Replace RUN... with the timestamped directory you saw above.
 cd RUN...
 ```
 
 Look at the final layout outputs and check that the GDS exists:
 
 ```bash
+# List the top level of the final output directory.
 tree final -L 1
+
+# Check that the GDS file exists and is not empty.
 test -s final/gds/adder2.gds
 ```
-
-- `tree final -L 1` lists the top level of the final output directory.
-- `test -s final/gds/adder2.gds` checks that the GDS file exists and is not empty.
 
 Open the final GDS:
 
 ```bash
+# Open the final layout in KLayout.
 klayout final/klayout_gds/adder2.klayout.gds
 ```
-
-- `klayout` opens the layout viewer.
-- `adder2.klayout.gds` is the final GDS written in the path KLayout expects.
