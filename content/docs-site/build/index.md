@@ -4,6 +4,16 @@ Use this when you want to build the VM yourself or cut a new set of release imag
 
 The repo is a Nix flake, but the scripts here do the boring setup for you. They use the repo-local Nix setup and put build output under `out`.
 
+## Philosophy
+
+The VM is meant to come from one source tree. The docs, templates, packages, PDK setup, examples, and release images all live here so they can move together.
+
+Nix is what makes that practical. Instead of asking every maintainer to hand-install the same EDA stack, the flake pins the package set and builds the environment from that. If a tool changes, we change it once in the repo, rebuild, and the VM images, local shell, and verification scripts all see the same thing.
+
+The release images are split by CPU architecture. x86 targets come from the x86 build, and ARM targets come from the ARM build. The platform packages then wrap those builds for the student host: UTM for macOS, VirtualBox where it fits, and a QEMU disk for Linux ARM.
+
+That is the main idea: keep the course distribution reproducible, keep the docs honest, and avoid a world where the downloadable VM, local Nix shell, and source tree all drift apart.
+
 ## Prerequisites
 
 You want a real build machine for this. The VM image and PDK outputs are large, and release packaging moves a lot of data around.
