@@ -33,7 +33,7 @@ scripts/nix build .#basics-templates -o out/result-templates
 scripts/nix build .#basics-pdks -o out/result-pdks
 ```
 
-## Smoke test the tools
+## Test the tools
 
 Inside the dev shell, try a few tools:
 

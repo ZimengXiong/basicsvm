@@ -1,30 +1,42 @@
 # Build from Source
 
-Use this when you want to build the VM yourself or cut a new set of release images.
-
-The repo is a Nix flake, but the scripts here do the boring setup for you. They use the repo-local Nix setup and put build output under `out`.
+The entire repository is a Nix flake. The flake pins the build inputs so the VM, local shell, PDKs, templates, and docs can be built from the same Git revision.
 
 ## Philosophy
 
-The point of the build setup is to keep versions pinned and managed through Git.
+```mermaid
+flowchart TD
+  repo["Git repo<br/>flake, docs, templates, scripts"]
+  x86["x86 builder"]
+  arm["ARM builder"]
 
-When we do a full build, these things should come from the same repo revision:
+  x86Base["x86 VM build"]
+  armBase["ARM VM build"]
 
-| Thing | What should match |
-| --- | --- |
-| VM image | Same tool versions as the flake |
-| Local Nix shell | Same tool versions as the VM |
-| PDK install | Same PDK files used by the VM and local checks |
-| Templates | Same example files bundled into the VM |
-| Docs | Same commands and paths that the built VM expects |
+  macIntel["macOS Intel<br/>UTM zip"]
+  winX86["Windows x86<br/>VirtualBox OVA"]
+  linuxX86["Linux x86<br/>VirtualBox OVA"]
 
-Nix is used because it gives us a pinned package set. Git is used because it gives us one place to review and update the docs, templates, scripts, package list, and release config. We do not want one person building with one OpenLane version, another person testing docs with a different Yosys version, and the released VM shipping something else.
+  macApple["macOS Apple Silicon<br/>UTM zip"]
+  winArm["Windows ARM<br/>VirtualBox OVA"]
+  linuxArm["Linux ARM<br/>QEMU qcow2"]
 
-Release images are still split by CPU architecture. x86 release targets are built from the x86 build. ARM release targets are built from the ARM build. Packaging then wraps those outputs for the host platform: UTM for macOS, VirtualBox where it fits, and a QEMU disk for Linux ARM.
+  repo --> x86
+  repo --> arm
+
+  x86 --> x86Base
+  arm --> armBase
+
+  x86Base --> macIntel
+  x86Base --> winX86
+  x86Base --> linuxX86
+
+  armBase --> macApple
+  armBase --> winArm
+  armBase --> linuxArm
+```
 
 ## Prerequisites
-
-You want a real build machine for this. The VM image and PDK outputs are large, and release packaging moves a lot of data around.
 
 | Requirement | What to use |
 | --- | --- |
