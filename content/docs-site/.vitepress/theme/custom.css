@@ -90,6 +90,9 @@ body {
 .VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new'] {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  align-self: center;
+  box-sizing: border-box;
   height: 22px;
   padding: 0 9px;
   border-radius: 999px;
@@ -97,7 +100,7 @@ body {
   color: #422006 !important;
   font-size: 12px;
   font-weight: 700;
-  line-height: 22px;
+  line-height: 1;
 }
 
 .VPNavBarMenuLink[href*='github.com/ZimengXiong/basicsvm/issues/new']:hover {
