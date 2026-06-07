@@ -6,7 +6,7 @@ Use this page for Linux PCs with an Intel or AMD processor.
 > Make sure your computer has at least 30 GB of free storage for the VM download and import.
 
 > [!NOTE]
-> If you'd rather, you can also skip the VM all together and just use bare metal Openlane2 via `Nix` or `Docker`, we're sure you can figure the course out with it 🙂. Be sure to have some sort of Wayland/X11 passthrough for tools like Magic and KLayout.
+> If you'd rather, you can also skip the VM all together and just use bare metal Openlane2 via `Nix` or `Docker`, we're sure you can figure the course out with it 🙂. Be sure to have some sort of Wayland/X11 passthrough for tools like Magic and KLayout. Check out the source at [github.com/ZimengXiong/basicsvm](https://github.com/ZimengXiong/basicsvm).
 
 ## Install
 

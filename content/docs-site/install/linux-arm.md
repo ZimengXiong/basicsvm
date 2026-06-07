@@ -9,7 +9,7 @@ Use this page for Linux machines with an ARM processor.
 > Linux ARM is BYO Hypervisor, please set up your own solution. 
 
 > [!NOTE]
-> If you'd rather, you can also skip the VM all together and just use bare metal Openlane2 via `Nix` or `Docker`, we're sure you can figure the course out with it 🙂. Be sure to have some sort of Wayland/X11 passthrough for tools like Magic and KLayout.
+> If you'd rather, you can also skip the VM all together and just use bare metal Openlane2 via `Nix` or `Docker`, we're sure you can figure the course out with it 🙂. Be sure to have some sort of Wayland/X11 passthrough for tools like Magic and KLayout. Check out the source at [github.com/ZimengXiong/basicsvm](https://github.com/ZimengXiong/basicsvm).
 
 ## Install
 
