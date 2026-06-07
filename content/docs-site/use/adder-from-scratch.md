@@ -6,15 +6,23 @@ The circuit has two 2-bit inputs, `a` and `b`. Each input can hold a number from
 
 The output is 3 bits wide because the largest result is `3 + 3 = 6`, and 6 needs 3 bits in binary.
 
-```mermaid
-flowchart LR
-  a["a[1:0]<br/>0 to 3"] --> add["2-bit adder"]
-  b["b[1:0]<br/>0 to 3"] --> add
-  add --> reg["sum register<br/>updates on clk"]
-  clk["clk"] --> reg
-  rst["rst_n<br/>reset to 0"] --> reg
-  reg --> sum["sum[2:0]<br/>0 to 6"]
-```
+Signal path:
+
+- `a[1:0]` and `b[1:0]` go into the adder.
+- The adder computes `a + b`.
+- The `sum` register stores that result on the rising edge of `clk`.
+- `sum[2:0]` is the stored output.
+- If `rst_n` is 0, `sum` is reset to 0.
+
+Terms in this circuit:
+
+- `a[1:0]` and `b[1:0]` are 2-bit buses. The bits are numbered 1 down to 0.
+- `sum[2:0]` is a 3-bit bus. The extra bit holds the carry from the addition.
+- `clk` is the clock. A clock is a signal that repeatedly changes between 0 and 1.
+- A **rising edge** is the moment when `clk` changes from 0 to 1.
+- A **register** stores a value. Here, `sum` stores the adder result on the rising edge of `clk`.
+- `rst_n` is an active-low reset. The `_n` suffix means the reset is active when the signal is 0.
+- When reset is active, `sum` is forced to 0 instead of storing `a + b`.
 
 You will use these terms throughout the guide:
 
