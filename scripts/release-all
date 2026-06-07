@@ -13,6 +13,9 @@ updates docs download links, builds docs, commits the docs link update, and
 pushes main.
 
 Requires a clean git tree before it starts.
+
+By default, completed target packages in out/release are reused. Set
+BASICS_RELEASE_CLEAN=1 to discard out/release before building.
 EOF
 }
 
@@ -39,29 +42,90 @@ out_root="$(scripts/setup-release-storage)"
 
 echo "Release version: $version"
 echo "Output root: $out_root"
-echo "Cleaning generated release outputs while preserving caches"
-for path in out/release out/final out/final-current; do
+echo "Cleaning generated final outputs while preserving caches"
+for path in out/final out/final-current; do
   if [[ -e "$path" ]]; then
     rm -rf "$path" 2>/dev/null || mv "$path" "out/stale-$(basename "$path")-$(date +%Y%m%d%H%M%S)"
   fi
 done
+if [[ "${BASICS_RELEASE_CLEAN:-0}" == "1" && -e out/release ]]; then
+  rm -rf out/release 2>/dev/null || mv out/release "out/stale-release-$(date +%Y%m%d%H%M%S)"
+fi
 mkdir -p out/release
 
-echo "Building x86 and ARM release targets"
-scripts/build-release x86 &
-x86_pid=$!
-BASICS_ARM_BUILDER="$arm_builder" BASICS_ARM_LIMA="$arm_lima" scripts/build-release arm &
-arm_pid=$!
+target_is_complete() {
+  local target="$1"
+  local format="$2"
+  local image_glob="$3"
+  local bundle_glob="${4:-}"
+  local source_dir="out/release/$target/$format"
+  local readme="$source_dir/README.txt"
 
-if ! wait -n "$x86_pid" "$arm_pid"; then
-  kill "$x86_pid" "$arm_pid" 2>/dev/null || true
-  wait "$x86_pid" 2>/dev/null || true
-  wait "$arm_pid" 2>/dev/null || true
-  echo "release target build failed" >&2
-  exit 1
-fi
-wait "$x86_pid"
-wait "$arm_pid"
+  [[ -s "$readme" ]] || return 1
+
+  shopt -s nullglob
+  local images=("$source_dir"/$image_glob)
+  local bundles=()
+  if [[ -n "$bundle_glob" ]]; then
+    bundles=("$source_dir"/$bundle_glob)
+  fi
+  shopt -u nullglob
+
+  [[ "${#images[@]}" -eq 1 && -s "${images[0]}" ]] || return 1
+  if [[ -n "$bundle_glob" ]]; then
+    [[ "${#bundles[@]}" -eq 1 && -s "${bundles[0]}" ]] || return 1
+  fi
+}
+
+build_target() {
+  local target="$1"
+  local log_dir="out/release-logs"
+  mkdir -p "$log_dir"
+
+  echo "Building $target"
+  case "$target" in
+    macos-intel|windows-x86|linux-x86)
+      scripts/build-release "$target" 2>&1 | tee "$log_dir/$target.log"
+      ;;
+    macos-apple-silicon|windows-arm|linux-arm)
+      BASICS_ARM_BUILDER="$arm_builder" BASICS_ARM_LIMA="$arm_lima" \
+        scripts/build-release "$target" 2>&1 | tee "$log_dir/$target.log"
+      ;;
+    *)
+      echo "unknown release target: $target" >&2
+      exit 2
+      ;;
+  esac
+}
+
+ensure_target() {
+  local target="$1"
+  local format="$2"
+  local image_glob="$3"
+  local bundle_glob="${4:-}"
+
+  if target_is_complete "$target" "$format" "$image_glob" "$bundle_glob"; then
+    echo "Reusing completed $target package"
+    return 0
+  fi
+
+  rm -rf "out/release/$target"
+  build_target "$target"
+
+  if ! target_is_complete "$target" "$format" "$image_glob" "$bundle_glob"; then
+    echo "$target build finished, but required release artifacts are missing" >&2
+    echo "See out/release-logs/$target.log" >&2
+    exit 1
+  fi
+}
+
+echo "Building or reusing release targets"
+ensure_target macos-intel utm '*.utm.zip'
+ensure_target windows-x86 virtualbox '*.ova'
+ensure_target linux-x86 virtualbox '*.ova'
+ensure_target macos-apple-silicon utm '*.utm.zip'
+ensure_target windows-arm virtualbox '*.ova'
+ensure_target linux-arm qemu '*.qcow2'
 
 echo "Finalizing release tree"
 scripts/finalize-release

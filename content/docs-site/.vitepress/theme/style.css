@@ -1,7 +1,7 @@
 .vp-doc details > summary {
   display: flex;
   align-items: center;
-  min-height: 44px;
+  min-height: 40px;
   line-height: 1.4;
   cursor: pointer;
 }
@@ -29,6 +29,10 @@
   transform: rotate(90deg);
 }
 
-.vp-doc details div[class*='language-'] {
-  margin-top: 12px;
+.vp-doc details > summary + div[class*='language-'] {
+  margin: 8px 0 0;
+}
+
+.vp-doc details:not([open]) > summary {
+  margin-bottom: 0;
 }
