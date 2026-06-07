@@ -91,6 +91,7 @@ export BASICS_HF_MANIFEST="$manifest"
 import json
 import os
 import subprocess
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -143,31 +144,72 @@ if dry_run:
     print("Dry run; not uploading.")
     raise SystemExit(0)
 
-api = HfApi()
-create_repo(repo_id=repo_id, repo_type=repo_type, private=private, exist_ok=True)
-api.upload_folder(
-    repo_id=repo_id,
-    repo_type=repo_type,
-    folder_path=str(source),
-    path_in_repo=f"releases/{version}",
-    commit_message=f"Upload bASICs VM release {version}",
-)
-
 expected = {
     f"releases/{version}/{entry['path']}": entry["bytes"]
     for entry in files
 }
 expected[f"releases/{version}/{manifest_path.name}"] = manifest_path.stat().st_size
-remote = {
-    item.path: item.size
-    for item in api.list_repo_tree(
-        repo_id=repo_id,
-        repo_type=repo_type,
-        path_in_repo=f"releases/{version}",
-        recursive=True,
-    )
-    if getattr(item, "size", None) is not None
-}
+
+api = HfApi()
+create_repo(repo_id=repo_id, repo_type=repo_type, private=private, exist_ok=True)
+
+
+def remote_sizes():
+    try:
+        return {
+            item.path: item.size
+            for item in api.list_repo_tree(
+                repo_id=repo_id,
+                repo_type=repo_type,
+                path_in_repo=f"releases/{version}",
+                recursive=True,
+            )
+            if getattr(item, "size", None) is not None
+        }
+    except Exception as exc:
+        if exc.__class__.__name__ == "RemoteEntryNotFoundError":
+            return {}
+        raise
+
+
+def upload_one(local_path, remote_path, expected_size):
+    for attempt in range(1, 4):
+        remote = remote_sizes()
+        if remote.get(remote_path) == expected_size:
+            print(f"Already uploaded {remote_path}")
+            return
+
+        print(f"Uploading {remote_path} ({expected_size:,} bytes), attempt {attempt}/3")
+        api.upload_file(
+            repo_id=repo_id,
+            repo_type=repo_type,
+            path_or_fileobj=str(local_path),
+            path_in_repo=remote_path,
+            commit_message=f"Upload {remote_path}",
+        )
+
+        remote = remote_sizes()
+        if remote.get(remote_path) == expected_size:
+            print(f"Verified {remote_path}")
+            return
+
+        seen = remote.get(remote_path)
+        print(f"Did not verify {remote_path}: expected {expected_size}, got {seen}")
+        if attempt < 3:
+            time.sleep(10 * attempt)
+
+    raise SystemExit(f"Failed to upload and verify {remote_path}")
+
+
+upload_items = [(manifest_path, f"releases/{version}/{manifest_path.name}", manifest_path.stat().st_size)]
+upload_items.extend(
+    (source / entry["path"], f"releases/{version}/{entry['path']}", entry["bytes"])
+    for entry in files
+)
+for local_path, remote_path, expected_size in upload_items:
+    upload_one(local_path, remote_path, expected_size)
+
+remote = remote_sizes()
 missing = sorted(path for path in expected if path not in remote)
 wrong_size = sorted(
     (path, expected[path], remote[path])
