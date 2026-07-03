@@ -291,7 +291,7 @@ assemble_from_repart_build_dir() {
   )
 }
 
-if [[ ( "$format" == "utm" || "$format" == "qemu" ) && -z "$raw_input" && -z "$repart_build_dir" ]]; then
+if [[ "$format" == "qemu" && -z "$raw_input" && -z "$repart_build_dir" ]]; then
   require_qemu_img
   result_dir="$out/nix-qcow-result"
   rm -f "$result_dir"
