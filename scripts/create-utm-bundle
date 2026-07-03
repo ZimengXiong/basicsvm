@@ -74,6 +74,7 @@ esac
 
 rm -rf "$bundle_path" "$zip_path"
 mkdir -p "$bundle_path/Data"
+chmod 0755 "$bundle_path" "$bundle_path/Data"
 cp -f "$source_image" "$bundle_path/Data/disk-0.qcow2"
 chmod 0644 "$bundle_path/Data/disk-0.qcow2"
 rm -f "$bundle_path/Data/efi_vars.fd"
@@ -212,13 +213,14 @@ cat > "$bundle_path/config.plist" <<EOF
     <key>JITCacheSize</key>
     <integer>0</integer>
     <key>MemorySize</key>
-    <integer>6144</integer>
+    <integer>8192</integer>
     <key>Target</key>
     <string>${target}</string>
   </dict>
 </dict>
 </plist>
 EOF
+chmod 0644 "$bundle_path/config.plist"
 
 if [[ "$zip_bundle" -eq 1 ]]; then
   (
