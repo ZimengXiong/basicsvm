@@ -106,6 +106,11 @@ rm -f "$out_ova"
 export VBOX_USER_HOME="$workdir/vbox-home"
 
 cleanup() {
+  VBoxManage storageattach "$vm_name" \
+    --storagectl "SATA" \
+    --port 0 \
+    --device 0 \
+    --medium none >/dev/null 2>&1 || true
   VBoxManage unregistervm "$vm_name" --delete >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
