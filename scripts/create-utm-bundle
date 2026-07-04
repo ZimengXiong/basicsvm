@@ -225,7 +225,7 @@ chmod 0644 "$bundle_path/config.plist"
 if [[ "$zip_bundle" -eq 1 ]]; then
   (
     cd "$out_dir"
-    python3 -m zipfile -c "$(basename "$zip_path")" "$(basename "$bundle_path")"
+    zip -0 -qry "$(basename "$zip_path")" "$(basename "$bundle_path")"
   )
   rm -rf "$bundle_path"
 fi
