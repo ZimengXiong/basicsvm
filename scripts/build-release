@@ -88,7 +88,6 @@ run_arm_target() {
   local lima="${BASICS_ARM_LIMA:-}"
   local docker="${BASICS_ARM_DOCKER:-0}"
   local remote_cmd
-  local remote_tar_cmd
   local quoted_arm_repo
 
   if [[ -z "$builder" ]]; then
@@ -104,21 +103,13 @@ EOF
   remote_cmd="cd $quoted_arm_repo && git pull --ff-only && rm -rf out/release/$target && BASICS_USE_SYSTEM_NIX=1 scripts/package-vm $target"
   if [[ "$docker" == "1" ]]; then
     run_remote_docker_target "$builder" "$arm_repo" "$target"
-    remote_tar_cmd="cd $quoted_arm_repo/out/release && tar -cf - $target"
-    mkdir -p "$repo_root/out/release"
-    ssh "$builder" "$remote_tar_cmd" \
-      | tar -C "$repo_root/out/release" -xf -
+    transfer_remote_release_target "$builder" "$arm_repo" "$target"
   elif [[ -n "$lima" ]]; then
     run_lima_command "$builder" "$lima" "$remote_cmd"
-    remote_tar_cmd="cd $quoted_arm_repo/out/release && tar -cf - $target"
-    mkdir -p "$repo_root/out/release"
-    run_lima_command "$builder" "$lima" "$remote_tar_cmd" \
-      | tar -C "$repo_root/out/release" -xf -
+    transfer_lima_release_target "$builder" "$lima" "$arm_repo" "$target"
   else
     ssh "$builder" "$remote_cmd"
-    mkdir -p "$repo_root/out/release"
-    ssh "$builder" "cd $arm_repo/out/release && tar -cf - $target" \
-      | tar -C "$repo_root/out/release" -xf -
+    transfer_remote_release_target "$builder" "$arm_repo" "$target"
   fi
 
   if [[ "$target" == "windows-arm" ]]; then
@@ -159,6 +150,53 @@ accept-flake-config = true
 extra-substituters = https://cache.nixos.org'
 nix shell nixpkgs#bash nixpkgs#qemu nixpkgs#python3 nixpkgs#zstd nixpkgs#coreutils nixpkgs#findutils nixpkgs#gnugrep nixpkgs#gnused nixpkgs#gnutar nixpkgs#gzip nixpkgs#git nixpkgs#zip -c bash -lc 'export BASICS_USE_SYSTEM_NIX=1; scripts/package-vm $target'"
 REMOTE
+}
+
+transfer_remote_release_target() {
+  local builder="$1"
+  local arm_repo="$2"
+  local target="$3"
+
+  mkdir -p "$repo_root/out/release"
+  rm -rf "$repo_root/out/release/$target"
+  ssh "$builder" "/bin/bash -s -- '$arm_repo' '$target'" <<'REMOTE' \
+    | tar -C "$repo_root/out/release" -xf -
+set -euo pipefail
+arm_repo="$1"
+target="$2"
+arm_repo="${arm_repo/#\~/$HOME}"
+cd "$arm_repo/out/release"
+tar \
+  "--exclude=$target/nix-repart-result" \
+  "--exclude=$target/*.raw" \
+  "--exclude=$target/*.raw.zst" \
+  "--exclude=$target/**/*.raw" \
+  "--exclude=$target/**/*.raw.zst" \
+  -cf - "$target"
+REMOTE
+}
+
+transfer_lima_release_target() {
+  local builder="$1"
+  local lima="$2"
+  local arm_repo="$3"
+  local target="$4"
+  local quoted_arm_repo
+  local remote_tar_cmd
+  local exclude_args
+
+  printf -v quoted_arm_repo '%q' "$arm_repo"
+  printf -v exclude_args '%q ' \
+    "--exclude=$target/nix-repart-result" \
+    "--exclude=$target/*.raw" \
+    "--exclude=$target/*.raw.zst" \
+    "--exclude=$target/**/*.raw" \
+    "--exclude=$target/**/*.raw.zst"
+  remote_tar_cmd="cd $quoted_arm_repo/out/release && tar $exclude_args-cf - $target"
+  mkdir -p "$repo_root/out/release"
+  rm -rf "$repo_root/out/release/$target"
+  run_lima_command "$builder" "$lima" "$remote_tar_cmd" \
+    | tar -C "$repo_root/out/release" -xf -
 }
 
 run_lima_command() {
