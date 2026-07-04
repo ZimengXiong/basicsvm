@@ -112,6 +112,7 @@ cleanup() {
     --device 0 \
     --medium none >/dev/null 2>&1 || true
   VBoxManage unregistervm "$vm_name" --delete >/dev/null 2>&1 || true
+  rm -rf "$workdir"
 }
 trap cleanup EXIT
 
