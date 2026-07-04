@@ -24,11 +24,13 @@ Environment:
   BASICS_ARM_BUILDER   ssh host that can run aarch64-linux builds
   BASICS_ARM_REPO      repo path inside the ARM builder, default: /home/zimengx.guest/Projects/basicsvm
   BASICS_ARM_LIMA      Lima instance on BASICS_ARM_BUILDER, optional
+  BASICS_ARM_DOCKER    set to 1 to run ARM packaging in Docker on BASICS_ARM_BUILDER
 
 Examples:
   scripts/build-release local
   scripts/build-release x86
   BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release arm
+  BASICS_ARM_BUILDER=xzm@192.168.86.10 BASICS_ARM_REPO=~/Projects/basicsvm-build-head BASICS_ARM_DOCKER=1 scripts/build-release arm
   BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release all
 EOF
 }
@@ -84,6 +86,7 @@ run_arm_target() {
   local builder="${BASICS_ARM_BUILDER:-}"
   local arm_repo="${BASICS_ARM_REPO:-/home/zimengx.guest/Projects/basicsvm}"
   local lima="${BASICS_ARM_LIMA:-}"
+  local docker="${BASICS_ARM_DOCKER:-0}"
   local remote_cmd
   local remote_tar_cmd
   local quoted_arm_repo
@@ -99,7 +102,13 @@ EOF
 
   printf -v quoted_arm_repo '%q' "$arm_repo"
   remote_cmd="cd $quoted_arm_repo && git pull --ff-only && rm -rf out/release/$target && BASICS_USE_SYSTEM_NIX=1 scripts/package-vm $target"
-  if [[ -n "$lima" ]]; then
+  if [[ "$docker" == "1" ]]; then
+    run_remote_docker_target "$builder" "$arm_repo" "$target"
+    remote_tar_cmd="cd $quoted_arm_repo/out/release && tar -cf - $target"
+    mkdir -p "$repo_root/out/release"
+    ssh "$builder" "$remote_tar_cmd" \
+      | tar -C "$repo_root/out/release" -xf -
+  elif [[ -n "$lima" ]]; then
     run_lima_command "$builder" "$lima" "$remote_cmd"
     remote_tar_cmd="cd $quoted_arm_repo/out/release && tar -cf - $target"
     mkdir -p "$repo_root/out/release"
@@ -115,6 +124,41 @@ EOF
   if [[ "$target" == "windows-arm" ]]; then
     ensure_windows_arm_ova
   fi
+}
+
+run_remote_docker_target() {
+  local builder="$1"
+  local arm_repo="$2"
+  local target="$3"
+  ssh "$builder" "/bin/bash -s -- '$arm_repo' '$target'" <<'REMOTE'
+set -euo pipefail
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+arm_repo="$1"
+target="$2"
+arm_repo="${arm_repo/#\~/$HOME}"
+cd "$arm_repo"
+git pull --ff-only
+rm -rf "out/release/$target"
+docker_bin="$(command -v docker || true)"
+if [[ -z "$docker_bin" && -x /opt/homebrew/bin/docker ]]; then
+  docker_bin=/opt/homebrew/bin/docker
+fi
+if [[ -z "$docker_bin" ]]; then
+  echo "Docker is required for BASICS_ARM_DOCKER=1" >&2
+  exit 1
+fi
+"$docker_bin" run --rm --platform linux/arm64 --privileged \
+  -v basicsvm-nix-store:/nix \
+  -v "$PWD":/work \
+  -w /work \
+  --entrypoint sh \
+  nixos/nix:2.24.11 \
+  -lc "git config --global --add safe.directory /work || true
+export NIX_CONFIG='experimental-features = nix-command flakes
+accept-flake-config = true
+extra-substituters = https://cache.nixos.org'
+nix shell nixpkgs#bash nixpkgs#qemu nixpkgs#python3 nixpkgs#zstd nixpkgs#coreutils nixpkgs#findutils nixpkgs#gnugrep nixpkgs#gnused nixpkgs#gnutar nixpkgs#gzip nixpkgs#git nixpkgs#zip -c bash -lc 'export BASICS_USE_SYSTEM_NIX=1; scripts/package-vm $target'"
+REMOTE
 }
 
 run_lima_command() {
