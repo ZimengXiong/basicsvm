@@ -208,6 +208,8 @@ tar \
   "--exclude=$target/nix-repart-result" \
   "--exclude=$target/*.raw" \
   "--exclude=$target/*.raw.zst" \
+  "--exclude=$target/utm/*.qcow" \
+  "--exclude=$target/utm/*.qcow2" \
   "--exclude=$target/**/*.raw" \
   "--exclude=$target/**/*.raw.zst" \
   -cf - "$target"
@@ -228,6 +230,8 @@ transfer_lima_release_target() {
     "--exclude=$target/nix-repart-result" \
     "--exclude=$target/*.raw" \
     "--exclude=$target/*.raw.zst" \
+    "--exclude=$target/utm/*.qcow" \
+    "--exclude=$target/utm/*.qcow2" \
     "--exclude=$target/**/*.raw" \
     "--exclude=$target/**/*.raw.zst"
   remote_tar_cmd="cd $quoted_arm_repo/out/release && tar $exclude_args-cf - $target"
