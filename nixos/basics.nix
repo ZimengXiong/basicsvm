@@ -87,6 +87,21 @@ let
       border-color: #050505;
     }
 
+    XfdesktopIconView.view {
+      color: #050505;
+      background: transparent;
+      text-shadow: none;
+      -XfdesktopIconView-label-alpha: 230;
+      -XfdesktopIconView-selected-label-alpha: 255;
+    }
+
+    XfdesktopIconView.view .label {
+      color: #050505;
+      background: rgba(255, 210, 31, 0.92);
+      border-radius: 2px;
+      padding: 1px 3px;
+    }
+
     panel,
     .xfce4-panel {
       background: #ffd21f;
@@ -106,6 +121,20 @@ let
       color: #050505;
       border-color: transparent;
     }
+  '';
+
+  basicsGtk2Rc = pkgs.writeText "basics-yellow-black-gtkrc-2.0" ''
+    style "xfdesktop-icon-view" {
+      XfdesktopIconView::label-alpha = 230
+      XfdesktopIconView::selected-label-alpha = 255
+      base[NORMAL] = "#ffd21f"
+      base[SELECTED] = "#ffe879"
+      base[ACTIVE] = "#ffe879"
+      fg[NORMAL] = "#050505"
+      fg[SELECTED] = "#050505"
+      fg[ACTIVE] = "#050505"
+    }
+    widget_class "*XfdesktopIconView*" style "xfdesktop-icon-view"
   '';
 
   basicsTerminalRc = pkgs.writeText "basics-xfce4-terminalrc" ''
@@ -269,6 +298,7 @@ EOF
       /usr/share/themes/bASICs-YellowFrames
     install -m 0644 ${basicsGtkCss} /home/beaver/.config/gtk-3.0/gtk.css
     install -m 0644 ${basicsGtkCss} /home/beaver/.config/gtk-4.0/gtk.css
+    install -m 0644 ${basicsGtk2Rc} /home/beaver/.gtkrc-2.0
     install -m 0644 ${basicsTerminalRc} /home/beaver/.config/xfce4/terminal/terminalrc
 
     cat > /home/beaver/.config/xfce4/helpers.rc <<'EOF'

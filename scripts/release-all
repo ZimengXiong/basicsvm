@@ -74,6 +74,11 @@ target_is_complete() {
   [[ "${#images[@]}" -eq 1 && -s "${images[0]}" ]] || return 1
   if [[ -n "$bundle_glob" ]]; then
     [[ "${#bundles[@]}" -eq 1 && -s "${bundles[0]}" ]] || return 1
+    if [[ "$format" == "utm" ]]; then
+      local bundle_size
+      bundle_size="$(stat -c '%s' "${bundles[0]}")"
+      [[ "$bundle_size" -lt $((8 * 1024 * 1024 * 1024)) ]] || return 1
+    fi
   fi
 }
 

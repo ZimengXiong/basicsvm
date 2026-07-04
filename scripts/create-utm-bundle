@@ -225,7 +225,14 @@ chmod 0644 "$bundle_path/config.plist"
 if [[ "$zip_bundle" -eq 1 ]]; then
   (
     cd "$out_dir"
-    zip -0 -qry "$(basename "$zip_path")" "$(basename "$bundle_path")"
+    if command -v zip >/dev/null 2>&1; then
+      zip -qry "$(basename "$zip_path")" "$(basename "$bundle_path")"
+    elif command -v python3 >/dev/null 2>&1; then
+      python3 -m zipfile -c "$(basename "$zip_path")" "$(basename "$bundle_path")"
+    else
+      echo "zip or python3 is required to package the UTM bundle" >&2
+      exit 1
+    fi
   )
   rm -rf "$bundle_path"
 fi
