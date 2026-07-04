@@ -21,6 +21,7 @@ Targets:
   linux-arm
 
 Environment:
+  BASICS_X86_DOCKER    set to 1 to run local x86 packaging in Docker
   BASICS_ARM_BUILDER   ssh host that can run aarch64-linux builds
   BASICS_ARM_REPO      repo path inside the ARM builder, default: /home/zimengx.guest/Projects/basicsvm
   BASICS_ARM_LIMA      Lima instance on BASICS_ARM_BUILDER, optional
@@ -29,6 +30,7 @@ Environment:
 Examples:
   scripts/build-release local
   scripts/build-release x86
+  BASICS_X86_DOCKER=1 scripts/build-release x86
   BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release arm
   BASICS_ARM_BUILDER=xzm@192.168.86.10 BASICS_ARM_REPO=~/Projects/basicsvm-build-head BASICS_ARM_DOCKER=1 scripts/build-release arm
   BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder scripts/build-release all
@@ -73,12 +75,48 @@ run_local_target() {
       exec "$repo_root/scripts/preview-vm" --rebuild
       ;;
     macos-intel|windows-x86|linux-x86)
-      "$repo_root/scripts/package-vm" "$target"
+      if [[ "${BASICS_X86_DOCKER:-0}" == "1" ]]; then
+        run_local_docker_target "$target"
+      else
+        "$repo_root/scripts/package-vm" "$target"
+      fi
       ;;
     *)
       return 1
       ;;
   esac
+}
+
+run_local_docker_target() {
+  local target="$1"
+  local out_root
+  local docker_bin
+
+  docker_bin="$(command -v docker || true)"
+  if [[ -z "$docker_bin" ]]; then
+    echo "Docker is required for BASICS_X86_DOCKER=1" >&2
+    exit 1
+  fi
+
+  out_root="$(readlink -f "$repo_root/out")"
+  mkdir -p "$out_root"
+  rm -rf "$repo_root/out/release/$target"
+
+  "$docker_bin" run --rm --platform linux/amd64 --privileged \
+    -v basicsvm-nix-store-x86:/nix \
+    -v "$repo_root":/work \
+    -v "$out_root":"$out_root" \
+    -w /work \
+    --entrypoint sh \
+    nixos/nix:2.24.11 \
+    -lc "git config --global --add safe.directory /work || true
+export NIX_CONFIG='experimental-features = nix-command flakes
+accept-flake-config = true
+extra-substituters = https://cache.nixos.org'
+nix shell nixpkgs#bash nixpkgs#qemu nixpkgs#python3 nixpkgs#zstd nixpkgs#coreutils nixpkgs#diffutils nixpkgs#findutils nixpkgs#gnugrep nixpkgs#gnused nixpkgs#gnutar nixpkgs#gzip nixpkgs#git nixpkgs#zip -c bash -lc 'export BASICS_USE_SYSTEM_NIX=1; scripts/package-vm $target'"
+  if [[ "$(id -u)" -ne 0 ]]; then
+    chown -R "$(id -u):$(id -g)" "$repo_root/out/release/$target" 2>/dev/null || true
+  fi
 }
 
 run_arm_target() {
