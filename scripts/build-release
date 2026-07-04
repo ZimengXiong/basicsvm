@@ -148,7 +148,7 @@ fi
 export NIX_CONFIG='experimental-features = nix-command flakes
 accept-flake-config = true
 extra-substituters = https://cache.nixos.org'
-nix shell nixpkgs#bash nixpkgs#qemu nixpkgs#python3 nixpkgs#zstd nixpkgs#coreutils nixpkgs#findutils nixpkgs#gnugrep nixpkgs#gnused nixpkgs#gnutar nixpkgs#gzip nixpkgs#git nixpkgs#zip -c bash -lc 'export BASICS_USE_SYSTEM_NIX=1; scripts/package-vm $target'"
+nix shell nixpkgs#bash nixpkgs#qemu nixpkgs#python3 nixpkgs#zstd nixpkgs#coreutils nixpkgs#diffutils nixpkgs#findutils nixpkgs#gnugrep nixpkgs#gnused nixpkgs#gnutar nixpkgs#gzip nixpkgs#git nixpkgs#zip -c bash -lc 'export BASICS_USE_SYSTEM_NIX=1; scripts/package-vm $target'"
 REMOTE
 }
 

@@ -153,7 +153,7 @@ install_ova() {
   local existing_ova
   rm -f "$dest_ova"
   existing_ova="$(find "$repo_root/out/release" -path "$dest_ova" -prune -o -name 'basicsvm-x86_64-linux.ova' -type f -print | head -1)"
-  if [[ -n "$existing_ova" ]] && cmp -s "$source_ova" "$existing_ova"; then
+  if [[ -n "$existing_ova" ]] && command -v cmp >/dev/null 2>&1 && cmp -s "$source_ova" "$existing_ova"; then
     ln "$existing_ova" "$dest_ova" 2>/dev/null || cp -f "$source_ova" "$dest_ova"
   else
     cp -f "$source_ova" "$dest_ova"
