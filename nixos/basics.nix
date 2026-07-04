@@ -402,7 +402,7 @@ EOF
 
     cat > /home/beaver/.local/bin/set-basics-wallpaper <<'EOF'
 #!/bin/sh
-wallpaper='${basics.basicsAssets}/share/basics/assets/wallpapers/BW-Entrance.png'
+wallpaper='${basics.basicsAssets}/share/basics/assets/wallpapers/MITRE-Swirl.jpg'
 if command -v xrandr >/dev/null 2>&1; then
   xrandr --output Virtual-1 --mode 1920x1080 >/dev/null 2>&1 || true
   xrandr --output Virtual-0 --mode 1920x1080 >/dev/null 2>&1 || true
