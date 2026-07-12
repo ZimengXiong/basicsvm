@@ -49,7 +49,8 @@ export default {
         items: [
           { text: 'VM Basics', link: '/use/' },
           { text: 'First Flow: Counter', link: '/use/first-flow' },
-          { text: 'Adder From Scratch', link: '/use/adder-from-scratch' }
+          { text: 'Adder From Scratch', link: '/use/adder-from-scratch' },
+          { text: 'Go Board: First FPGA', link: '/use/go-board-basics' }
         ]
       },
       {
