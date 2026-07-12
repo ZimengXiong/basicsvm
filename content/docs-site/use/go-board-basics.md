@@ -64,13 +64,22 @@ module blink(
 endmodule
 ```
 
-`go_board.pcf` is the map from our friendly names to the physical pins on the
-Go Board:
+`go_board.pcf` is a complete, reusable map from friendly names to the physical
+Go Board pins. It includes the clock, buttons, LEDs, both seven-segment
+displays, USB serial, VGA, and PMOD header; unused rows are safe. For this
+blink circuit, these are the two names that matter:
 
 ```text
 set_io -nowarn CLK 15
 set_io -nowarn LED1 56
 ```
+
+That means a new project can keep the same `go_board.pcf`, declare any of
+those documented names in its top-level module, and build with
+`make TOP=my_project`. Add only the new hardware ports to your Verilog—do not
+invent pin numbers. For example, a VGA project declares `VGA_HS`, `VGA_VS`,
+`VGA_R0` through `VGA_R2`, `VGA_G0` through `VGA_G2`, and `VGA_B0` through
+`VGA_B2`.
 
 Build the FPGA image:
 
