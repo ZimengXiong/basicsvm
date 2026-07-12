@@ -44,9 +44,12 @@ export default {
         ]
       },
       {
-        text: 'Miscellaneous',
+        text: 'Versions',
         items: [
-          { text: 'Versions', link: '/install/versions' }
+          { text: 'All versions', link: '/install/versions' },
+          { text: 'Version 1.1 stable', link: '/install/version-1-1' },
+          { text: 'Migrate to version 1.1', link: '/install/migrate-to-1-1' },
+          { text: 'Version 1.0 stable', link: '/install/version-1-0' }
         ]
       },
       {
