@@ -1,7 +1,7 @@
-# Add VSCodium to an older VM
+# Add VSCodium to version 1.0
 
-The next VM release will include VSCodium. This page lets you add it to the VM
-you already have. You can also see [Versions and updates](./versions.md).
+Version 1.1 already has VSCodium. This page lets you add it to a version 1.0
+VM. You can also see [Versions](./versions.md).
 
 
 > [!NOTE]

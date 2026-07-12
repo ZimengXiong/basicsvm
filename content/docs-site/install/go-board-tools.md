@@ -1,10 +1,10 @@
-# Add Go Board tools to an older VM
+# Add Go Board tools to version 1.0
 
-The next bASICs VM release will have the Go Board tools already installed. This
-page is for an older VM when you want to add them yourself.
+Version 1.1 already has the Go Board tools. This page is for version 1.0 when
+you want to add them yourself.
 
-You can also wait for the next VM and start fresh. See
-[Versions and updates](./versions.md) if you want to compare the two options.
+You can also download version 1.1 and start fresh. See
+[Versions and updates](./versions.md) if you want to choose between the two.
 
 ## Add the tools
 
