@@ -138,7 +138,7 @@ cat > "$bundle_path/config.plist" <<EOF
     <key>UsbBusSupport</key>
     <string>2.0</string>
     <key>UsbSharing</key>
-    <false/>
+    <true/>
   </dict>
   <key>Network</key>
   <array>

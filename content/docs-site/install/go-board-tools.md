@@ -54,7 +54,32 @@ lsusb | grep -i ftdi
 ```
 
 You should see vendor ID `0403` and product ID `6010`. If the command shows
-nothing, detach it from the host application and attach it to the VM again.
+nothing, check the VM's **Input** settings: **Share USB device from host** must
+be enabled. New bASICs UTM bundles enable this by default.
+
+## Terminal-only UTM control (macOS)
+
+After starting the UTM VM once, you can do the rest from the host terminal—no
+VM desktop interaction is required. UTM's shared network gives the guest a
+private address. Find it from the VM's MAC address:
+
+```bash
+# On the Mac host, while the VM is running.
+arp -an | grep '52:54'
+```
+
+The output includes a guest address such as `192.168.64.5`. Connect using the
+bASICs VM credentials:
+
+```bash
+ssh beaver@192.168.64.5
+```
+
+From that SSH shell, run the install, build, and `iceprog` commands on this
+page exactly as written. This is useful for running repeatable checks or
+teaching from a host terminal. The VM's generated MAC address is recorded in
+its `.utm/config.plist` under `Network → MacAddress`; if several VMs are
+running, use that value to identify the correct `arp` entry.
 
 ## Build and flash the included example
 
