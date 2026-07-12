@@ -1,25 +1,23 @@
-# First Flow: Counter
+# First Counter Flow
 
-This example checks that the VM, OpenLane, and SKY130 PDK are usable.
+This is a quick way to check that the VM can turn a small counter into a chip
+layout.
 
 <VideoPlayer src="/videos/first-flow-demo.mp4" title="First Flow: Counter demo" />
 
 ## Copy the example
 
 ```bash
-# ~/bASICs/work
 cd ~/bASICs/work
 
-# ~/bASICs/work
 cp -R ../examples/sky130-counter my-sky130-counter
 
-# ~/bASICs/work
 cd my-sky130-counter
 ```
 
 ## Run OpenLane
 
-Run OpenLane:
+Run OpenLane.
 
 ```bash
 # ~/bASICs/work/my-sky130-counter
@@ -28,7 +26,7 @@ openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml
 
 ## What success looks like
 
-OpenLane writes run data into a `runs` directory in your copied project.
+When it finishes, your copied project will have a `runs` folder.
 
 ```text
 my-sky130-counter
@@ -38,7 +36,7 @@ my-sky130-counter
 └── src
 ```
 
-Each run gets its own timestamped folder. In that folder, you can inspect available run artifacts.
+Each run gets its own timestamped folder. That is where the layout files live.
 
 ```text
 runs
@@ -56,14 +54,9 @@ ls
 ```
 
 > [!NOTE]
-> Replace `RUN_2026-05-27_16-51-04` with the run folder that OpenLane created on your VM.
+> Replace `RUN_2026-05-27_16-51-04` with the folder on your VM.
 
-A completed run should include a `final` directory inside that folder.
-
-Inside the run folder, you will see flow steps, logs, temporary files, and `final`.
-
-> [!NOTE]
-> If you do not see `final`, the flow likely failed before producing final outputs.
+Look for a folder named `final` inside it. That is where the useful files are.
 
 Example output:
 
@@ -91,7 +84,7 @@ tmp
 warning.log
 ```
 
-The `final` directory contains the main outputs:
+The `final` folder has the main outputs.
 
 ```bash
 # ~/bASICs/work/my-sky130-counter/runs/RUN_2026-05-27_16-51-04
