@@ -172,13 +172,13 @@ body {
 }
 
 .VPDoc .version-release > h2 {
-  margin-top: 20px;
-  padding-top: 20px;
+  margin-top: 8px;
+  padding-top: 12px;
 }
 
 .VPDoc .release-meta {
   margin-top: -10px;
-  margin-bottom: 14px;
+  margin-bottom: 4px;
 }
 
 .VPDoc .release-date {
