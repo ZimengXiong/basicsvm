@@ -12,11 +12,11 @@ care of that for you.
 
 ## Get the board ready
 
-Version 1.1 already has the tools for this lesson. If you are using version
-1.0, follow [Migrating to version 1.1](../install/migrate-to-1-1.md) first.
+Before you start, make sure you have
 
-Plug the Go Board into your computer, start the VM, then use UTM's **USB
-Devices** toolbar button to connect **Dual RS232-HS**.
+- bASICs VM version 1.1 or newer
+- a Nandland Go Board plugged into your computer
+- the Go Board [connected to your VM](../install/connecting-usb-devices.md)
 
 In the VM terminal, check that the board is visible.
 
@@ -25,20 +25,7 @@ lsusb
 ```
 
 Look for **Dual UART / FIFO IC** in the list. If it is not there, the
-[UTM USB sharing steps](#if-utm-does-not-see-the-board) will help.
-
-### If UTM does not see the board
-
-Shut down the VM. In UTM, select the VM, click **Edit**, open **Input**, and
-tick **Share USB devices from host**. Start the VM again, then connect **Dual
-RS232-HS** from the **USB Devices** menu.
-
-<video controls playsinline preload="metadata" style="max-width: 100%; border-radius: 8px;">
-  <source src="/videos/utm-go-board-usb-sharing.mp4" type="video/mp4">
-  Your browser does not support embedded video.
-</video>
-
-The video walks through the whole thing.
+[USB connection steps](../install/connecting-usb-devices.md) will help.
 
 ## Make an LED blink
 

@@ -53,6 +53,12 @@ export default {
         ]
       },
       {
+        text: 'Miscellaneous',
+        items: [
+          { text: 'Connecting USB devices in UTM', link: '/install/connecting-usb-devices' }
+        ]
+      },
+      {
         text: 'Use',
         items: [
           { text: 'VM Basics', link: '/use/' },
