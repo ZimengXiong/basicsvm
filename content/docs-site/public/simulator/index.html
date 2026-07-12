@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Go Board Simulator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="toolbar">
+    <b>Nandland Go Board Simulator</b>
+    <span>25 MHz</span>
+    <button id="runBtn">Compile / Run</button>
+    <button id="resetBtn">Reset</button>
+    <button id="pauseBtn">Pause</button>
+    <select id="speed"><option value="1">1x speed</option><option value="4">4x speed</option><option value="16">16x speed</option></select>
+    <span id="status">Ready</span>
+  </div>
+
+  <main>
+    <section id="leftPane">
+      <div class="tabs">
+        <button id="codeTab" class="selected">design.v</button>
+        <button id="pinTab">go-board.pcf</button>
+      </div>
+
+      <div id="codeFile" class="file-view">
+        <div class="examples">
+          Examples:
+          <button data-example="none">None</button>
+          <button data-example="blink" class="active">Blink</button>
+          <button data-example="counter">Counter</button>
+          <button data-example="switches">Switches</button>
+          <button data-example="seven">7-segment</button>
+          <button data-example="vga">VGA</button>
+        </div>
+        <div class="editor-wrap"><pre id="lines">1</pre><textarea id="code" spellcheck="false" aria-label="Verilog source"></textarea></div>
+      </div>
+
+      <div id="pinFile" class="file-view" hidden>
+        <pre id="pinGrid"></pre>
+        <p><a href="https://nandland.com/wp-content/uploads/2022/06/Go_Board_V1.pdf" target="_blank" rel="noreferrer">Open board schematic</a></p>
+      </div>
+
+      <div class="console">
+        <div><b>Compiler output</b><button id="clearBtn">Clear</button></div>
+        <pre id="log">Ready.</pre>
+      </div>
+    </section>
+
+    <section id="rightPane">
+      <div class="sim-title"><b>Board simulation</b><span>Time: <b id="simTime">0.000 ms</b> &nbsp; Edges: <b id="edges">0</b></span></div>
+      <div class="board-row">
+        <div class="board-card">
+          <img class="pcb-render" src="assets/goboard-kicad.png" alt="Nandland Go Board">
+          <svg id="goBoard" viewBox="0 0 1376 872" aria-label="Interactive Go Board"></svg>
+        </div>
+        <div class="monitor" id="vgaWindow">
+          <div class="monitor-title" id="vgaHandle"><b>VGA</b><span id="vgaStatus">NO SIGNAL</span></div>
+          <canvas id="screen" width="320" height="240"></canvas>
+          <small>640x480 @ 60Hz · <span id="frame">FRAME 0000</span></small>
+        </div>
+      </div>
+      <div class="hint">Hold the four board buttons with the mouse.</div>
+      <fieldset class="wave-panel">
+        <legend>Waveform viewer</legend>
+        <canvas id="waveform" width="800" height="230"></canvas>
+      </fieldset>
+      <div class="device-line">Device: iCE40HX1K &nbsp; Package: VQ100 &nbsp; Clock: 25,000,000 Hz &nbsp; <span id="hardwareReport">Not synthesized</span></div>
+    </section>
+  </main>
+
+  <button id="pinsBtn" hidden>Pin map</button>
+  <dialog id="pins"><button id="closePins">Close</button></dialog>
+  <script src="verilog-sim.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
