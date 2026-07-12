@@ -103,7 +103,8 @@ export default {
               { text: 'UTM', link: '/install/connecting-usb-devices#utm' },
               { text: 'VirtualBox', link: '/install/connecting-usb-devices#virtualbox' }
             ]
-          }
+          },
+          { text: 'Install APIO', link: '/install/apio' }
         ]
       },
       {
