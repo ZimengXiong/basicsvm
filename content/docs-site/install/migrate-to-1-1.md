@@ -4,11 +4,15 @@
 
 Or keep version 1.0 and install the extra tools.
 
+## Install VSCodium
+
 ```bash
 nix profile install nixpkgs#vscodium \
   --extra-experimental-features flakes \
   --extra-experimental-features nix-command
 ```
+
+## Install Go Board tools
 
 ```bash
 nix profile install \
