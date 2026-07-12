@@ -25,6 +25,7 @@ export default {
     nav: [
       { text: 'Start', link: '/' },
       { text: 'Use', link: '/use/' },
+      { text: 'Releases', link: '/release/' },
       { text: 'Advanced', link: '/build/' },
       { text: 'GitHub', link: 'https://github.com/ZimengXiong/basicsvm' },
       { text: 'Report Issue', link: 'https://github.com/ZimengXiong/basicsvm/issues/new' }
@@ -41,7 +42,8 @@ export default {
           { text: 'Linux x86', link: '/install/linux-x86' },
           { text: 'Linux ARM', link: '/install/linux-arm' },
           { text: 'First Boot', link: '/start/first-boot' },
-          { text: 'Optional: VSCodium', link: '/install/vscodium'}
+          { text: 'Update an Existing VM', link: '/install/tool-patch' },
+          { text: 'Release Notes', link: '/release/' }
         ]
       },
       {

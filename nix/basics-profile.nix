@@ -76,6 +76,7 @@ pages = [
     pathlib.Path("install/windows-arm.md"),
     pathlib.Path("install/linux-x86.md"),
     pathlib.Path("install/linux-arm.md"),
+    pathlib.Path("install/tool-patch.md"),
     pathlib.Path("build/index.md"),
     pathlib.Path("build/local-nix.md"),
     pathlib.Path("build/docs.md"),
@@ -87,6 +88,7 @@ pages = [
     pathlib.Path("advanced/check-environment.md"),
     pathlib.Path("advanced/reproduce-vm.md"),
     pathlib.Path("advanced/bare-nix.md"),
+    pathlib.Path("release/index.md"),
 ]
 
 def title_for(path, text):
@@ -227,6 +229,9 @@ PY
     openlane2.packages.${system}.opensta
     openlane2.packages.${system}.openroad-abc
     yosys
+    nextpnr
+    icestorm
+    usbutils
     magic-vlsi
     netgen
     ngspice

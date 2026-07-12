@@ -1,65 +1,18 @@
-# Release Images
+# Release Notes
 
-This section is for people packaging VM images and preparing release artifacts.
+Each VM download is a complete, tested system image. Install the newest image when you can. If reinstalling is inconvenient, the [tool patch](../install/tool-patch.md#patch-an-existing-vm) adds the tools introduced by the latest patch to an existing VM.
 
-## Common commands
+## Next patch release — unreleased
 
-```bash
-./scripts/dev-shell
-./scripts/build-vm x86_64
-./scripts/run-vm x86_64
-./scripts/preview-vm --rebuild
-./scripts/verify-source
-```
+This patch keeps the same VM platforms and boot setup as the first stable release. It adds these tools to every new VM image:
 
-## Release image packaging
+- **VSCodium**, a graphical code editor.
+- **Nandland Go Board tools**: the open-source iCE40 build and programming tools (`nextpnr-ice40`, `icepack`, and `iceprog`).
 
-```bash
-./scripts/release-all
-```
+Already have a VM and do not want to reinstall? [Patch it yourself.](../install/tool-patch.md#patch-an-existing-vm)
 
-## Target matrix
+## a359d49 — first stable release
 
-| Target | Architecture | Primary output | Student host |
-| --- | --- | --- | --- |
-| `macos-apple-silicon` | `aarch64-linux` | zipped UTM bundle | Apple Silicon Mac |
-| `macos-intel` | `x86_64-linux` | zipped UTM bundle | Intel Mac |
-| `windows-x86` | `x86_64-linux` | VirtualBox OVA | Windows on Intel or AMD |
-| `windows-arm` | `aarch64-linux` | VirtualBox OVA | Windows on ARM |
-| `linux-x86` | `x86_64-linux` | VirtualBox OVA | Linux on Intel or AMD |
-| `linux-arm` | `aarch64-linux` | QEMU QCOW2 | Linux on ARM |
+The first public stable bASICs VM release: a ready-to-use FPGA and ASIC development environment for the supported macOS, Windows, and Linux host systems.
 
-Linux ARM is provided as a QEMU disk image rather than a VirtualBox appliance.
-
-For manual release batches:
-
-```bash
-./scripts/build-release local
-./scripts/build-release x86
-BASICS_ARM_BUILDER=zimengx@osxserver.lan BASICS_ARM_LIMA=basics-arm-builder ./scripts/build-release arm
-./scripts/finalize-release
-```
-
-The ARM builder is `zimengx@osxserver.lan` running the `basics-arm-builder` Lima VM. The ARM MacBook Air has limited memory, so treat it as a slow but reproducible builder.
-
-## Validation before publishing
-
-Run:
-
-```bash
-./scripts/nix flake check
-./scripts/verify-source
-./scripts/verify-fresh
-```
-
-Then boot or import the release artifact for the target host and run the SKY130 counter example from [First Flow](../use/first-flow.md).
-
-## Publish checklist
-
-Before publishing release artifacts:
-
-1. Confirm artifact names match the platform install pages.
-2. Boot one x86 target and one ARM target.
-3. Confirm login credentials from `/etc/basics-release`.
-4. Run `openlane --pdk-root "$PDK_ROOT" --manual-pdk --pdk sky130A config.yaml` from a copied `sky130-counter`.
-5. Open the hosted docs from the desktop shortcut.
+Already have this VM and do not want to reinstall? [Patch it yourself.](../install/tool-patch.md#patch-an-existing-vm) The patch adds VSCodium and the Go Board tools.

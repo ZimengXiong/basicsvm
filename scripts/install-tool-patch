@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Install the optional editor and Nandland Go Board tools into an existing
+# bASICs VM. This is intentionally a user-profile patch, not a NixOS update.
+set -euo pipefail
+
+if ! command -v nix >/dev/null 2>&1; then
+  echo "This patch must be run inside a bASICs VM with Nix installed." >&2
+  exit 1
+fi
+
+echo "Installing VSCodium and the Nandland Go Board toolchain..."
+nix profile install \
+  nixpkgs#vscodium \
+  nixpkgs#nextpnr \
+  nixpkgs#icestorm \
+  nixpkgs#usbutils \
+  --extra-experimental-features flakes \
+  --extra-experimental-features nix-command
+
+echo "Installing Go Board USB permission rule (your password may be requested)..."
+printf '%s\n' \
+  '# Nandland Go Board FT2232H programmer' \
+  'SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6010", MODE="0666"' \
+  | sudo tee /etc/udev/rules.d/99-basics-go-board.rules >/dev/null
+sudo udevadm control --reload-rules
+sudo udevadm trigger --subsystem-match=usb
+
+cat <<'EOF'
+
+Installed:
+  codium          VSCodium editor
+  nextpnr-ice40   iCE40 place-and-route
+  icepack         bitstream packer
+  iceprog         Go Board flash programmer
+
+Close and reopen the terminal before using the new commands. If the Go Board
+was already connected, unplug and reconnect it after USB passthrough is set up.
+EOF
