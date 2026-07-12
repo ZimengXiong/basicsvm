@@ -6,9 +6,8 @@ Use these steps for any USB device you want to use inside the VM.
 
 1. Plug the device into your computer.
 2. Start the VM.
-3. Click **USB Devices** in the UTM toolbar.
-4. Choose the device.
-5. Click **Connect…**.
+3. Click the **USB Devices** icon in the top-right corner of the VM window.
+4. Choose your device, then click **Connect…**.
 
 For the Nandland Go Board, choose **Dual RS232-HS**. Inside the VM, run
 `lsusb` and look for **Dual UART / FIFO IC**.
