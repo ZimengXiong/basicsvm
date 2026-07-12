@@ -56,9 +56,19 @@ export default {
         text: 'Use',
         items: [
           { text: 'VM Basics', link: '/use/' },
-          { text: 'First Counter Flow', link: '/use/first-flow' },
-          { text: 'Adder From Scratch', link: '/use/adder-from-scratch' },
-          { text: 'Your First Go Board Project', link: '/use/go-board-basics' }
+          {
+            text: 'OpenLane',
+            items: [
+              { text: 'First Counter Flow', link: '/use/first-flow' },
+              { text: 'Adder From Scratch', link: '/use/adder-from-scratch' }
+            ]
+          },
+          {
+            text: 'Nandland Go Board',
+            items: [
+              { text: 'Your First Go Board Project', link: '/use/go-board-basics' }
+            ]
+          }
         ]
       },
       {
