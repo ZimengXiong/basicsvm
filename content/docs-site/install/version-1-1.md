@@ -6,7 +6,7 @@
   <div class="release-date">Released July 12, 2026.</div>
   <div class="release-badges">
     <span class="release-badge release-badge-newest">Newest</span>
-    <a class="release-badge release-badge-releases" href="../index.md">Download versions</a>
+    <a class="release-badge release-badge-releases" href="/">Download versions</a>
   </div>
 </div>
 
