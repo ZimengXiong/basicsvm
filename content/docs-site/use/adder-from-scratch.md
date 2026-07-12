@@ -1,10 +1,11 @@
 # Adder From Scratch
 
-Build a 2-bit registered adder by writing Verilog, simulating it, synthesizing it, choosing a PDK, and running OpenLane to produce a GDS layout.
+Let’s make a tiny adder, try it in a simulator, and turn it into a layout with
+OpenLane.
 
-The circuit has two 2-bit inputs, `a` and `b`. Each input can hold a number from 0 to 3. The circuit adds them together and stores the answer in `sum` on each rising edge of `clk`.
-
-The output is 3 bits wide because the largest result is `3 + 3 = 6`, and 6 needs 3 bits in binary.
+It has two small inputs, `a` and `b`, that hold numbers from 0 to 3. It adds
+them and saves the answer in `sum` whenever the clock ticks. `sum` needs three
+bits because `3 + 3` is 6.
 
 ```mermaid
 flowchart LR
@@ -28,20 +29,10 @@ Terms in this circuit:
 | `rst_n` | Active-low reset. The `_n` suffix means the reset is active when the signal is 0. |
 | Reset behavior | When reset is active, `sum` is forced to 0 instead of storing `a + b`. |
 
-You will use these terms throughout the guide:
-
-| Term | Meaning |
-| --- | --- |
-| **Verilog** | The text language we will use to describe the circuit. |
-| **RTL** | Register-transfer level. It describes hardware behavior around registers and clock cycles. |
-| **Simulation** | Runs the Verilog so we can check the circuit's behavior. |
-| **Synthesis** | Turns RTL into a netlist made from standard cells such as gates and flip-flops. |
-| **PDK** | Process design kit. It provides design rules, timing data, and cell libraries for a manufacturing process. |
-| **OpenLane** | Places the cells, routes wires, checks the result, and writes the layout files. |
-
 ## Create the project
 
-Start in `~/bASICs/work`, the writable workspace in the VM. Put the Verilog source in `src`; the tools will write outputs under `runs`.
+Start in `~/bASICs/work`. Your Verilog goes in `src` and the tools put their
+output in `runs`.
 
 ```bash
 # Move into the writable workspace.
@@ -56,13 +47,9 @@ cd adder2
 
 ## Write the RTL
 
-The RTL is the hardware design. This one has two 2-bit inputs, a 3-bit output, a reset, and a clocked register named `sum`.
-
 Create `src/adder2.v` in your editor.
 
-The design will be a module named `adder2`. It has a clock, an active-low reset, two 2-bit inputs named `a` and `b`, and a 3-bit registered output named `sum`.
-
-Type the RTL below into your file and read the comments as you go.
+Call the module `adder2`. Type this in and read the comments as you go.
 
 ::: details Show one working RTL solution
 
