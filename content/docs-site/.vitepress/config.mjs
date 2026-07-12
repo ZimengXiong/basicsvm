@@ -53,18 +53,18 @@ export default {
         ]
       },
       {
-        text: 'Miscellaneous',
-        items: [
-          { text: 'Connecting USB devices in UTM', link: '/install/connecting-usb-devices' }
-        ]
-      },
-      {
         text: 'Use',
         items: [
           { text: 'VM Basics', link: '/use/' },
           { text: 'First Counter Flow', link: '/use/first-flow' },
           { text: 'Adder From Scratch', link: '/use/adder-from-scratch' },
           { text: 'Your First Go Board Project', link: '/use/go-board-basics' }
+        ]
+      },
+      {
+        text: 'Miscellaneous',
+        items: [
+          { text: 'Connecting USB devices in UTM', link: '/install/connecting-usb-devices' }
         ]
       },
       {

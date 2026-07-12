@@ -1,4 +1,4 @@
-# Version 1.0 stable <span class="release-badge release-badge-legacy">Legacy</span> <a class="release-update" href="./version-1-1.md">Migrate to latest</a>
+# Version 1.0 stable <a class="release-badge release-badge-legacy" href="./version-1-1.md">Legacy · Migrate to latest</a>
 
 <div class="version-release">
 
