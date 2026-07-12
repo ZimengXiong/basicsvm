@@ -59,9 +59,19 @@ export default {
         text: 'Versions',
         items: [
           { text: 'All versions', link: '/install/versions' },
-          { text: '1.1 stable — Latest', link: '/install/version-1-1' },
-          { text: 'Migrate to 1.1', link: '/install/migrate-to-1-1' },
-          { text: '1.0 stable', link: '/install/version-1-0' }
+          {
+            text: '1.1',
+            items: [
+              { text: '1.1 stable — Latest', link: '/install/version-1-1' },
+              { text: 'Migrate to 1.1', link: '/install/migrate-to-1-1' }
+            ]
+          },
+          {
+            text: '1.0',
+            items: [
+              { text: '1.0 stable', link: '/install/version-1-0' }
+            ]
+          }
         ]
       },
       {
