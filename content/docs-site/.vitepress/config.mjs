@@ -35,23 +35,65 @@ export default {
         text: 'Start',
         items: [
           { text: 'Start Here', link: '/' },
-          { text: 'macOS Apple Silicon', link: '/install/mac-apple-silicon' },
-          { text: 'macOS Intel', link: '/install/mac-intel' },
-          { text: 'Windows x86', link: '/install/windows-x86' },
-          { text: 'Windows ARM', link: '/install/windows-arm' },
-          { text: 'Linux x86', link: '/install/linux-x86' },
-          { text: 'Linux ARM', link: '/install/linux-arm' },
-          { text: 'First Boot', link: '/start/first-boot' },
-          { text: 'Update an Existing VM', link: '/install/tool-patch' },
-          { text: 'Release Notes', link: '/release/' }
+          {
+            text: 'Choose your operating system',
+            collapsed: true,
+            items: [
+              { text: 'macOS Apple Silicon', link: '/install/mac-apple-silicon' },
+              { text: 'macOS Intel', link: '/install/mac-intel' },
+              { text: 'Windows x86', link: '/install/windows-x86' },
+              { text: 'Windows ARM', link: '/install/windows-arm' },
+              { text: 'Linux x86', link: '/install/linux-x86' },
+              { text: 'Linux ARM', link: '/install/linux-arm' }
+            ]
+          },
+          {
+            text: 'First boot',
+            items: [
+              { text: 'First Boot', link: '/start/first-boot' },
+              { text: 'VM Basics', link: '/use/' }
+            ]
+          }
         ]
       },
       {
-        text: 'Use',
+        text: 'Versions',
         items: [
-          { text: 'VM Basics', link: '/use/' },
-          { text: 'First Flow: Counter', link: '/use/first-flow' },
-          { text: 'Adder From Scratch', link: '/use/adder-from-scratch' }
+          { text: 'All versions', link: '/install/versions' },
+          { text: '1.1 stable — Latest', link: '/install/version-1-1' },
+          { text: 'Migrate to 1.1', link: '/install/migrate-to-1-1' },
+          { text: '1.0 stable', link: '/install/version-1-0' }
+        ]
+      },
+      {
+        text: 'Examples',
+        items: [
+          {
+            text: 'OpenLane',
+            items: [
+              { text: 'First Counter Flow', link: '/use/first-flow' },
+              { text: 'Adder From Scratch', link: '/use/adder-from-scratch' }
+            ]
+          },
+          {
+            text: 'Nandland Go Board',
+            items: [
+              { text: 'Your First Go Board Project', link: '/use/go-board-basics' }
+            ]
+          }
+        ]
+      },
+      {
+        text: 'Miscellaneous',
+        items: [
+          {
+            text: 'Connecting USB devices',
+            link: '/install/connecting-usb-devices',
+            items: [
+              { text: 'UTM', link: '/install/connecting-usb-devices#utm' },
+              { text: 'VirtualBox', link: '/install/connecting-usb-devices#virtualbox' }
+            ]
+          }
         ]
       },
       {
