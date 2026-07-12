@@ -7,6 +7,15 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="startupOverlay">
+    <div>
+      <b>Loading client-side FPGA toolchain…</b>
+      <progress id="startupProgress" max="1" value="0"></progress>
+      <div id="startupStatus">Preparing local compiler assets.</div>
+      <small>Yosys, Clang/LLVM, CXXRTL, and Icarus stay in this browser.</small>
+      <button id="startupContinue" hidden>Continue without preloading</button>
+    </div>
+  </div>
   <div id="toolbar">
     <b>Nandland Go Board Simulator</b>
     <span>25 MHz</span>
@@ -42,6 +51,7 @@
         <p><a href="https://nandland.com/wp-content/uploads/2022/06/Go_Board_V1.pdf" target="_blank" rel="noreferrer">Open board schematic</a></p>
       </div>
 
+      <div id="consoleResize" title="Drag to resize compiler output"></div>
       <div class="console">
         <div><b>Compiler output</b><button id="clearBtn">Clear</button></div>
         <pre id="log">Ready.</pre>
@@ -66,13 +76,21 @@
         <legend>Waveform viewer</legend>
         <canvas id="waveform" width="800" height="230"></canvas>
       </fieldset>
-      <div class="device-line">Device: iCE40HX1K &nbsp; Package: VQ100 &nbsp; Clock: 25,000,000 Hz &nbsp; <span id="hardwareReport">Not synthesized</span></div>
+      <div class="device-line">Device: iCE40HX1K &nbsp; Package: VQ100 &nbsp; Clock: 25,000,000 Hz &nbsp; <span id="hardwareReport">Client-side simulation · hardware fit not synthesized</span></div>
     </section>
   </main>
 
   <button id="pinsBtn" hidden>Pin map</button>
   <dialog id="pins"><button id="closePins">Close</button></dialog>
+  <div id="compileOverlay" hidden>
+    <div>
+      <b>Yosys + Clang compiling…</b>
+      <progress aria-label="Compilation in progress"></progress>
+      <pre id="compileProgress">Loading browser WebAssembly.</pre>
+      <small>The simulator view is paused while this runs locally.</small>
+    </div>
+  </div>
   <script src="verilog-sim.js"></script>
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
