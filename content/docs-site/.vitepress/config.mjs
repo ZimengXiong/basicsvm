@@ -25,6 +25,7 @@ export default {
     nav: [
       { text: 'Start', link: '/' },
       { text: 'Use', link: '/use/' },
+      { text: 'Simulator', link: '/simulator' },
       { text: 'Releases', link: '/release/' },
       { text: 'Advanced', link: '/build/' },
       { text: 'GitHub', link: 'https://github.com/ZimengXiong/basicsvm' },
