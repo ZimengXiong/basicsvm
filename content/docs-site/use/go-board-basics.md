@@ -12,9 +12,12 @@ care of that for you.
 
 ## Get the board ready
 
-The current bASICs VM already includes Yosys, nextpnr-ice40, icepack, and
-iceprog. Plug the Go Board into your computer, start the VM, then use UTM's
-**USB Devices** toolbar button to connect **Dual RS232-HS**.
+You need Yosys, nextpnr-ice40, icepack, and iceprog for this lesson. The next
+VM release will have them ready to go. If you are using the first stable VM,
+follow [Add Go Board tools](../install/go-board-tools.md) first.
+
+Plug the Go Board into your computer, start the VM, then use UTM's **USB
+Devices** toolbar button to connect **Dual RS232-HS**.
 
 In the VM terminal, check that the board is visible.
 

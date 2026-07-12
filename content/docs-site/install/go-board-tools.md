@@ -1,9 +1,27 @@
-# Go Board setup and extras
+# Add Go Board tools to an older VM
 
-The current bASICs VM is ready for the Go Board. You can write Verilog, build a
-bitstream, and program the board without installing anything else.
+The next bASICs VM release will have the Go Board tools already installed. This
+page is for an older VM when you want to add them yourself.
 
-## Latest bASICs VM
+You can also wait for the next VM and start fresh. See
+[Versions and updates](./versions.md) if you want to compare the two options.
+
+## Add the tools
+
+Run this in a VM terminal.
+
+```bash
+nix profile install \
+  nixpkgs#nextpnr \
+  nixpkgs#icestorm \
+  nixpkgs#usbutils \
+  --extra-experimental-features flakes \
+  --extra-experimental-features nix-command
+```
+
+Open a new terminal when it finishes.
+
+## Connect the board
 
 1. Plug the Go Board into your computer.
 2. Start the VM.
@@ -39,29 +57,7 @@ checking it with `lsusb`.
 
 ![UTM's Input panel. Tick “Share USB devices from host” under USB Sharing.](/images/utm-usb-sharing-settings.jpg)
 
-## Other versions and patches
-
-### An older bASICs VM
-
-If your VM was made before Go Board support was included, install the tools in
-your own profile.
-
-```bash
-nix profile install \
-  nixpkgs#nextpnr \
-  nixpkgs#icestorm \
-  nixpkgs#usbutils \
-  --extra-experimental-features flakes \
-  --extra-experimental-features nix-command
-```
-
-Open a new terminal and check that the tools are there.
-
-```bash
-command -v yosys nextpnr-ice40 icepack iceprog lsusb
-```
-
-Copy the starter project and make the blink design.
+## Make a quick test
 
 ```bash
 cd ~/bASICs/work
@@ -71,7 +67,7 @@ make
 iceprog blink.bin
 ```
 
-### VirtualBox
+## VirtualBox
 
 Start the VM, then choose **Devices → USB → FTDI Dual RS232-HS**. Back in the
 VM, run `lsusb | grep -i ftdi` before programming the board.

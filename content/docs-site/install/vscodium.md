@@ -1,5 +1,7 @@
-# Optional: VSCodium
-This guide will install the [VSCodium](https://vscodium.com/) IDE onto the virtual machine for editing.
+# Add VSCodium to an older VM
+
+The next VM release will include VSCodium. This page lets you add it to the VM
+you already have. You can also see [Versions and updates](./versions.md).
 
 
 > [!NOTE]

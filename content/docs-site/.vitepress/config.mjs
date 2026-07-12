@@ -40,18 +40,24 @@ export default {
           { text: 'Windows ARM', link: '/install/windows-arm' },
           { text: 'Linux x86', link: '/install/linux-x86' },
           { text: 'Linux ARM', link: '/install/linux-arm' },
-          { text: 'First Boot', link: '/start/first-boot' },
-          { text: 'Optional: VSCodium', link: '/install/vscodium' },
-          { text: 'Optional: Go Board tools', link: '/install/go-board-tools' }
+          { text: 'First Boot', link: '/start/first-boot' }
+        ]
+      },
+      {
+        text: 'Miscellaneous',
+        items: [
+          { text: 'Versions and updates', link: '/install/versions' },
+          { text: 'Add VSCodium', link: '/install/vscodium' },
+          { text: 'Add Go Board tools', link: '/install/go-board-tools' }
         ]
       },
       {
         text: 'Use',
         items: [
           { text: 'VM Basics', link: '/use/' },
-          { text: 'First Flow: Counter', link: '/use/first-flow' },
+          { text: 'First Counter Flow', link: '/use/first-flow' },
           { text: 'Adder From Scratch', link: '/use/adder-from-scratch' },
-          { text: 'Go Board: First FPGA', link: '/use/go-board-basics' }
+          { text: 'Your First Go Board Project', link: '/use/go-board-basics' }
         ]
       },
       {
