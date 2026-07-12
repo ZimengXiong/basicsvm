@@ -21,10 +21,10 @@ Devices** toolbar button to connect **Dual RS232-HS**.
 In the VM terminal, check that the board is visible.
 
 ```sh
-lsusb | grep -i ftdi
+lsusb
 ```
 
-You should see `0403:6010`. If not, the
+Look for **Dual UART / FIFO IC** in the list. If it is not there, the
 [UTM USB sharing steps](#if-utm-does-not-see-the-board) will help.
 
 ### If UTM does not see the board
