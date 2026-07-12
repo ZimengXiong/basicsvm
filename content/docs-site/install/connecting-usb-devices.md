@@ -24,7 +24,8 @@ VM, click **Edit**, open **Input**, and tick **Share USB devices from host**.
 
 1. Plug the device into your computer.
 2. Start the VM.
-3. Open **Devices → USB**.
+3. Click the USB icon in the bottom toolbar at the lower-right of the virtual
+   machine window.
 4. Choose the device from the list.
 
 For the Nandland Go Board, choose **FTDI Dual RS232-HS**. Inside the VM, run
