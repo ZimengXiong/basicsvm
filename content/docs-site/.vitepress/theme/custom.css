@@ -176,6 +176,39 @@ body {
   padding-top: 20px;
 }
 
+.VPDoc .release-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.VPDoc .release-badge-newest {
+  background: #e5f7ec;
+  color: #166534;
+}
+
+.VPDoc .release-badge-legacy {
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+}
+
+.VPDoc .release-update {
+  margin-left: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.dark .VPDoc .release-badge-newest {
+  background: #173b25;
+  color: #9ae6b4;
+}
+
 /* Premium, Elegant Custom Blocks (Notes, Tips, Warnings, Danger) */
 .custom-block {
   margin: 20px 0;

@@ -1,10 +1,8 @@
-# Version 1.1 stable
+# Version 1.1 stable <span class="release-badge release-badge-newest">Newest</span>
 
 <div class="version-release">
 
 Released July 12, 2026.
-
-Newest VM.
 
 ## Changelog
 
