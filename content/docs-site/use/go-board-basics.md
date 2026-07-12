@@ -37,6 +37,26 @@ cp -R ../examples/nandland-go-board my-go-board
 cd my-go-board
 ```
 
+### A first look at Verilog
+
+Verilog describes a circuit. It does not run from top to bottom like a normal
+program. When the FPGA starts, every part of the circuit below exists at once.
+
+`input` and `output` are the wires that connect your circuit to the outside of
+the FPGA. `CLK` is a wire coming in from the Go Board's clock. `LED1` is a wire
+going out to the first LED.
+
+A **flip-flop** stores one bit. It remembers either `0` or `1` until the clock
+tells it to update. A **register** is a group of flip-flops. In this example,
+`reg [23:0] count` is a 24-bit register, so it uses 24 flip-flops to remember a
+number.
+
+The clock is a repeating signal. `posedge CLK` means the instant the clock
+changes from `0` to `1`. That is when the flip-flops in this circuit update.
+
+`assign` makes a direct wire connection. It does not wait for the clock. Here,
+it connects one bit of `count` directly to `LED1`.
+
 The starter `blink.v` has this little circuit inside.
 
 ```verilog

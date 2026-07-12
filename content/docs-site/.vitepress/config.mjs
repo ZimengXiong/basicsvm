@@ -34,13 +34,25 @@ export default {
         text: 'Start',
         items: [
           { text: 'Start Here', link: '/' },
-          { text: 'macOS Apple Silicon', link: '/install/mac-apple-silicon' },
-          { text: 'macOS Intel', link: '/install/mac-intel' },
-          { text: 'Windows x86', link: '/install/windows-x86' },
-          { text: 'Windows ARM', link: '/install/windows-arm' },
-          { text: 'Linux x86', link: '/install/linux-x86' },
-          { text: 'Linux ARM', link: '/install/linux-arm' },
-          { text: 'First Boot', link: '/start/first-boot' }
+          {
+            text: 'Choose your operating system',
+            collapsed: true,
+            items: [
+              { text: 'macOS Apple Silicon', link: '/install/mac-apple-silicon' },
+              { text: 'macOS Intel', link: '/install/mac-intel' },
+              { text: 'Windows x86', link: '/install/windows-x86' },
+              { text: 'Windows ARM', link: '/install/windows-arm' },
+              { text: 'Linux x86', link: '/install/linux-x86' },
+              { text: 'Linux ARM', link: '/install/linux-arm' }
+            ]
+          },
+          {
+            text: 'First boot',
+            items: [
+              { text: 'First Boot', link: '/start/first-boot' },
+              { text: 'VM Basics', link: '/use/' }
+            ]
+          }
         ]
       },
       {
@@ -53,9 +65,8 @@ export default {
         ]
       },
       {
-        text: 'Use',
+        text: 'Examples',
         items: [
-          { text: 'VM Basics', link: '/use/' },
           {
             text: 'OpenLane',
             items: [
