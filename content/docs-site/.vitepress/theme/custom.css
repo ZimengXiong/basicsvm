@@ -176,6 +176,23 @@ body {
   padding-top: 20px;
 }
 
+.VPDoc .release-meta {
+  margin-top: -10px;
+  margin-bottom: 14px;
+}
+
+.VPDoc .release-date {
+  margin: 0 0 7px;
+  color: var(--vp-c-text-2);
+}
+
+.VPDoc .release-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .VPDoc .release-badge {
   display: inline-block;
   margin-left: 8px;
