@@ -44,7 +44,7 @@ Only edit files inside `~/bASICs/work`. The `examples` and `templates` folders a
 
 The PDK is configured through `$PDK_ROOT`. Use that environment variable when a tool asks for the PDK location.
 
-Start with [First Flow: Counter](./first-flow.md), then try [Adder From Scratch](./adder-from-scratch.md).
+Start with [First Counter Flow](./first-flow.md), then try [Adder From Scratch](./adder-from-scratch.md).
 
-Have a Nandland Go Board? Follow [Go Board: First FPGA](./go-board-basics.md)
-for a hardware-first blink and counter lab using Yosys.
+Have a Nandland Go Board? Try [Your First Go Board Project](./go-board-basics.md)
+to make an LED blink and count with the four LEDs.

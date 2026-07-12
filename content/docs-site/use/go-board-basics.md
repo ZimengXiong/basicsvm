@@ -6,20 +6,9 @@ The Go Board has a Lattice iCE40HX1K FPGA, four LEDs, four buttons, a 25 MHz
 clock, USB programming, and onboard flash. Unlike a microcontroller, the
 Verilog below describes circuits that all exist at once.
 
-## Tool flow
-```
-Verilog + pin constraints
-->
-Yosys
-->
-nextpnr-ice40
-->
-icepack → Go Board flash
-```
-
-* Yosys turns the Verilog circuit into iCE40 logic.
-* nextpnr-ice40 assigns that logic to real FPGA cells and pins.
-* icepack creates the `.bin` file stored in the board's flash.
+Your Verilog goes through Yosys, nextpnr-ice40, and icepack before it becomes
+the `.bin` file you put on the board. You can mostly think of `make` as taking
+care of that for you.
 
 ## Get the board ready
 
@@ -33,9 +22,8 @@ In the VM terminal, check that the board is visible.
 lsusb | grep -i ftdi
 ```
 
-You should see `0403:6010`. If you do not, the
-[USB-sharing guide](../install/go-board-tools.md#utm-usb-sharing)
-shows exactly where to enable it.
+You should see `0403:6010`. If not, the
+[USB-sharing guide](../install/go-board-tools.md#utm-usb-sharing) will help.
 
 ## Make an LED blink
 
@@ -63,9 +51,7 @@ module blink(
 endmodule
 ```
 
-`count` increases 25 million times each second. Its 24th bit changes slowly
-enough for your eye to see, so connecting that bit to `LED1` makes the LED
-blink.
+`count` keeps going up. Bit 23 changes slowly enough to make LED1 blink.
 
 Build the FPGA image.
 
@@ -96,14 +82,13 @@ The LEDs will count like this.
 0000 → 0001 → 0010 → 0011 → … → 1111 → 0000
 ```
 
-Open `counter.v` and change `QUART_SECOND` to make the count faster or slower.
-That one number controls how long the FPGA waits between each new value.
+Try changing `QUART_SECOND` in `counter.v`. A smaller number makes the LEDs
+count faster.
 
 ## Start your own project
 
-Keep `go_board.pcf` in your project. It already names every board feature you
-can use, including the clock, buttons, LEDs, both seven-segment displays,
-serial, VGA, and the PMOD header.
+Keep `go_board.pcf` in your project. It already has the names for the clock,
+buttons, LEDs, seven-segment displays, serial, VGA, and the PMOD header.
 
 Write a top-level module using the names you need. Then build it with
 
@@ -112,8 +97,8 @@ make TOP=my_project
 iceprog my_project.bin
 ```
 
-For example, a VGA project can use `VGA_HS`, `VGA_VS`, `VGA_R0` through
-`VGA_R2`, `VGA_G0` through `VGA_G2`, and `VGA_B0` through `VGA_B2`. The pin
-map is already there; you only add the Verilog for your idea.
+For a VGA project, use `VGA_HS`, `VGA_VS`, `VGA_R0` through `VGA_R2`,
+`VGA_G0` through `VGA_G2`, and `VGA_B0` through `VGA_B2`. You write the
+Verilog and the pin map is already done.
 
 When you are ready, try [Adder From Scratch](./adder-from-scratch.md).

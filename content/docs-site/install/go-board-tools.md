@@ -34,8 +34,8 @@ does not appear in UTM's USB menu, turn it on once.
   Your browser does not support embedded video.
 </video>
 
-The video shows everything. It enables USB sharing, connects the Go Board, and
-checks it with `lsusb` in the VM.
+The video walks through enabling USB sharing, connecting the Go Board, and
+checking it with `lsusb`.
 
 ![UTM's Input panel. Tick “Share USB devices from host” under USB Sharing.](/images/utm-usb-sharing-settings.jpg)
 
@@ -55,7 +55,7 @@ nix profile install \
   --extra-experimental-features nix-command
 ```
 
-Close and reopen the terminal, then check that the tools are available.
+Open a new terminal and check that the tools are there.
 
 ```bash
 command -v yosys nextpnr-ice40 icepack iceprog lsusb
@@ -78,7 +78,7 @@ VM, run `lsusb | grep -i ftdi` before programming the board.
 
 ## Terminal access and cleanup
 
-Instructors can use SSH for repeatable checks after the VM has started.
+If you prefer working from your Mac terminal, you can SSH into the running VM.
 
 ```bash
 arp -an | grep '52:54'
