@@ -1,3 +1,3 @@
 # Nandland Go Board Simulator
 
-[Open the full simulator](/go-board-simulator/index.html)
+<a href="/go-board-simulator/index.html" target="_blank" rel="noreferrer">Open the full simulator</a>
