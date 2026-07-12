@@ -11,7 +11,7 @@ This guide will install the [VSCodium](https://vscodium.com/) IDE onto the virtu
 ## Downloading VSCodium
 Open up a terminal from the desktop and run the following command:
 ```bash
-nix profile install nkxpkgs#vscodium --extra-experimental-features flakes --extra-experimental-features nix-command
+nix profile install nixpkgs#vscodium --extra-experimental-features flakes --extra-experimental-features nix-command
 ```
 This will install the VSCodium editor onto the virtual machine.
 

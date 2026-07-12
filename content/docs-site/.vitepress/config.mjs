@@ -41,7 +41,8 @@ export default {
           { text: 'Linux x86', link: '/install/linux-x86' },
           { text: 'Linux ARM', link: '/install/linux-arm' },
           { text: 'First Boot', link: '/start/first-boot' },
-          { text: 'Optional: VSCodium', link: '/install/vscodium'}
+          { text: 'Optional: VSCodium', link: '/install/vscodium' },
+          { text: 'Optional: Go Board tools', link: '/install/go-board-tools' }
         ]
       },
       {
