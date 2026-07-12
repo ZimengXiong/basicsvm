@@ -64,7 +64,14 @@ export default {
       {
         text: 'Miscellaneous',
         items: [
-          { text: 'Connecting USB devices in UTM', link: '/install/connecting-usb-devices' }
+          {
+            text: 'Connecting USB devices',
+            link: '/install/connecting-usb-devices',
+            items: [
+              { text: 'UTM', link: '/install/connecting-usb-devices#utm' },
+              { text: 'VirtualBox', link: '/install/connecting-usb-devices#virtualbox' }
+            ]
+          }
         ]
       },
       {
