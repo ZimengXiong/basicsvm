@@ -195,6 +195,14 @@ body {
 .VPDoc .release-badge-legacy {
   background: #fff1db;
   color: #9a3412;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.VPDoc .release-badge-huggingface {
+  background: #fff3c4;
+  color: #7c4a03;
   text-decoration: none;
 }
 
@@ -213,6 +221,11 @@ body {
 .dark .VPDoc .release-badge-legacy {
   background: #4a2516;
   color: #fdba74;
+}
+
+.dark .VPDoc .release-badge-huggingface {
+  background: #4b3a13;
+  color: #fcd34d;
 }
 
 /* Premium, Elegant Custom Blocks (Notes, Tips, Warnings, Danger) */
