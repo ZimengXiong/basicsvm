@@ -14,7 +14,7 @@ care of that for you.
 
 Before you start, make sure you have
 
-- bASICs VM version 1.1 or newer
+- bASICs VM [version 1.1](../install/version-1-1.md) or newer
 - a Nandland Go Board plugged into your computer
 - the Go Board [connected to your VM](../install/connecting-usb-devices.md)
 
