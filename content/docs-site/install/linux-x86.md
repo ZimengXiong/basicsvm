@@ -11,7 +11,7 @@ Use this page for Linux PCs with an Intel or AMD processor.
 ## Install
 
 1. Install [VirtualBox for Linux](https://www.virtualbox.org/wiki/Linux_Downloads).
-2. Download [bASICs VM for Linux x86](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/a359d49/linux-x86/basicsvm-x86_64-linux.ova?download=true).
+2. Download [bASICs VM for Linux x86](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/e47a9b6-vscodium-go-board/linux-x86/basicsvm-x86_64-linux.ova?download=true).
 3. Open VirtualBox.
 4. Drag the downloaded `.ova` file into the VirtualBox window, or choose **File > Import Appliance** and select it.
 5. Start the VM.
