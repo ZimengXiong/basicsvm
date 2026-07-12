@@ -11,8 +11,4 @@ This is not the latest version. [Check out version 1.1](./version-1-1.md).
 - Class examples
 - Course docs
 
-## Update
-
-[Version 1.1 stable](./version-1-1.md)
-
 </div>
