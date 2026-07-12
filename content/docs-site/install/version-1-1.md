@@ -1,4 +1,4 @@
-# Version 1.1 stable <span class="release-badge release-badge-newest">Newest</span> <a class="release-badge release-badge-huggingface" href="https://huggingface.co/datasets/zimengxiong/basicsvm/tree/main/releases/a359d49">Hugging Face</a>
+# Version 1.1 stable <span class="release-badge release-badge-newest">Newest</span>
 
 <div class="version-release">
 

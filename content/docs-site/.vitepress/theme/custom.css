@@ -206,6 +206,13 @@ body {
   text-decoration: none;
 }
 
+.VPDoc .release-badge-releases {
+  background: #fff3c4;
+  color: #7c4a03;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .VPDoc .release-update {
   margin-left: 8px;
   font-size: 16px;
@@ -224,6 +231,11 @@ body {
 }
 
 .dark .VPDoc .release-badge-huggingface {
+  background: #4b3a13;
+  color: #fcd34d;
+}
+
+.dark .VPDoc .release-badge-releases {
   background: #4b3a13;
   color: #fcd34d;
 }
