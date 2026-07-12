@@ -171,9 +171,9 @@ body {
   font-weight: 600;
 }
 
-.VPDoc .version-list ul {
-  margin-top: 0;
-  margin-bottom: 0;
+.VPDoc .version-release > h2 {
+  margin-top: 20px;
+  padding-top: 20px;
 }
 
 /* Premium, Elegant Custom Blocks (Notes, Tips, Warnings, Danger) */
