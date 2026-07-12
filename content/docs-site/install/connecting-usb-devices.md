@@ -29,3 +29,8 @@ VM, click **Edit**, open **Input**, and tick **Share USB devices from host**.
 
 For the Nandland Go Board, choose **FTDI Dual RS232-HS**. Inside the VM, run
 USButils and look for **Dual UART / FIFO IC**.
+
+<video controls playsinline preload="metadata" style="max-width: 100%; border-radius: 8px;">
+  <source src="/videos/virtualbox-go-board-usb-sharing.mp4" type="video/mp4">
+  Your browser does not support embedded video.
+</video>
