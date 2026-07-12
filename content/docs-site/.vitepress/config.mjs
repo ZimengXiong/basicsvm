@@ -46,9 +46,7 @@ export default {
       {
         text: 'Miscellaneous',
         items: [
-          { text: 'Versions and updates', link: '/install/versions' },
-          { text: 'Add VSCodium', link: '/install/vscodium' },
-          { text: 'Add Go Board tools', link: '/install/go-board-tools' }
+          { text: 'Versions', link: '/install/versions' }
         ]
       },
       {
