@@ -1,4 +1,4 @@
-# Go Board: First FPGA
+# Your First Go Board Project
 
 You will make an LED blink, then turn the four LEDs into a binary counter.
 
@@ -27,19 +27,19 @@ The current bASICs VM already includes Yosys, nextpnr-ice40, icepack, and
 iceprog. Plug the Go Board into your computer, start the VM, then use UTM's
 **USB Devices** toolbar button to connect **Dual RS232-HS**.
 
-In the VM terminal, check that the board is visible:
+In the VM terminal, check that the board is visible.
 
 ```sh
 lsusb | grep -i ftdi
 ```
 
-You should see `0403:6010`. If you do not, the short
-[USB-sharing guide](../install/go-board-tools.md#miscellaneous-utms-usb-sharing)
+You should see `0403:6010`. If you do not, the
+[USB-sharing guide](../install/go-board-tools.md#utm-usb-sharing)
 shows exactly where to enable it.
 
 ## Make an LED blink
 
-Copy the included example into your writable workspace:
+Copy the included example into your workspace.
 
 ```sh
 cd ~/bASICs/work
@@ -47,7 +47,7 @@ cp -R ../examples/nandland-go-board my-go-board
 cd my-go-board
 ```
 
-The starter `blink.v` contains this exact circuit:
+The starter `blink.v` has this little circuit inside.
 
 ```verilog
 module blink(
@@ -67,13 +67,13 @@ endmodule
 enough for your eye to see, so connecting that bit to `LED1` makes the LED
 blink.
 
-Build the FPGA image:
+Build the FPGA image.
 
 ```sh
 make
 ```
 
-This creates `blink.bin`. Put it on the board:
+This creates `blink.bin`. Put it on the board.
 
 ```sh
 iceprog blink.bin
@@ -83,14 +83,14 @@ The command ends with `VERIFY OK`, and LED1 starts blinking.
 
 ## Count in binary
 
-Build the second included project:
+Build the second included project.
 
 ```sh
 make clean
 make TOP=counter
 ```
 
-The LEDs should display:
+The LEDs will count like this.
 
 ```text
 0000 → 0001 → 0010 → 0011 → … → 1111 → 0000
@@ -102,10 +102,10 @@ That one number controls how long the FPGA waits between each new value.
 ## Start your own project
 
 Keep `go_board.pcf` in your project. It already names every board feature you
-can use: the clock, buttons, LEDs, both seven-segment displays, serial, VGA,
-and PMOD header.
+can use, including the clock, buttons, LEDs, both seven-segment displays,
+serial, VGA, and the PMOD header.
 
-Write a top-level module using the names you need, then build it with:
+Write a top-level module using the names you need. Then build it with
 
 ```sh
 make TOP=my_project

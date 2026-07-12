@@ -1,4 +1,4 @@
-# Go Board: setup, versions, and extras
+# Go Board setup and extras
 
 The current bASICs VM is ready for the Go Board. You can write Verilog, build a
 bitstream, and program the board without installing anything else.
@@ -9,19 +9,19 @@ bitstream, and program the board without installing anything else.
 2. Start the VM.
 3. In UTM, click **USB Devices** in the VM toolbar.
 4. Choose **Dual RS232-HS**, then **Connect…**.
-5. In the VM terminal, run:
+5. In the VM terminal, run
 
    ```sh
    lsusb | grep -i ftdi
    ```
 
 When the command shows `0403:6010`, the board is ready. Continue with
-[Go Board: First FPGA](../use/go-board-basics.md).
+[Your First Go Board Project](../use/go-board-basics.md).
 
-## Miscellaneous: UTM USB sharing
+## UTM USB sharing
 
 Most current VM bundles already have USB sharing enabled. If **Dual RS232-HS**
-does not appear in UTM's USB menu, turn it on once:
+does not appear in UTM's USB menu, turn it on once.
 
 1. Shut down the VM.
 2. In UTM's library, select **bASICs VM** and click **Edit**.
@@ -34,8 +34,8 @@ does not appear in UTM's USB menu, turn it on once:
   Your browser does not support embedded video.
 </video>
 
-The recording shows the whole path: enable USB sharing, connect the Go Board,
-and check it with `lsusb` in the VM.
+The video shows everything. It enables USB sharing, connects the Go Board, and
+checks it with `lsusb` in the VM.
 
 ![UTM's Input panel. Tick “Share USB devices from host” under USB Sharing.](/images/utm-usb-sharing-settings.jpg)
 
@@ -44,7 +44,7 @@ and check it with `lsusb` in the VM.
 ### An older bASICs VM
 
 If your VM was made before Go Board support was included, install the tools in
-your own profile:
+your own profile.
 
 ```bash
 nix profile install \
@@ -55,13 +55,13 @@ nix profile install \
   --extra-experimental-features nix-command
 ```
 
-Close and reopen the terminal, then check that the tools are available:
+Close and reopen the terminal, then check that the tools are available.
 
 ```bash
 command -v yosys nextpnr-ice40 icepack iceprog lsusb
 ```
 
-Copy the starter project and make the blink design:
+Copy the starter project and make the blink design.
 
 ```bash
 cd ~/bASICs/work
@@ -76,9 +76,9 @@ iceprog blink.bin
 Start the VM, then choose **Devices → USB → FTDI Dual RS232-HS**. Back in the
 VM, run `lsusb | grep -i ftdi` before programming the board.
 
-## Miscellaneous: terminal access and cleanup
+## Terminal access and cleanup
 
-Instructors can use SSH for repeatable checks after the VM has started:
+Instructors can use SSH for repeatable checks after the VM has started.
 
 ```bash
 arp -an | grep '52:54'
