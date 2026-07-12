@@ -29,9 +29,11 @@ Board, a USB cable, and a VM platform that supports USB passthrough.
 
 > [!WARNING]
 > Connecting the board to your host computer is not enough. Attach the FTDI
-> **Dual RS232-HS** USB device to the running VM. In VirtualBox, use
-> **Devices → USB**; in UTM/QEMU, attach the USB device in the VM controls.
-> Confirm it is visible in the guest with `lsusb` before trying to program it.
+> **Dual RS232-HS** USB device to the running VM. In UTM, use the **USB
+> Devices** toolbar button, then choose **Dual RS232-HS → Connect…**. Confirm
+> it is visible in the guest with `lsusb` before trying to program it. See the
+> [illustrated USB-sharing setup](../install/go-board-tools.md#attach-the-physical-board-to-the-vm)
+> if this is your first time.
 
 ## Part 1: Blink an LED
 

@@ -40,28 +40,53 @@ usage text.
 
 ## Attach the physical board to the VM
 
-The Go Board's USB chip must be connected to the **guest**, not just the host:
+The Go Board's USB chip must be connected to the **guest**, not just the host.
+For most students this is a short UTM GUI task; SSH is not required.
 
-* **UTM:** start the VM, then choose the USB button in the VM toolbar and attach
-  **FTDI Dual RS232-HS**.
-* **VirtualBox:** start the VM, then choose **Devices → USB → FTDI Dual
-  RS232-HS**.
+### UTM: enable USB sharing once
 
-Back in the VM, check for it:
+1. Shut down the VM. In the UTM library, select **bASICs VM** and click
+   **Edit**.
+2. Select **Input** in the sidebar.
+3. Under **USB Sharing**, tick **Share USB devices from host**. Leave
+   **Maximum Shared USB Devices** at `3`, then click **Save**.
+
+![UTM's Input panel; tick “Share USB devices from host” under USB Sharing.](/images/utm-usb-sharing-settings.jpg)
+
+New bASICs UTM bundles have this setting enabled already. Check it once if the
+USB menu is unavailable or the board never appears in the VM.
+
+### UTM: connect the Go Board each time
+
+1. Plug the Go Board into your Mac and start the VM.
+2. In the running VM window, click **USB Devices** in UTM's toolbar.
+3. Select **Dual RS232-HS**, then choose **Connect…**. The name may include a
+   port such as `(1:3)`; choose the one labelled **Dual RS232-HS**.
+
+![The UTM toolbar USB Devices menu path: Dual RS232-HS then Connect.](/images/utm-connect-go-board.svg)
+
+### VirtualBox
+
+Start the VM, then choose **Devices → USB → FTDI Dual RS232-HS**.
+
+### Confirm it in the VM
+
+Back in the VM, check for the board:
 
 ```bash
 lsusb | grep -i ftdi
 ```
 
-You should see vendor ID `0403` and product ID `6010`. If the command shows
-nothing, check the VM's **Input** settings: **Share USB device from host** must
-be enabled. New bASICs UTM bundles enable this by default.
+You should see vendor ID `0403` and product ID `6010`. If not, disconnect it
+from the UTM USB menu and connect it again; then re-check the **Input** setting
+above.
 
-## Terminal-only UTM control (macOS)
+## Advanced: terminal-only UTM control (macOS)
 
-After starting the UTM VM once, you can do the rest from the host terminal—no
-VM desktop interaction is required. UTM's shared network gives the guest a
-private address. Find it from the VM's MAC address:
+This optional instructor/maintainer path is useful for repeatable checks. Use
+the GUI steps above for classroom programming. After starting the UTM VM once,
+UTM's shared network gives the guest a private address. Find it from the VM's
+MAC address:
 
 ```bash
 # On the Mac host, while the VM is running.

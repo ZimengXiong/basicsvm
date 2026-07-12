@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-labelledby="title desc">
+  <title id="title">Connect a Nandland Go Board to a running UTM virtual machine</title>
+  <desc id="desc">A simplified UTM toolbar highlights USB Devices, then shows the menu path Dual RS232-HS to Connect.</desc>
+  <rect width="960" height="420" rx="22" fill="#171a23"/>
+  <rect x="34" y="30" width="892" height="68" rx="12" fill="#2a3040"/>
+  <text x="62" y="72" fill="#f5f7ff" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="24" font-weight="700">bASICs VM — running</text>
+  <rect x="600" y="43" width="155" height="42" rx="8" fill="#b34db3"/>
+  <text x="622" y="70" fill="white" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="18" font-weight="700">USB Devices</text>
+  <text x="775" y="70" fill="#cad1e5" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="17">← click here</text>
+  <path d="M678 107 C678 145 690 150 720 164" fill="none" stroke="#e6b5e7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M712 153 l14 13 -19 3" fill="#e6b5e7"/>
+  <rect x="564" y="169" width="330" height="188" rx="12" fill="#ffffff"/>
+  <text x="594" y="211" fill="#20242f" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="22" font-weight="700">Dual RS232-HS</text>
+  <text x="836" y="211" fill="#555c6d" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="22">›</text>
+  <line x1="584" y1="232" x2="874" y2="232" stroke="#d9dce5"/>
+  <rect x="610" y="250" width="245" height="72" rx="8" fill="#efe0f2"/>
+  <text x="638" y="295" fill="#522257" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="25" font-weight="700">Connect…</text>
+  <text x="62" y="193" fill="#f5f7ff" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="29" font-weight="700">Each time you start the VM</text>
+  <text x="62" y="239" fill="#cfd5e8" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="23">1. Click USB Devices in the toolbar.</text>
+  <text x="62" y="280" fill="#cfd5e8" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="23">2. Choose Dual RS232-HS → Connect…</text>
+  <text x="62" y="330" fill="#8fe0b0" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="20" font-weight="700">Then run:  lsusb | grep -i ftdi</text>
+</svg>
