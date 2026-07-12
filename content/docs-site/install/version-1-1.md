@@ -2,6 +2,8 @@
 
 <div class="version-release">
 
+Released July 12, 2026.
+
 Newest VM.
 
 ## Changelog
