@@ -54,7 +54,7 @@ test ! -e "$PDK_ROOT/gf180mcuD"
 
 echo "== command availability =="
 for cmd in \
-  openlane openroad yosys magic netgen verilator iverilog klayout \
+  openlane openroad yosys nextpnr-ice40 icepack iceprog magic netgen verilator iverilog klayout \
   ngspice gtkwave xschem dot xdot sby z3 yices boolector bitwuzla \
   surelog uhdm-dump ciel cvc5 yowasp-yosys python
 do
@@ -98,6 +98,20 @@ uhdm-dump 2>&1 | grep "Usage:" >/dev/null
 ciel --version >/dev/null
 cvc5 --version >/dev/null
 yowasp-yosys -V >/dev/null
+
+echo "== Nandland Go Board example build =="
+go_board_work="$PWD/out/fresh-validation/nandland-go-board-work"
+rm -rf "$go_board_work"
+cp -R "$examples_root/nandland-go-board" "$go_board_work"
+chmod -R u+w "$go_board_work"
+(
+  cd "$go_board_work"
+  make
+  test -s blink.bin
+  make clean
+  make TOP=counter
+  test -s counter.bin
+)
 
 echo "== templates and TinyTapeout support scripts =="
 test -f "$templates_root/sky130-rtl2gds/Makefile"

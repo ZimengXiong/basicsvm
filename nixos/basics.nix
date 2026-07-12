@@ -172,9 +172,16 @@ in
   users.mutableUsers = false;
   users.users.beaver = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "plugdev" ];
     hashedPassword = "$6$RtamX2LzbF4b7DhH$VI.8wwYHbSUKI5IReuf8obvVMAnMZasVcJIOU80WM4ArOGJwRuS2.7s6HMScBJqOQQcaasrhi3jN4FaJrPFpM.";
   };
+  users.groups.plugdev = { };
+
+  # Let the student account access the Go Board's FT2232H programmer after the
+  # host has passed the USB device through to this VM.
+  services.udev.extraRules = ''
+    SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6010", MODE="0660", GROUP="plugdev"
+  '';
 
   services.xserver.enable = true;
   services.xserver.desktopManager.xfce.enable = true;

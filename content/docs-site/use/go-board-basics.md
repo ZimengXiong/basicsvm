@@ -1,7 +1,8 @@
 # Go Board: First FPGA
 
-This lab turns a Nandland Go Board into a real, visible FPGA project. You will
-make an LED blink, then turn the four LEDs into a binary counter.
+This lab turns a Nandland Go Board into a real, visible FPGA project from
+**inside the bASICs VM**. You will make an LED blink, then turn the four LEDs
+into a binary counter.
 
 The Go Board has a Lattice iCE40HX1K FPGA, four LEDs, four buttons, a 25 MHz
 clock, USB programming, and onboard flash. Unlike a microcontroller, the
@@ -20,38 +21,29 @@ Verilog + pin constraints → Yosys → nextpnr-ice40 → icepack → Go Board f
 Yosys is essential, but it is only the first step. It does not by itself make a
 flashable image or program the board.
 
-## What you need
+## What the VM already includes
 
-* A Nandland Go Board and a USB cable.
-* A terminal. These commands work on macOS or Linux.
-* The open iCE40 tools. On macOS, install them once:
+The VM image includes `yosys`, `nextpnr-ice40`, `icepack`, and `iceprog`, plus
+a ready-to-copy `nandland-go-board` example. You only need the physical Go
+Board, a USB cable, and a VM platform that supports USB passthrough.
 
-  ```sh
-  brew install yosys nextpnr-ice40 icestorm
-  ```
-
-* APIO for reliable Go Board discovery and upload:
-
-  ```sh
-  python3 -m venv apio-env
-  apio-env/bin/pip install apio
-  ```
-
-> [!TIP]
-> Nandland's maintained APIO smoke test is `apio examples fetch
-> go-board/blinky`, then `apio upload`. If you want to first prove that the
-> cable and programmer work before typing any HDL, run that test.
+> [!WARNING]
+> Connecting the board to your host computer is not enough. Attach the FTDI
+> **Dual RS232-HS** USB device to the running VM. In VirtualBox, use
+> **Devices → USB**; in UTM/QEMU, attach the USB device in the VM controls.
+> Confirm it is visible in the guest with `lsusb` before trying to program it.
 
 ## Part 1: Blink an LED
 
-Create a clean folder for the lab:
+Copy the included example into your writable workspace:
 
 ```sh
-mkdir -p ~/go-board-labs/blink
-cd ~/go-board-labs/blink
+cd ~/bASICs/work
+cp -R ../examples/nandland-go-board my-go-board
+cd my-go-board
 ```
 
-Create `blink.v` with this exact circuit:
+The starter `blink.v` contains this exact circuit:
 
 ```verilog
 module blink(
@@ -70,62 +62,50 @@ module blink(
 endmodule
 ```
 
-Create `blink.pcf`. A PCF is the map from our friendly names to the physical
-pins on the Go Board:
+`go_board.pcf` is the map from our friendly names to the physical pins on the
+Go Board:
 
 ```text
-set_io clk 15
-set_io led 56
+set_io -nowarn CLK 15
+set_io -nowarn LED1 56
 ```
 
-Build the FPGA image one stage at a time:
+Build the FPGA image:
 
 ```sh
-yosys -p 'read_verilog blink.v; synth_ice40 -top blink -json blink.json'
-nextpnr-ice40 --hx1k --package vq100 --freq 25 \
-  --pcf blink.pcf --json blink.json --asc blink.asc
-icepack blink.asc blink.bin
+make
 ```
 
-Success means all three commands finish without an error and `blink.bin`
-exists. The `--hx1k --package vq100` flags matter: they select the FPGA and
+Success means `blink.bin` exists. Open the `Makefile` to see the three commands
+it runs. The `--hx1k --package vq100` flags matter: they select the FPGA and
 package actually used by the Go Board.
 
 ### Flash it
 
-The safest first upload is APIO because its `go-board` profile finds the USB
-programmer for you. In a new empty directory, run Nandland's smoke test:
+Once the board appears in the VM, flash it from the same folder:
 
 ```sh
-apio-env/bin/apio examples fetch go-board/blinky
-apio-env/bin/apio upload
+iceprog blink.bin
 ```
 
-For your own `blink.bin`, use Lattice Diamond Programmer in **SPI Flash
-Programming** mode with device **iCE40HX1K-VQ100**, then select `blink.bin`.
-The board reloads the design from flash after programming.
-
-> [!NOTE]
-> The open-source `iceprog` uploader also works with the Go Board. Its USB
-> location can change after reconnecting, so discover it with `apio devices
-> scan-usb` or use `apio upload` rather than copying a device location from
-> another computer.
+`iceprog` writes the onboard SPI flash, verifies the bytes it wrote, and the
+board reloads the design from flash. A successful upload ends in `VERIFY OK`.
 
 ## Part 2: Count in binary
 
-Make a `counter.v` file. This version only changes its output every quarter of
-a second, so your eyes can follow the binary count.
+The included `counter.v` changes its output every quarter second, so your eyes
+can follow the binary count.
 
 ```verilog
 module counter(
-  input  clk,
-  output led1, led2, led3, led4
+  input CLK,
+  output LED1, LED2, LED3, LED4
 );
   localparam [22:0] QUART_SECOND = 23'd6_250_000;
   reg [22:0] ticks = 0;
   reg [3:0] value = 0;
 
-  always @(posedge clk) begin
+  always @(posedge CLK) begin
     if (ticks == QUART_SECOND - 1'b1) begin
       ticks <= 0;
       value <= value + 1'b1;
@@ -134,30 +114,24 @@ module counter(
     end
   end
 
-  assign {led4, led3, led2, led1} = value;
+  assign {LED4, LED3, LED2, LED1} = value;
 endmodule
 ```
 
-Create `counter.pcf`:
-
-```text
-set_io clk 15
-set_io led1 56
-set_io led2 57
-set_io led3 59
-set_io led4 60
-```
-
-Build it by replacing `blink` with `counter` in the three build commands:
+Build it using the same shared PCF:
 
 ```sh
-yosys -p 'read_verilog counter.v; synth_ice40 -top counter -json counter.json'
-nextpnr-ice40 --hx1k --package vq100 --freq 25 \
-  --pcf counter.pcf --json counter.json --asc counter.asc
-icepack counter.asc counter.bin
+make clean
+make TOP=counter
 ```
 
-Flash `counter.bin`. The LEDs should display:
+Flash `counter.bin` from the guest:
+
+```sh
+iceprog counter.bin
+```
+
+The LEDs should display:
 
 ```text
 0000 → 0001 → 0010 → 0011 → … → 1111 → 0000

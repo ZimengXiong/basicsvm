@@ -70,6 +70,7 @@ pages = [
     pathlib.Path("use/index.md"),
     pathlib.Path("use/first-flow.md"),
     pathlib.Path("use/adder-from-scratch.md"),
+    pathlib.Path("use/go-board-basics.md"),
     pathlib.Path("install/mac-apple-silicon.md"),
     pathlib.Path("install/mac-intel.md"),
     pathlib.Path("install/windows-x86.md"),
@@ -227,6 +228,9 @@ PY
     openlane2.packages.${system}.opensta
     openlane2.packages.${system}.openroad-abc
     yosys
+    nextpnr
+    icestorm
+    usbutils
     magic-vlsi
     netgen
     ngspice
