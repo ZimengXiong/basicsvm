@@ -1,12 +1,8 @@
-# Migrating to version 1.1
+# Migrate to version 1.1
 
-Version 1.1 comes with VSCodium and the Go Board tools. The easy way to get
-them is to download version 1.1 and start fresh.
+[Download version 1.1](../index.md)
 
-You can also keep version 1.0 and add both tools to the VM you already have.
-You do not need to rebuild or patch anything.
-
-Run these commands in a VM terminal.
+Or keep version 1.0 and install the extra tools.
 
 ```bash
 nix profile install nixpkgs#vscodium \
@@ -22,6 +18,3 @@ nix profile install \
   --extra-experimental-features flakes \
   --extra-experimental-features nix-command
 ```
-
-Open a new terminal when the installs finish. You can now use VSCodium and
-build Go Board projects.
