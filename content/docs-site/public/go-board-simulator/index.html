@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Go Board Simulator</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/go-board-simulator/style.css">
 </head>
 <body>
   <div id="toolbar">
@@ -54,7 +54,7 @@
       <div class="sim-title"><b>Board simulation</b><span>Time: <b id="simTime">0.000 ms</b> &nbsp; Edges: <b id="edges">0</b></span></div>
       <div class="board-row">
         <div class="board-card">
-          <img class="pcb-render" src="assets/goboard-kicad.png" alt="Nandland Go Board">
+          <img class="pcb-render" src="/go-board-simulator/assets/goboard-kicad.png" alt="Nandland Go Board">
           <svg id="goBoard" viewBox="0 0 1376 872" aria-label="Interactive Go Board"></svg>
         </div>
         <div class="monitor" id="vgaWindow">
@@ -82,7 +82,7 @@
       <small>The simulator view is paused while this runs locally.</small>
     </div>
   </div>
-  <script src="verilog-sim.js"></script>
-  <script type="module" src="app.js"></script>
+  <script src="/go-board-simulator/verilog-sim.js"></script>
+  <script type="module" src="/go-board-simulator/app.js"></script>
 </body>
 </html>
