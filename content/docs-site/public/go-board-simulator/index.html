@@ -7,19 +7,11 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="startupOverlay">
-    <div>
-      <b>Loading client-side FPGA toolchain…</b>
-      <progress id="startupProgress" max="1" value="0"></progress>
-      <div id="startupStatus">Preparing local compiler assets.</div>
-      <small>Yosys, Clang/LLVM, CXXRTL, and Icarus stay in this browser.</small>
-      <button id="startupContinue" hidden>Continue without preloading</button>
-    </div>
-  </div>
   <div id="toolbar">
     <b>Nandland Go Board Simulator</b>
     <span>25 MHz</span>
     <button id="runBtn">Compile / Run</button>
+    <small>Large compiler tools download only when you compile; they run in your browser.</small>
     <button id="resetBtn">Reset</button>
     <button id="pauseBtn">Pause</button>
     <select id="speed"><option value="1">1x speed</option><option value="4">4x speed</option><option value="16">16x speed</option></select>
