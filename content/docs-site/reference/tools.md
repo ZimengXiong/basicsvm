@@ -24,6 +24,7 @@ Repository: [ZimengXiong/basicsvm](https://github.com/ZimengXiong/basicsvm/tree/
 ├── Desktop
 │   ├── bASICs -> /home/beaver/bASICs
 │   └── bASICs-Docs.desktop -> https://basics.alpacawebservices.com
+│   └── Go-Board-Simulator.desktop -> https://basics.alpacawebservices.com/go-board-simulator
 └── Documents
     └── bASICs -> /home/beaver/bASICs
 ```
@@ -36,6 +37,7 @@ Repository: [ZimengXiong/basicsvm](https://github.com/ZimengXiong/basicsvm/tree/
 | `/opt/basics/templates` | Packaged project templates |
 | `/opt/basics/pdks` | Pinned PDK data |
 | `/etc/profile.d/basics.sh` | Shell environment setup |
+| `/home/beaver/Desktop/Go-Board-Simulator.desktop` | Opens the Go Board Simulator |
 
 ## PDK
 

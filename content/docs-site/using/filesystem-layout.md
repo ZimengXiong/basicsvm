@@ -15,6 +15,7 @@
 ├── Desktop
 │   ├── bASICs -> /home/beaver/bASICs
 │   └── bASICs-Docs.desktop -> https://basics.alpacawebservices.com
+│   └── Go-Board-Simulator.desktop -> https://basics.alpacawebservices.com/go-board-simulator
 └── Documents
     └── bASICs -> /home/beaver/bASICs
 ```
@@ -28,6 +29,7 @@
 | `/home/beaver/Documents/bASICs` | symlink | Desktop-friendly entrypoint |
 | `/home/beaver/Desktop/bASICs` | symlink | Desktop-friendly entrypoint |
 | `/home/beaver/Desktop/bASICs-Docs.desktop` | launcher | Opens hosted documentation |
+| `/home/beaver/Desktop/Go-Board-Simulator.desktop` | launcher | Opens the Go Board Simulator |
 
 ## System layout
 

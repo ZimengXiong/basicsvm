@@ -282,7 +282,8 @@ in
       /home/beaver/bASICs/docs \
       /home/beaver/Documents/bASICs \
       /home/beaver/Desktop/bASICs \
-      /home/beaver/Desktop/bASICs-Docs.desktop
+      /home/beaver/Desktop/bASICs-Docs.desktop \
+      /home/beaver/Desktop/Go-Board-Simulator.desktop
     ln -sfnT /home/beaver/bASICs /home/beaver/Documents/bASICs
     ln -sfnT /home/beaver/bASICs /home/beaver/Desktop/bASICs
     cat > /home/beaver/Desktop/bASICs-Docs.desktop <<'EOF'
@@ -295,6 +296,17 @@ Terminal=false
 Categories=Education;Documentation;
 EOF
     chmod 0755 /home/beaver/Desktop/bASICs-Docs.desktop
+
+    cat > /home/beaver/Desktop/Go-Board-Simulator.desktop <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Go Board Simulator
+Exec=firefox https://basics.alpacawebservices.com/go-board-simulator
+Icon=applications-engineering
+Terminal=false
+Categories=Education;Engineering;
+EOF
+    chmod 0755 /home/beaver/Desktop/Go-Board-Simulator.desktop
 
     install -d -m 0755 \
       /home/beaver/.config/gtk-3.0 \
@@ -479,7 +491,9 @@ EOF
 	      chown -h beaver:users \
 	        /home/beaver/Documents/bASICs \
 	        /home/beaver/Desktop/bASICs
-	      chown beaver:users /home/beaver/Desktop/bASICs-Docs.desktop
+	      chown beaver:users \
+	        /home/beaver/Desktop/bASICs-Docs.desktop \
+	        /home/beaver/Desktop/Go-Board-Simulator.desktop
 	    fi
     '';
   };

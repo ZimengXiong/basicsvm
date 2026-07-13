@@ -2,14 +2,13 @@
 
 Each VM download is a complete, tested system image. Install the newest image when you can. If reinstalling is inconvenient, the [tool patch](../install/tool-patch.md#patch-an-existing-vm) adds the tools introduced by the latest patch to an existing VM.
 
-## Next patch release — unreleased
+## Version 1.2 — current stable release
 
-This patch keeps the same VM platforms and boot setup as the first stable release. It adds these tools to every new VM image:
+This patch keeps the same VM platforms and boot setup as the first stable release. It adds a desktop shortcut for the browser-based Go Board Simulator to every new VM image.
 
-- **VSCodium**, a graphical code editor.
-- **Nandland Go Board tools**: the open-source iCE40 build and programming tools (`nextpnr-ice40`, `icepack`, and `iceprog`).
+- **Go Board Simulator desktop shortcut**: opens the hosted simulator in Firefox.
 
-Already have a VM and do not want to reinstall? [Patch it yourself.](../install/tool-patch.md#patch-an-existing-vm)
+Already have a VM and do not want to reinstall? [Install the shortcut yourself.](../install/migrate-to-1-2.md)
 
 ## a359d49 — first stable release
 

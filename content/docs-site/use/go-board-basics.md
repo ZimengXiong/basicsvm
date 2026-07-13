@@ -13,7 +13,7 @@ the `.bin` file you put on the board. You will run each part of that process.
 
 Before you start, make sure you have
 
-- bASICs VM [version 1.1](../install/version-1-1.md) or newer
+- bASICs VM [version 1.1](../install/version-1-1.md) and above
 - a Nandland Go Board plugged into your computer
 - the Go Board [connected to your VM](../install/connecting-usb-devices.md)
 
