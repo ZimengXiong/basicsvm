@@ -47,7 +47,7 @@ flowchart TD
 | Requirement | What to use |
 | --- | --- |
 | Builder OS | NixOS or another Linux host for x86; an ARM Linux builder for ARM |
-| Free storage | At least 200 GB free on each builder, plus room for Nix caches |
+| Free storage | At least 500 GB free on each builder, plus room for Nix caches |
 | CPU and memory | At least 12 CPU cores and 32 GB RAM for fast builds; the ARM builder can run smaller with swap |
 | Build time | About 6 to 10 minutes per release build |
 | Build machines | One of each architecture |
