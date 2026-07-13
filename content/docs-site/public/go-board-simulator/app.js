@@ -1,11 +1,11 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 
 function runBoardInWorker(source,inputs,progress){
-  return new Promise((resolve,reject)=>{const worker=new Worker('./verilog-worker.js',{type:'module'});worker.onmessage=event=>{const data=event.data;if(data.type==='progress')progress(data.message);else if(data.type==='result'){worker.terminate();resolve(data.result)}else if(data.type==='error'){worker.terminate();reject(new Error(data.message))}};worker.onerror=event=>{worker.terminate();reject(new Error(event.message||'Verilog worker failed'))};worker.postMessage({source,inputs})});
+  return new Promise((resolve,reject)=>{const worker=new Worker('/go-board-simulator/verilog-worker.js',{type:'module'});worker.onmessage=event=>{const data=event.data;if(data.type==='progress')progress(data.message);else if(data.type==='result'){worker.terminate();resolve(data.result)}else if(data.type==='error'){worker.terminate();reject(new Error(data.message))}};worker.onerror=event=>{worker.terminate();reject(new Error(event.message||'Verilog worker failed'))};worker.postMessage({source,inputs})});
 }
 let nativeWorker=null,nativeInputPorts=[],nativeFrameCanvas=null;
 function runNativeInWorker(source,progress){
-  nativeWorker?.terminate();nativeWorker=new Worker('./native-compile-worker.js',{type:'module'});
+  nativeWorker?.terminate();nativeWorker=new Worker('/go-board-simulator/native-compile-worker.js',{type:'module'});
   return new Promise((resolve,reject)=>{let compiled=false;nativeWorker.onmessage=event=>{const data=event.data;if(data.type==='progress')progress(data.message);else if(data.type==='compiled'){compiled=true;resolve(data)}else if(data.type==='frame'||data.type==='sample')handleNativeRuntime(data);else if(data.type==='error'){if(!compiled)reject(new Error(data.message));else{$('#status').textContent='Error';$('#log').textContent+=`\nNATIVE RUNTIME ERROR: ${data.message}`}}};nativeWorker.onerror=event=>{if(!compiled)reject(new Error(event.message||'Native compilation worker failed'))};nativeWorker.postMessage({type:'compile',source})});
 }
 
