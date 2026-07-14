@@ -62,9 +62,16 @@ export default {
         items: [
           { text: 'All versions', link: '/install/versions' },
           {
+            text: '1.3',
+            items: [
+              { text: '1.3 stable — Latest', link: '/install/version-1-3' },
+              { text: 'Migrate to 1.3', link: '/install/migrate-to-1-3' }
+            ]
+          },
+          {
             text: '1.2',
             items: [
-              { text: '1.2 stable — Latest', link: '/install/version-1-2' },
+              { text: '1.2 stable', link: '/install/version-1-2' },
               { text: 'Migrate to 1.2', link: '/install/migrate-to-1-2' }
             ]
           },
@@ -112,7 +119,8 @@ export default {
               { text: 'VirtualBox', link: '/install/connecting-usb-devices#virtualbox' }
             ]
           },
-          { text: 'Install APIO', link: '/install/apio' }
+          { text: 'Install APIO', link: '/install/apio' },
+          { text: 'VSCodium Desktop Shortcut', link: '/misc/vscodium-desktop-shortcut' }
         ]
       },
       {

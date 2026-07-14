@@ -1,4 +1,12 @@
-{ config, lib, modulesPath, pkgs, basics, basicsVmRunner ? true, ... }:
+{ config
+, lib
+, modulesPath
+, pkgs
+, basics
+, basicsVmRunner ? true
+, basicsGuestType ? "none"
+, ...
+}:
 
 let
   basicsGtkCss = pkgs.writeText "basics-yellow-black-gtk.css" ''
@@ -160,6 +168,13 @@ let
 
 in
 {
+  assertions = [
+    {
+      assertion = builtins.elem basicsGuestType [ "none" "spice" "virtualbox" ];
+      message = "basicsGuestType must be one of: none, spice, virtualbox";
+    }
+  ];
+
   imports = [
   ] ++ lib.optionals basicsVmRunner [
     "${modulesPath}/virtualisation/qemu-vm.nix"
@@ -195,7 +210,8 @@ in
   services.displayManager.autoLogin.enable = true;
   services.displayManager.autoLogin.user = "beaver";
   services.xserver.xkb.layout = "us";
-  virtualisation.virtualbox.guest.enable = lib.mkDefault (pkgs.stdenv.hostPlatform.system == "x86_64-linux");
+  services.spice-vdagentd.enable = basicsGuestType == "spice";
+  virtualisation.virtualbox.guest.enable = basicsGuestType == "virtualbox";
 
   networking.networkmanager.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 ];

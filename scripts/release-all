@@ -35,9 +35,11 @@ if [[ -n "$(git status --short)" ]]; then
   exit 1
 fi
 
-version="$(git rev-parse --short HEAD)"
+version="${BASICS_RELEASE_VERSION:-$(git rev-parse --short HEAD)}"
 arm_builder="${BASICS_ARM_BUILDER:-zimengx@osxserver.lan}"
 arm_lima="${BASICS_ARM_LIMA:-basics-arm-builder}"
+arm_repo="${BASICS_ARM_REPO:-/home/zimengx.guest/Projects/basicsvm}"
+arm_docker="${BASICS_ARM_DOCKER:-0}"
 out_root="$(scripts/setup-release-storage)"
 
 echo "Release version: $version"
@@ -94,6 +96,7 @@ build_target() {
       ;;
     macos-apple-silicon|windows-arm|linux-arm)
       BASICS_ARM_BUILDER="$arm_builder" BASICS_ARM_LIMA="$arm_lima" \
+        BASICS_ARM_REPO="$arm_repo" BASICS_ARM_DOCKER="$arm_docker" \
         scripts/build-release "$target" 2>&1 | tee "$log_dir/$target.log"
       ;;
     *)

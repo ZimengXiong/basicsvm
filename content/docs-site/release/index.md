@@ -2,7 +2,19 @@
 
 Each VM download is a complete, tested system image. Install the newest image when you can. If reinstalling is inconvenient, the [tool patch](../install/tool-patch.md#patch-an-existing-vm) adds the tools introduced by the latest patch to an existing VM.
 
-## Version 1.2 — current stable release
+## Version 1.3 — current stable release
+
+Version 1.3 installs the guest integration appropriate to each supported VM
+platform.
+
+- **UTM:** SPICE guest agent for display resizing, clipboard integration, and
+  improved pointer behavior.
+- **VirtualBox:** VirtualBox Guest Additions for host integration.
+
+This release changes immutable NixOS system files. Existing images cannot be
+patched safely; [install the version 1.3 image](../install/migrate-to-1-3.md).
+
+## Version 1.2
 
 This patch keeps the same VM platforms and boot setup as the first stable release. It adds a desktop shortcut for the browser-based Go Board Simulator to every new VM image.
 

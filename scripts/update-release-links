@@ -46,11 +46,11 @@ path.write_text(updated)
 PY
 }
 
-replace_download content/docs-site/install/windows-x86.md "Windows x86" "$base/windows-x86/basicsvm-x86_64-linux.ova?download=true"
-replace_download content/docs-site/install/windows-arm.md "Windows ARM" "$base/windows-arm/bASICs-VM-Windows-ARM.ova?download=true"
-replace_download content/docs-site/install/linux-x86.md "Linux x86" "$base/linux-x86/basicsvm-x86_64-linux.ova?download=true"
-replace_download content/docs-site/install/linux-arm.md "Linux ARM" "$base/linux-arm/basicsvm-aarch64-linux.qcow2?download=true"
-replace_download content/docs-site/install/mac-intel.md "Intel Mac" "$base/macos-intel/bASICs-VM-Intel-Mac.utm.zip?download=true"
-replace_download content/docs-site/install/mac-apple-silicon.md "Apple Silicon" "$base/macos-apple-silicon/bASICs-VM-Apple-Silicon.utm.zip?download=true"
+replace_download content/docs-site/install/windows-x86.md "Windows x86" "$base/windows-x86/basicsvm-x86_64-linux.ova"
+replace_download content/docs-site/install/windows-arm.md "Windows ARM" "$base/windows-arm/bASICs-VM-Windows-ARM.ova"
+replace_download content/docs-site/install/linux-x86.md "Linux x86" "$base/linux-x86/basicsvm-x86_64-linux.ova"
+replace_download content/docs-site/install/linux-arm.md "Linux ARM" "$base/linux-arm/basicsvm-aarch64-linux.qcow2"
+replace_download content/docs-site/install/mac-intel.md "Intel Mac" "$base/macos-intel/bASICs-VM-Intel-Mac.utm.zip"
+replace_download content/docs-site/install/mac-apple-silicon.md "Apple Silicon" "$base/macos-apple-silicon/bASICs-VM-Apple-Silicon.utm.zip"
 
 echo "Updated docs install links to release $version"

@@ -66,9 +66,13 @@ mac="$(printf '52:54:00:%02X:%02X:%02X' $((RANDOM % 256)) $((RANDOM % 256)) $((R
 case "$arch" in
   aarch64)
     target="virt"
+    display_hardware="virtio-gpu-pci"
+    disk_interface="VirtIO"
     ;;
   x86_64)
     target="q35"
+    display_hardware="virtio-vga"
+    disk_interface="NVMe"
     ;;
 esac
 
@@ -96,7 +100,7 @@ cat > "$bundle_path/config.plist" <<EOF
       <key>DynamicResolution</key>
       <true/>
       <key>Hardware</key>
-      <string>virtio-gpu-pci</string>
+      <string>${display_hardware}</string>
       <key>NativeResolution</key>
       <false/>
       <key>UpscalingFilter</key>
@@ -113,7 +117,7 @@ cat > "$bundle_path/config.plist" <<EOF
       <key>ImageType</key>
       <string>Disk</string>
       <key>Interface</key>
-      <string>VirtIO</string>
+      <string>${disk_interface}</string>
       <key>InterfaceVersion</key>
       <integer>1</integer>
       <key>ReadOnly</key>

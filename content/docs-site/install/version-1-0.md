@@ -4,7 +4,7 @@ Released June 1, 2026.
 
 [This is not the latest version.]
 
-[Migrate to latest](./version-1-2.md) · [Download legacy versions](https://huggingface.co/datasets/zimengxiong/basicsvm/tree/main/releases/a359d49)
+[Migrate to latest](./migrate-to-1-3.md) · [Download legacy versions](https://huggingface.co/datasets/zimengxiong/basicsvm/tree/main/releases/a359d49)
 
 ## Changelog
 

@@ -2,8 +2,6 @@
 
 Released July 12, 2026.
 
-[This is the latest version.]
-
 [Download versions](/)
 
 ## Changelog

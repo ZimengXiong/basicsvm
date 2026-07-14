@@ -80,6 +80,12 @@ git commit -m "Update docs for release $(git rev-parse --short HEAD)"
 git push
 ```
 
+The upload step validates every local `SHA256SUMS` entry before publishing. It
+then checks remote byte counts and LFS/Xet SHA-256 records and compares three
+64 KiB ranges (start, middle, and end) of every large remote file with the local
+artifact. A release fails if Hugging Face returns an authorization, database,
+or content-integrity error, even when the remote filename and size look correct.
+
 ## Validation
 
 Run these when changing VM contents, packaging scripts, or release docs:

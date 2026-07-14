@@ -89,6 +89,7 @@ export BASICS_HF_MANIFEST="$manifest"
 
 "$venv/bin/python" - <<'PY'
 import json
+import hashlib
 import os
 import subprocess
 import sys
@@ -96,7 +97,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from huggingface_hub import HfApi, create_repo
+import httpx
+from huggingface_hub import HfApi, create_repo, hf_hub_url
 
 repo_id = os.environ["BASICS_HF_REPO_ID"]
 repo_type = os.environ["BASICS_HF_REPO_TYPE"]
@@ -110,12 +112,60 @@ upload_timeout = int(os.environ.get("BASICS_HF_UPLOAD_TIMEOUT", "600"))
 git_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
 git_status = subprocess.check_output(["git", "status", "--short"], text=True).strip()
 
+def sha256_file(path):
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(8 * 1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 files = []
 for path in sorted(p for p in source.rglob("*") if p.is_file()):
     if path == manifest_path:
         continue
     rel = path.relative_to(source).as_posix()
-    files.append({"path": rel, "bytes": path.stat().st_size})
+    files.append({
+        "path": rel,
+        "bytes": path.stat().st_size,
+        "sha256": sha256_file(path),
+    })
+
+files_by_path = {entry["path"]: entry for entry in files}
+for sums_entry in (entry for entry in files if entry["path"].endswith("/SHA256SUMS")):
+    sums_path = source / sums_entry["path"]
+    folder = Path(sums_entry["path"]).parent
+    listed = set()
+    for line in sums_path.read_text().splitlines():
+        if not line.strip():
+            continue
+        try:
+            expected_sha, name = line.split(None, 1)
+        except ValueError:
+            raise SystemExit(f"Malformed checksum line in {sums_path}: {line!r}")
+        name = name.lstrip("*")
+        rel = (folder / name).as_posix()
+        entry = files_by_path.get(rel)
+        if entry is None:
+            raise SystemExit(f"Checksum references missing file: {rel}")
+        if entry["sha256"] != expected_sha:
+            raise SystemExit(
+                f"Checksum mismatch for {rel}: expected {expected_sha}, "
+                f"got {entry['sha256']}"
+            )
+        listed.add(rel)
+
+    expected_in_folder = {
+        entry["path"]
+        for entry in files
+        if Path(entry["path"]).parent == folder
+        and not entry["path"].endswith("/SHA256SUMS")
+    }
+    missing_from_sums = sorted(expected_in_folder - listed)
+    if missing_from_sums:
+        raise SystemExit(
+            f"Files missing from {sums_path}: {', '.join(missing_from_sums)}"
+        )
 
 manifest = {
     "name": "basicsvm",
@@ -147,24 +197,34 @@ if dry_run:
     raise SystemExit(0)
 
 expected = {
-    f"releases/{version}/{entry['path']}": entry["bytes"]
+    f"releases/{version}/{entry['path']}": {
+        "bytes": entry["bytes"],
+        "sha256": entry["sha256"],
+    }
     for entry in files
 }
-expected[f"releases/{version}/{manifest_path.name}"] = manifest_path.stat().st_size
+expected[f"releases/{version}/{manifest_path.name}"] = {
+    "bytes": manifest_path.stat().st_size,
+    "sha256": sha256_file(manifest_path),
+}
 
 api = HfApi()
 create_repo(repo_id=repo_id, repo_type=repo_type, private=private, exist_ok=True)
 
 
-def remote_sizes():
+def remote_records():
     try:
         return {
-            item.path: item.size
+            item.path: {
+                "bytes": item.size,
+                "sha256": getattr(getattr(item, "lfs", None), "sha256", None),
+            }
             for item in api.list_repo_tree(
                 repo_id=repo_id,
                 repo_type=repo_type,
                 path_in_repo=f"releases/{version}",
                 recursive=True,
+                expand=True,
             )
             if getattr(item, "size", None) is not None
         }
@@ -174,11 +234,71 @@ def remote_sizes():
         raise
 
 
-def upload_one(local_path, remote_path, expected_size):
+def record_matches(record, expected_record):
+    if not record or record["bytes"] != expected_record["bytes"]:
+        return False
+    remote_sha = record["sha256"]
+    return remote_sha is None or remote_sha == expected_record["sha256"]
+
+
+def verify_remote_ranges(local_path, remote_path, expected_size):
+    if expected_size < 1024 * 1024:
+        return
+
+    chunk_size = min(64 * 1024, expected_size)
+    offsets = sorted({0, expected_size // 2, expected_size - chunk_size})
+    url = hf_hub_url(
+        repo_id=repo_id,
+        filename=remote_path,
+        repo_type=repo_type,
+    )
+
+    with local_path.open("rb") as local:
+        for offset in offsets:
+            local.seek(offset)
+            expected_chunk = local.read(chunk_size)
+            end = offset + len(expected_chunk) - 1
+            last_error = None
+            for attempt in range(1, 4):
+                try:
+                    response = httpx.get(
+                        f"{url}?integrity_attempt={attempt}-{time.time_ns()}",
+                        headers={
+                            "Range": f"bytes={offset}-{end}",
+                            "Accept-Encoding": "identity",
+                            "User-Agent": "basicsvm-release-integrity-check/1",
+                        },
+                        follow_redirects=True,
+                        timeout=httpx.Timeout(60, connect=20),
+                    )
+                    if response.status_code != 206:
+                        raise RuntimeError(
+                            f"HTTP {response.status_code}: {response.text[:200]}"
+                        )
+                    if response.content != expected_chunk:
+                        raise RuntimeError(
+                            f"content mismatch for bytes {offset}-{end}"
+                        )
+                    last_error = None
+                    break
+                except (httpx.HTTPError, RuntimeError) as exc:
+                    last_error = exc
+                    if attempt < 3:
+                        time.sleep(5 * attempt)
+            if last_error is not None:
+                raise SystemExit(
+                    f"Remote storage verification failed for {remote_path} "
+                    f"at bytes {offset}-{end}: {last_error}"
+                )
+
+
+def upload_one(local_path, remote_path, expected_record):
+    expected_size = expected_record["bytes"]
     for attempt in range(1, 4):
-        remote = remote_sizes()
-        if remote.get(remote_path) == expected_size:
-            print(f"Already uploaded {remote_path}")
+        remote = remote_records()
+        if record_matches(remote.get(remote_path), expected_record):
+            verify_remote_ranges(local_path, remote_path, expected_size)
+            print(f"Already uploaded and verified {remote_path}")
             return
 
         print(f"Uploading {remote_path} ({expected_size:,} bytes), attempt {attempt}/3")
@@ -218,43 +338,57 @@ api.upload_file(
         except subprocess.CalledProcessError as exc:
             print(f"Upload command failed for {remote_path}: exit {exc.returncode}")
 
-        remote = remote_sizes()
-        if remote.get(remote_path) == expected_size:
+        remote = remote_records()
+        if record_matches(remote.get(remote_path), expected_record):
+            verify_remote_ranges(local_path, remote_path, expected_size)
             print(f"Verified {remote_path}")
             return
 
         seen = remote.get(remote_path)
-        print(f"Did not verify {remote_path}: expected {expected_size}, got {seen}")
+        print(f"Did not verify {remote_path}: expected {expected_record}, got {seen}")
         if attempt < 3:
             time.sleep(10 * attempt)
 
     raise SystemExit(f"Failed to upload and verify {remote_path}")
 
 
-upload_items = [(manifest_path, f"releases/{version}/{manifest_path.name}", manifest_path.stat().st_size)]
-upload_items.extend(
-    (source / entry["path"], f"releases/{version}/{entry['path']}", entry["bytes"])
+upload_items = list(
+    (
+        source / entry["path"],
+        f"releases/{version}/{entry['path']}",
+        expected[f"releases/{version}/{entry['path']}"],
+    )
     for entry in files
 )
-for local_path, remote_path, expected_size in upload_items:
-    upload_one(local_path, remote_path, expected_size)
+upload_items.sort(key=lambda item: (
+    item[1].endswith("/SHA256SUMS"),
+    item[1].endswith("/README.txt"),
+    item[1],
+))
+upload_items.append((
+    manifest_path,
+    f"releases/{version}/{manifest_path.name}",
+    expected[f"releases/{version}/{manifest_path.name}"],
+))
+for local_path, remote_path, expected_record in upload_items:
+    upload_one(local_path, remote_path, expected_record)
 
-remote = remote_sizes()
+remote = remote_records()
 missing = sorted(path for path in expected if path not in remote)
-wrong_size = sorted(
+wrong_records = sorted(
     (path, expected[path], remote[path])
     for path in expected
-    if path in remote and expected[path] != remote[path]
+    if path in remote and not record_matches(remote[path], expected[path])
 )
-if missing or wrong_size:
+if missing or wrong_records:
     if missing:
         print("Missing remote files:")
         for path in missing:
             print(f"  {path}")
-    if wrong_size:
-        print("Remote files with unexpected byte counts:")
-        for path, expected_size, remote_size in wrong_size:
-            print(f"  {path}: expected {expected_size}, got {remote_size}")
+    if wrong_records:
+        print("Remote files with unexpected size or SHA-256 records:")
+        for path, expected_record, remote_record in wrong_records:
+            print(f"  {path}: expected {expected_record}, got {remote_record}")
     raise SystemExit(1)
 
 print(f"Verified {len(expected)} remote files.")

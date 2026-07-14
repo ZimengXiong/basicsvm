@@ -12,8 +12,8 @@ Use this page for Windows PCs with an Intel or AMD processor.
 > [!NOTE]
 > The video assumes you have already downloaded all required files and installed VirtualBox.
 
-1. Install [VirtualBox 7.2.8 for Windows](https://download.virtualbox.org/virtualbox/7.2.8/VirtualBox-7.2.8-173730-Win.exe).
-2. Download [bASICs VM for Windows x86](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/1.2/windows-x86/basicsvm-x86_64-linux.ova?download=true).
+1. Install [VirtualBox 7.2.12 for Windows](https://download.virtualbox.org/virtualbox/7.2.12/VirtualBox-7.2.12-174389-Win.exe).
+2. Download [bASICs VM for Windows x86](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/1.2/windows-x86/basicsvm-x86_64-linux.ova).
 3. Open VirtualBox.
 4. Drag the downloaded `.ova` file into the VirtualBox window, or choose **File > Import Appliance** and select it.
 5. Start the VM.

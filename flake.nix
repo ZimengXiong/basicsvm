@@ -4,7 +4,7 @@
   inputs = {
     openlane2.url = "github:efabless/openlane2";
     nixpkgs.follows = "openlane2/nix-eda/nixpkgs";
-    nixpkgs-image.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs-image.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixos-generators.url = "github:nix-community/nixos-generators/1.8.0";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -23,6 +23,19 @@
           inherit pkgs system openlane2;
           basicsContent = ./content;
         };
+      repartImageFor = system: basicsGuestType:
+        (nixpkgs-image.lib.nixosSystem {
+          inherit system;
+          specialArgs = {
+            inherit self openlane2 basicsGuestType;
+            basics = basicsFor system;
+            basicsVmRunner = false;
+          };
+          modules = [
+            ./nixos/basics.nix
+            imageModules.repartImageModule
+          ];
+        }).config.system.build.image;
     in
     {
       packages = forAllSystems (system:
@@ -56,6 +69,7 @@
                 inherit self openlane2;
                 basics = basicsFor system;
                 basicsVmRunner = true;
+                basicsGuestType = "none";
               };
               modules = [
                 imageModules.imageDiskSizeModule
@@ -64,19 +78,9 @@
               ];
               format = "qcow";
             };
-          basics-image-repart =
-            (nixpkgs-image.lib.nixosSystem {
-              inherit system;
-              specialArgs = {
-                inherit self openlane2;
-                basics = basicsFor system;
-                basicsVmRunner = false;
-              };
-              modules = [
-                ./nixos/basics.nix
-                imageModules.repartImageModule
-              ];
-            }).config.system.build.image;
+          basics-image-repart = repartImageFor system "none";
+          basics-image-repart-spice = repartImageFor system "spice";
+          basics-image-repart-virtualbox = repartImageFor system "virtualbox";
         } // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           basics-image-virtualbox =
             nixos-generators.nixosGenerate {
@@ -85,6 +89,7 @@
                 inherit self openlane2;
                 basics = basicsFor system;
                 basicsVmRunner = false;
+                basicsGuestType = "virtualbox";
               };
               modules = [
                 imageModules.virtualBoxImageModule
@@ -133,6 +138,7 @@
             inherit self openlane2;
             basics = basicsFor "x86_64-linux";
             basicsVmRunner = true;
+            basicsGuestType = "none";
           };
           modules = [ ./nixos/basics.nix ];
         };
@@ -152,6 +158,7 @@
             inherit self openlane2;
             basics = basicsFor "aarch64-linux";
             basicsVmRunner = true;
+            basicsGuestType = "none";
           };
           modules = [ ./nixos/basics.nix ];
         };

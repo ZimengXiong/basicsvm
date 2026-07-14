@@ -377,7 +377,16 @@ elif [[ -n "$repart_build_dir" ]]; then
 else
   result_dir="$out/nix-repart-result"
   rm -f "$result_dir"
-  if ! "$repo_root/scripts/nix" build ".#packages.${nix_system}.basics-image-repart" -o "$result_dir" --print-build-logs; then
+  repart_package="basics-image-repart"
+  case "$target" in
+    macos-apple-silicon|macos-intel)
+      repart_package="basics-image-repart-spice"
+      ;;
+    windows-arm)
+      repart_package="basics-image-repart-virtualbox"
+      ;;
+  esac
+  if ! "$repo_root/scripts/nix" build ".#packages.${nix_system}.${repart_package}" -o "$result_dir" --print-build-logs; then
     cat >&2 <<EOF
 
 Nix built the system closure but failed during final image assembly.
