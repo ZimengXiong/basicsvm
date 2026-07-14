@@ -16,7 +16,7 @@ const escapeXml = (value) => value
 
 function wrapTitle(value) {
   const words = value.split(/\s+/);
-  const limit = value.length > 55 ? 20 : 23;
+  const limit = value.length > 55 ? 18 : 21;
   const lines = [];
   let line = '';
 
@@ -68,23 +68,17 @@ for (const relativePath of await markdownFiles(root)) {
         <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
           <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#777" flood-opacity=".35"/>
         </filter>
-        <clipPath id="card"><rect x="0" y="0" width="400" height="467" rx="28"/></clipPath>
+        <clipPath id="card"><rect x="0" y="0" width="340" height="397" rx="28"/></clipPath>
       </defs>
       <rect width="1200" height="630" fill="#fff"/>
-      <g transform="translate(-90 10) rotate(-21 240 281)" opacity=".9" filter="url(#blur)">
-        <image href="${logoUrl}" width="481" height="562" preserveAspectRatio="xMidYMid slice"/>
+      <g transform="translate(-125 35) rotate(-21 220 250)" opacity=".9" filter="url(#blur)">
+        <image href="${logoUrl}" width="440" height="514" preserveAspectRatio="xMidYMid slice"/>
       </g>
-      <g transform="translate(76 82) rotate(-7 200 233)" filter="url(#shadow)">
-        <rect x="-6" y="-6" width="412" height="479" rx="34" fill="#eee"/>
-        <image href="${logoUrl}" width="400" height="467" preserveAspectRatio="xMidYMid slice" clip-path="url(#card)"/>
+      <g transform="translate(45 110) rotate(-7 170 199)" filter="url(#shadow)">
+        <rect x="-6" y="-6" width="352" height="409" rx="34" fill="#eee"/>
+        <image href="${logoUrl}" width="340" height="397" preserveAspectRatio="xMidYMid slice" clip-path="url(#card)"/>
       </g>
-      <rect x="545" y="148" width="330" height="43" rx="22" fill="#dbdbdb" fill-opacity=".7"/>
-      <text x="565" y="176" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="22">basics.alpacawebservices.com</text>
-      <text x="545" y="${titleY}" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="900">${tspans}</text>
-      <g filter="url(#shadow)">
-        <rect x="545" y="485" width="230" height="62" rx="31" fill="#000"/>
-        <text x="660" y="525" text-anchor="middle" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="600">Read Docs</text>
-      </g>
+      <text x="600" y="${titleY}" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="900">${tspans.replaceAll('x="545"', 'x="600"')}</text>
     </svg>`;
 
   await fs.mkdir(path.dirname(output), { recursive: true });
