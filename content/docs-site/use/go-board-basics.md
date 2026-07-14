@@ -1,13 +1,13 @@
 # Your First Go Board Project
 
-You will make an LED blink, then turn the four LEDs into a binary counter.
+A starter LED blink and counter excercise!
 
 The Go Board has a Lattice iCE40HX1K FPGA, four LEDs, four buttons, a 25 MHz
 clock, USB programming, and onboard flash. Unlike a microcontroller, the
 Verilog below describes circuits that all exist at once.
 
-Your Verilog goes through Yosys, nextpnr-ice40, and icepack before it becomes
-the `.bin` file you put on the board. You will run each part of that process.
+Your Verilog will go through Yosys, nextpnr-ice40, and icepack before it becomes
+the `.bin` file you put on the board.
 
 ## Get the board ready
 
@@ -38,16 +38,16 @@ cd my-go-board
 
 ### A first look at Verilog
 
-Verilog describes a circuit. It does not run from top to bottom like a normal
-program. When the FPGA starts, every part of the circuit below exists at once.
+Verilog describes a circuit. It doesn't run from top to bottom like a normal
+program, but rather, when the FPGA starts, every part of the circuit below exists at once.
 
-`module blink(...)` gives that circuit a name and lists its connections. The
+`module blink(...)` names the circuit and lists its connections. The
 connections inside the parentheses are called **ports**. They are how the
 circuit talks to the Go Board.
 
 `input` and `output` are wires that connect your circuit to the outside of the
-FPGA. A **wire** carries a value from one part of a circuit to another. It does
-not remember anything by itself. `CLK` is a wire coming in from the Go Board's
+FPGA. A **wire** carries a value from one part of a circuit to another but doesn't 
+remember anything by itself. `CLK` is a wire coming in from the Go Board's
 clock. `LED1` is a wire going out to the first LED.
 
 A **flip-flop** stores one bit. It remembers either `0` or `1` until the clock
@@ -58,7 +58,7 @@ number from 0 to 16,777,215.
 
 The clock is a repeating signal. `posedge CLK` means the instant the clock
 changes from `0` to `1`. The Go Board clock does this 25 million times each
-second. That is when the flip-flops in this circuit update. Between clock
+second. (That's when the flip-flops in this circuit update). Between clock
 edges, `count` keeps its old value.
 
 The `always @(posedge CLK)` block describes what each flip-flop should store at
@@ -66,12 +66,11 @@ the next clock edge. `<=` means “save this new value at that edge.” Every
 flip-flop in the block updates together, which is why hardware can do many
 things at the same time.
 
-`assign` makes a direct wire connection. It does not wait for the clock. Here,
+`assign` makes a direct wire connection. Here,
 it connects one bit of `count` directly to `LED1`.
 
 Square brackets select bits. `count[23]` means bit 23 of the 24-bit number.
-The low bits change very quickly. Bit 23 changes much more slowly, so it makes
-a useful visible blink.
+The low bits change very quickly. Bit 23 changes much more slowly, so it blinks.
 
 The starter `blink.v` has this little circuit inside.
 
@@ -216,8 +215,7 @@ Open `my_project.v` in your editor and start writing when you are ready. The
 file can stay empty for now. When you add your circuit, name its top module
 `my_project` to match the file name.
 
-Keep `go_board.pcf` in the folder. It already has the names for the clock,
-buttons, LEDs, seven-segment displays, serial, VGA, and the PMOD header.
+Keep `go_board.pcf` in the folder. It already has the pin definitions for everything
 
 Use the names you need in your module. When you are ready to build it, run the
 same four steps from the blink and counter examples with `my_project` in each
