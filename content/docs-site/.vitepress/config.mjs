@@ -1,19 +1,34 @@
 export default {
-  title: 'Start Here - bASICs VM',
-  description: 'Start Here - bASICs VM',
+  title: 'bASICs VM',
+  description: 'FPGA and ASIC development environment documentation.',
   cleanUrls: true,
   ignoreDeadLinks: true,
   head: [
     ['link', { rel: 'icon', href: '/favicon.png' }],
-    ['meta', { property: 'og:title', content: 'Start Here - bASICs VM' }],
-    ['meta', { property: 'og:description', content: 'Start Here - bASICs VM' }],
-    ['meta', { property: 'og:image', content: 'https://basics.alpacawebservices.com/images/desktop-auto-login.webp' }],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
-    ['meta', { name: 'twitter:title', content: 'Start Here - bASICs VM' }],
-    ['meta', { name: 'twitter:description', content: 'Start Here - bASICs VM' }],
-    ['meta', { name: 'twitter:image', content: 'https://basics.alpacawebservices.com/images/desktop-auto-login.webp' }]
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }]
   ],
+  transformHead({ pageData }) {
+    const isHome = pageData.relativePath === 'index.md';
+    const pageName = pageData.title || 'bASICs VM';
+    const title = isHome ? 'Start Here - bASICs VM' : `${pageName} - bASICs VM`;
+    const description = isHome
+      ? 'Choose the bASICs VM download for your operating system and hardware.'
+      : `Read ${pageName} in the bASICs VM documentation.`;
+    const image = isHome
+      ? 'https://basics.alpacawebservices.com/images/desktop-auto-login.webp'
+      : 'https://basics.alpacawebservices.com/logo.webp';
+
+    return [
+      ['meta', { property: 'og:title', content: title }],
+      ['meta', { property: 'og:description', content: description }],
+      ['meta', { property: 'og:image', content: image }],
+      ['meta', { property: 'og:image:alt', content: title }],
+      ['meta', { name: 'twitter:title', content: title }],
+      ['meta', { name: 'twitter:description', content: description }],
+      ['meta', { name: 'twitter:image', content: image }]
+    ];
+  },
   vite: {
     build: {
       minify: false
