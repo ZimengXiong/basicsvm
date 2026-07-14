@@ -180,6 +180,27 @@ in
     "${modulesPath}/virtualisation/qemu-vm.nix"
   ];
 
+  # Oracle's 7.2.10 ARM64 Guest Additions archive contains one unconditional
+  # include of the x86-only assembly header. asm.h already selects asm-arm.h
+  # on AArch64, so remove the stray include until Oracle ships the correction.
+  nixpkgs.overlays = lib.optionals (basicsGuestType == "virtualbox")
+    [
+      (_final: prev: {
+        linuxPackages = prev.linuxPackages.extend (_linuxFinal: linuxPrev: {
+          virtualboxGuestAdditions =
+            if prev.stdenv.hostPlatform.isAarch64 then
+              linuxPrev.virtualboxGuestAdditions.overrideAttrs (old: {
+                postPatch = (old.postPatch or "") + ''
+                  sed -i '/^#include <iprt\/asm-amd64-x86.h>$/d' \
+                    src/vboxguest-*/vboxguest/r0drv/linux/dbgkrnlinfo-r0drv-linux.c
+                '';
+              })
+            else
+              linuxPrev.virtualboxGuestAdditions;
+        });
+      })
+    ];
+
   system.stateVersion = "25.05";
   networking.hostName = "basics";
   time.timeZone = "America/Los_Angeles";
