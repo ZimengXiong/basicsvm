@@ -69,21 +69,21 @@ export default {
             ]
           },
           {
-            text: '1.2',
+            text: '1.2 — Legacy',
             items: [
               { text: '1.2 stable', link: '/install/version-1-2' },
               { text: 'Migrate to 1.2', link: '/install/migrate-to-1-2' }
             ]
           },
           {
-            text: '1.1',
+            text: '1.1 — Legacy',
             items: [
-              { text: '1.1 stable — Latest', link: '/install/version-1-1' },
+              { text: '1.1 stable', link: '/install/version-1-1' },
               { text: 'Migrate to 1.1', link: '/install/migrate-to-1-1' }
             ]
           },
           {
-            text: '1.0',
+            text: '1.0 — Legacy',
             items: [
               { text: '1.0 stable', link: '/install/version-1-0' }
             ]
