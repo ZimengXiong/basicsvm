@@ -175,14 +175,7 @@ manifest = {
     "created_at": datetime.now(timezone.utc).isoformat(),
     "repo_id": repo_id,
     "repo_type": repo_type,
-    "targets": [
-        "macos-apple-silicon",
-        "macos-intel",
-        "windows-arm",
-        "windows-x86",
-        "linux-x86",
-        "linux-arm",
-    ],
+    "targets": sorted({entry["path"].split("/", 1)[0] for entry in files}),
     "files": files,
 }
 manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")

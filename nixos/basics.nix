@@ -213,7 +213,8 @@ in
   users.mutableUsers = false;
   users.users.beaver = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "plugdev" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "plugdev" ]
+      ++ lib.optionals (basicsGuestType == "virtualbox") [ "vboxsf" ];
     hashedPassword = "$6$RtamX2LzbF4b7DhH$VI.8wwYHbSUKI5IReuf8obvVMAnMZasVcJIOU80WM4ArOGJwRuS2.7s6HMScBJqOQQcaasrhi3jN4FaJrPFpM.";
   };
   users.groups.plugdev = { };
