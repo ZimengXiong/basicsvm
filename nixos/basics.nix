@@ -191,7 +191,7 @@ in
             if prev.stdenv.hostPlatform.isAarch64 then
               linuxPrev.virtualboxGuestAdditions.overrideAttrs (old: {
                 postPatch = (old.postPatch or "") + ''
-                  f=src/vboxguest-*/vboxguest/r0drv/linux/dbgkrnlinfo-r0drv-linux.c
+                  f="$(echo src/vboxguest-*/vboxguest/r0drv/linux/dbgkrnlinfo-r0drv-linux.c)"
                   sed -i '/^#include <iprt\/asm-amd64-x86.h>$/d' "$f"
                   sed -i '/    RTTHREADPREEMPTSTATE Preempt =/i #if defined(RT_ARCH_X86) || defined(RT_ARCH_AMD64)' "$f"
                   sed -i '/    if (\*ppvSymbol != NULL)/i #else\n    *ppvSymbol = (void *)g_pfnKallsymsLookupName(pszSymbol);\n#endif' "$f"
