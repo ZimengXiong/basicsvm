@@ -17,7 +17,7 @@ export default {
       : `Read ${pageName} in the bASICs VM documentation.`;
     const image = isHome
       ? 'https://basics.alpacawebservices.com/images/desktop-auto-login.webp'
-      : 'https://basics.alpacawebservices.com/logo.webp';
+      : `https://basics.alpacawebservices.com/og/${pageData.relativePath.replace(/\.md$/, '.png')}`;
 
     return [
       ['meta', { property: 'og:title', content: title }],

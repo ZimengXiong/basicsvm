@@ -11,6 +11,7 @@ node_modules/
 .vitepress/dist/
 **/.vitepress/cache/
 **/.vitepress/dist/
+content/docs-site/public/og/
 
 *.log
 *.qcow2
