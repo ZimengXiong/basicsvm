@@ -206,7 +206,7 @@ Make a new folder and copy in the Go Board pin map.
 cd ~/bASICs/work
 mkdir my-project
 cd my-project
-cp ../examples/nandland-go-board/go_board.pcf .
+cp ../../examples/nandland-go-board/go_board.pcf .
 ```
 
 Create an empty Verilog file for your circuit.
