@@ -107,6 +107,8 @@ nextpnr-ice40 --hx1k --package vq100 --freq 25 --pcf go_board.pcf \
   --json blink.json --asc blink.asc
 ```
 
+A trailing `\` means “continue on the next line.” If typing this on one line, omit the `\`; including it will cause errors.
+
 Then use icepack to make `blink.bin`.
 
 ```sh
@@ -173,6 +175,8 @@ nextpnr-ice40 --hx1k --package vq100 --freq 25 --pcf go_board.pcf \
   --json counter.json --asc counter.asc
 ```
 
+A trailing `\` means “continue on the next line.” If typing this on one line, omit the `\`; including it will cause errors.
+
 Make the counter bitstream.
 
 ```sh
@@ -235,6 +239,8 @@ Next, run nextpnr. It chooses where the circuit goes inside the FPGA and uses
 nextpnr-ice40 --hx1k --package vq100 --freq 25 --pcf go_board.pcf \
   --json my_project.json --asc my_project.asc
 ```
+
+A trailing `\` means “continue on the next line.” If typing this on one line, omit the `\`; including it will cause errors.
 
 Then use icepack to make the bitstream file for the Go Board.
 

@@ -23,6 +23,8 @@ nix profile install nixpkgs#vscodium \
   --extra-experimental-features nix-command
 ```
 
+A trailing `\` means “continue on the next line.” If typing this on one line, omit each `\`; including them will cause errors.
+
 ### Install Go Board tools
 
 This installs Yosys, nextpnr, icepack, iceprog, and USButils for the Nandland
@@ -36,3 +38,5 @@ nix profile install \
   --extra-experimental-features flakes \
   --extra-experimental-features nix-command
 ```
+
+A trailing `\` means “continue on the next line.” If typing this on one line, omit each `\`; including them will cause errors.
