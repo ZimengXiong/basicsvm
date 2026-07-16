@@ -77,9 +77,16 @@ export default {
         items: [
           { text: 'All versions', link: '/install/versions' },
           {
-            text: '1.3',
+            text: '1.4',
             items: [
-              { text: '1.3 stable — Latest', link: '/install/version-1-3' },
+              { text: '1.4 stable — Latest', link: '/install/version-1-4' },
+              { text: 'Migrate to 1.4', link: '/install/migrate-to-1-4' }
+            ]
+          },
+          {
+            text: '1.3 — Legacy',
+            items: [
+              { text: '1.3 stable', link: '/install/version-1-3' },
               { text: 'Migrate to 1.3', link: '/install/migrate-to-1-3' }
             ]
           },

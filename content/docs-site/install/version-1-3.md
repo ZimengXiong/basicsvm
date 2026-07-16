@@ -2,9 +2,9 @@
 
 Released July 13, 2026.
 
-[This is the latest version.]
+[This is not the latest version.]
 
-[Download version 1.3](/)
+[Migrate to latest](./migrate-to-1-4.md) · [Download legacy versions](https://huggingface.co/datasets/zimengxiong/basicsvm/tree/main/releases/1.3)
 
 ## Changelog
 
