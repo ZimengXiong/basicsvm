@@ -141,6 +141,14 @@ export default {
               { text: 'VirtualBox', link: '/install/connecting-usb-devices#virtualbox' }
             ]
           },
+          {
+            text: 'Enable Folder Sharing',
+            link: '/misc/enable-folder-sharing',
+            items: [
+              { text: 'UTM', link: '/misc/enable-folder-sharing#utm' },
+              { text: 'VirtualBox', link: '/misc/enable-folder-sharing#virtualbox' }
+            ]
+          },
           { text: 'Install APIO', link: '/install/apio' },
           { text: 'VSCodium Desktop Shortcut', link: '/misc/vscodium-desktop-shortcut' }
         ]
