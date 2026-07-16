@@ -7,6 +7,7 @@ Each VM download is a complete, tested system image. Install the newest image wh
 Version 1.4 adds current guest integration to the Windows images and automatic
 host shared folders to macOS. UTM shares mount at `/home/beaver/Shared`; Apple
 Silicon uses the GPU-supported display, while Intel Mac retains `virtio-vga`.
+Version 1.4 is available for macOS, Windows, and Linux on x86 and ARM.
 
 [Guide to enabling folder sharing](../misc/enable-folder-sharing.md)
 

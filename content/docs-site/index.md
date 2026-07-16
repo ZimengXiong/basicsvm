@@ -64,4 +64,34 @@
     </div>
   </div>
 
+  <!-- Linux Section -->
+  <div class="platform-group">
+    <div class="platform-group-header">
+      <svg class="group-icon" viewBox="0 0 24 24" width="22" height="22">
+        <path fill="currentColor" d="M12 2c-2.8 0-4.7 2.4-4.7 5.5 0 1.2.3 2.3.8 3.2-1.7 1.2-2.8 3.2-2.8 5.4 0 1.4.5 2.8 1.4 3.8-.5.5-.8 1.2-.8 1.9 0 1.6 1.3 2.9 2.9 2.9.8 0 1.6-.3 2.1-.9.7.2 1.4.3 2.1.3s1.4-.1 2.1-.3c.5.6 1.3.9 2.1.9 1.6 0 2.9-1.3 2.9-2.9 0-.7-.3-1.4-.8-1.9.9-1 1.4-2.4 1.4-3.8 0-2.2-1.1-4.2-2.8-5.4.5-.9.8-2 .8-3.2C16.7 4.4 14.8 2 12 2Z"/>
+      </svg>
+      <span class="platform-group-title">Linux</span>
+    </div>
+    <div class="platform-rows">
+      <a class="platform-row" href="./install/linux-x86.html">
+        <div class="platform-row-left">
+          <span class="platform-row-name">Linux x86</span>
+          <span class="platform-row-spec">Intel or AMD CPU</span>
+        </div>
+        <div class="platform-row-right">
+          <svg class="arrow-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+      <a class="platform-row" href="./install/linux-arm.html">
+        <div class="platform-row-left">
+          <span class="platform-row-name">Linux ARM</span>
+          <span class="platform-row-spec">ARM64 CPU</span>
+        </div>
+        <div class="platform-row-right">
+          <svg class="arrow-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+    </div>
+  </div>
+
 </div>

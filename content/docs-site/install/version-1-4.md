@@ -12,6 +12,10 @@ Released July 16, 2026.
 
 [Download version 1.4 for Intel Mac](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/1.4/macos-intel/bASICs-VM-Intel-Mac.utm.zip)
 
+[Download version 1.4 for Linux x86](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/1.4/linux-x86/basicsvm-x86_64-linux.ova)
+
+[Download version 1.4 for Linux ARM](https://huggingface.co/datasets/zimengxiong/basicsvm/resolve/main/releases/1.4/linux-arm/basicsvm-aarch64-linux.qcow2)
+
 ## Changelog
 
 - UTM shared directories mount automatically at `/home/beaver/Shared` with

@@ -10,8 +10,8 @@ Download the latest image for your supported host platform:
 - [Windows ARM](./windows-arm.md)
 - [macOS on Apple Silicon](./mac-apple-silicon.md)
 - [macOS on Intel](./mac-intel.md)
-
-Linux hosts remain on their version 1.3 platform images.
+- [Linux x86](./linux-x86.md)
+- [Linux ARM](./linux-arm.md)
 
 Copy your project folders from the old VM to the new version 1.4 VM before
 removing the old installation.
