@@ -24,6 +24,8 @@ Released July 16, 2026.
 In UTM, open the VM settings, select **Sharing**, choose a shared directory,
 and start the VM. The directory appears at `/home/beaver/Shared`.
 
+[Enable folder sharing](../misc/enable-folder-sharing.md)
+
 ## Migrate
 
 [Read the version 1.4 migration guide](./migrate-to-1-4.md)

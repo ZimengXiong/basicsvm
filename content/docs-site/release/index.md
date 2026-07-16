@@ -8,6 +8,8 @@ Version 1.4 adds current guest integration to the Windows images and automatic
 host shared folders to macOS. UTM shares mount at `/home/beaver/Shared`; Apple
 Silicon uses the GPU-supported display, while Intel Mac retains `virtio-vga`.
 
+[Enable folder sharing](../misc/enable-folder-sharing.md)
+
 This release changes immutable NixOS system files. Existing images cannot be
 patched safely; [install the version 1.4 image](../install/migrate-to-1-4.md).
 
