@@ -283,7 +283,11 @@ in
         if ${pkgs.util-linux}/bin/mountpoint -q /home/beaver/Shared; then
           exit 0
         fi
-        if ${pkgs.util-linux}/bin/mount -t vboxsf -o "uid=$guest_uid,gid=$guest_gid" Downloads /home/beaver/Shared; then
+        share_name="$(${config.boot.kernelPackages.virtualboxGuestAdditions}/bin/VBoxControl sharedfolder list 2>/dev/null \
+          | ${pkgs.gnused}/bin/sed -n 's/^[0-9][0-9]* - \(.*\) \[.*/\1/p' \
+          | ${pkgs.coreutils}/bin/head -n 1)"
+        if [ -n "$share_name" ] && ${pkgs.util-linux}/bin/mount -t vboxsf \
+          -o "uid=$guest_uid,gid=$guest_gid" "$share_name" /home/beaver/Shared; then
           exit 0
         fi
         ${pkgs.coreutils}/bin/sleep 1
