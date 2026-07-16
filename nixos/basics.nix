@@ -240,6 +240,26 @@ in
   services.spice-vdagentd.enable = basicsGuestType == "spice";
   virtualisation.virtualbox.guest.enable = basicsGuestType == "virtualbox";
 
+  systemd.services.utm-shared-folder = lib.mkIf (basicsGuestType == "spice") {
+    description = "Mount the UTM shared directory";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "local-fs.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      tag_file="$(${pkgs.findutils}/bin/find /sys/bus/virtio/drivers/9pnet_virtio -name mount_tag -print -quit 2>/dev/null || true)"
+      if [ -z "$tag_file" ]; then
+        exit 0
+      fi
+      tag="$(${pkgs.coreutils}/bin/cat "$tag_file")"
+      if ! ${pkgs.util-linux}/bin/mountpoint -q /home/beaver/Shared; then
+        ${pkgs.util-linux}/bin/mount -t 9p -o trans=virtio,version=9p2000.L,msize=104857600 "$tag" /home/beaver/Shared
+      fi
+    '';
+  };
+
   networking.networkmanager.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 ];
   services.openssh.enable = true;
@@ -292,6 +312,8 @@ in
     "d /home/beaver/Downloads 0755 beaver users -"
     "d /home/beaver/bASICs 0755 beaver users -"
     "d /home/beaver/bASICs/work 0755 beaver users -"
+  ] ++ lib.optionals (basicsGuestType == "spice") [
+    "d /home/beaver/Shared 0755 beaver users -"
   ];
 
   system.activationScripts.basicsExamples = {
