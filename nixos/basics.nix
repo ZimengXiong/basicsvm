@@ -249,9 +249,22 @@ in
       RemainAfterExit = true;
     };
     script = ''
-      if ! ${pkgs.util-linux}/bin/mountpoint -q /home/beaver/Shared; then
-        ${pkgs.util-linux}/bin/mount -t 9p -o trans=virtio,version=9p2000.L,msize=104857600 share /home/beaver/Shared || true
+      if ! ${pkgs.util-linux}/bin/mountpoint -q /mnt/utm; then
+        ${pkgs.util-linux}/bin/mount -t 9p -o trans=virtio,version=9p2000.L,msize=104857600 share /mnt/utm || exit 0
       fi
+      if ! ${pkgs.util-linux}/bin/mountpoint -q /home/beaver/Shared; then
+        host_uid="$(${pkgs.coreutils}/bin/stat -c %u /mnt/utm)"
+        host_gid="$(${pkgs.coreutils}/bin/stat -c %g /mnt/utm)"
+        guest_uid="$(${pkgs.coreutils}/bin/id -u beaver)"
+        guest_gid="$(${pkgs.coreutils}/bin/id -g beaver)"
+        ${pkgs.bindfs}/bin/bindfs \
+          -o "map=$host_uid/$guest_uid:@$host_gid/@$guest_gid,create-for-user=$host_uid,create-for-group=$host_gid" \
+          /mnt/utm /home/beaver/Shared
+      fi
+    '';
+    preStop = ''
+      ${pkgs.util-linux}/bin/umount /home/beaver/Shared 2>/dev/null || true
+      ${pkgs.util-linux}/bin/umount /mnt/utm 2>/dev/null || true
     '';
   };
 
@@ -308,6 +321,7 @@ in
     "d /home/beaver/bASICs 0755 beaver users -"
     "d /home/beaver/bASICs/work 0755 beaver users -"
   ] ++ lib.optionals (basicsGuestType == "spice") [
+    "d /mnt/utm 0755 root root -"
     "d /home/beaver/Shared 0755 beaver users -"
   ];
 
