@@ -268,6 +268,33 @@ in
     '';
   };
 
+  systemd.services.virtualbox-shared-folder = lib.mkIf (basicsGuestType == "virtualbox") {
+    description = "Mount the VirtualBox shared directory";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "vboxservice.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      guest_uid="$(${pkgs.coreutils}/bin/id -u beaver)"
+      guest_gid="$(${pkgs.coreutils}/bin/id -g beaver)"
+      for attempt in $(${pkgs.coreutils}/bin/seq 1 30); do
+        if ${pkgs.util-linux}/bin/mountpoint -q /home/beaver/Shared; then
+          exit 0
+        fi
+        if ${pkgs.util-linux}/bin/mount -t vboxsf -o "uid=$guest_uid,gid=$guest_gid" Downloads /home/beaver/Shared; then
+          exit 0
+        fi
+        ${pkgs.coreutils}/bin/sleep 1
+      done
+      exit 0
+    '';
+    preStop = ''
+      ${pkgs.util-linux}/bin/umount /home/beaver/Shared 2>/dev/null || true
+    '';
+  };
+
   networking.networkmanager.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 ];
   services.openssh.enable = true;
@@ -320,9 +347,10 @@ in
     "d /home/beaver/Downloads 0755 beaver users -"
     "d /home/beaver/bASICs 0755 beaver users -"
     "d /home/beaver/bASICs/work 0755 beaver users -"
+  ] ++ lib.optionals (builtins.elem basicsGuestType [ "spice" "virtualbox" ]) [
+    "d /home/beaver/Shared 0755 beaver users -"
   ] ++ lib.optionals (basicsGuestType == "spice") [
     "d /mnt/utm 0755 root root -"
-    "d /home/beaver/Shared 0755 beaver users -"
   ];
 
   system.activationScripts.basicsExamples = {
