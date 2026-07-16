@@ -21,10 +21,7 @@ Released July 16, 2026.
 - Windows x86 includes VirtualBox shared-folder integration.
 - Windows ARM includes the current VirtualBox guest integration.
 
-In UTM, open the VM settings, select **Sharing**, choose a shared directory,
-and start the VM. The directory appears at `/home/beaver/Shared`.
-
-[Enable folder sharing](../misc/enable-folder-sharing.md)
+[Guide to enabling folder sharing](../misc/enable-folder-sharing.md)
 
 ## Migrate
 
