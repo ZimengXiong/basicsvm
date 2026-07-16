@@ -249,13 +249,8 @@ in
       RemainAfterExit = true;
     };
     script = ''
-      tag_file="$(${pkgs.findutils}/bin/find /sys/bus/virtio/drivers/9pnet_virtio -name mount_tag -print -quit 2>/dev/null || true)"
-      if [ -z "$tag_file" ]; then
-        exit 0
-      fi
-      tag="$(${pkgs.coreutils}/bin/cat "$tag_file")"
       if ! ${pkgs.util-linux}/bin/mountpoint -q /home/beaver/Shared; then
-        ${pkgs.util-linux}/bin/mount -t 9p -o trans=virtio,version=9p2000.L,msize=104857600 "$tag" /home/beaver/Shared
+        ${pkgs.util-linux}/bin/mount -t 9p -o trans=virtio,version=9p2000.L,msize=104857600 share /home/beaver/Shared || true
       fi
     '';
   };
