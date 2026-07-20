@@ -8,5 +8,5 @@ module blink(
   always @(posedge CLK)
     count <= count + 1'b1;
 
-  assign LED1 = count[23];
+  assign LED1 = ~count[23];
 endmodule
