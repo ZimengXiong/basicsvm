@@ -66,9 +66,8 @@ the next clock edge. `<=` means “save this new value at that edge.” Every
 flip-flop in the block updates together, which is why hardware can do many
 things at the same time.
 
-`assign` makes a direct wire connection. The Go Board LEDs are active-low:
-driving an LED output to `0` turns it on, and driving it to `1` turns it off.
-Here, `~` inverts one bit of `count` before connecting it to `LED1`.
+`assign` makes a direct wire connection. Here,
+it connects one bit of `count` directly to `LED1`.
 
 Square brackets select bits. `count[23]` means bit 23 of the 24-bit number.
 The low bits change very quickly. Bit 23 changes much more slowly, so it blinks.
@@ -90,7 +89,7 @@ module blink(
     count <= count + 1'b1;
 
   // Bit 23 changes slowly enough for your eye to see the LED blink.
-  assign LED1 = ~count[23];
+  assign LED1 = count[23];
 endmodule
 ```
 
@@ -158,8 +157,8 @@ module counter(
     end
   end
 
-  // Invert the value because the Go Board LEDs are active-low.
-  assign {LED4, LED3, LED2, LED1} = ~value;
+  // Send value bits 0 through 3 to LED1 through LED4.
+  assign {LED4, LED3, LED2, LED1} = value;
 endmodule
 ```
 

@@ -19,5 +19,5 @@ module counter(
     end
   end
 
-  assign {LED4, LED3, LED2, LED1} = ~value;
+  assign {LED4, LED3, LED2, LED1} = value;
 endmodule
