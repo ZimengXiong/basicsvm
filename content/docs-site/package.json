@@ -6,7 +6,7 @@
   "scripts": {
     "docs": "vitepress dev --host 0.0.0.0 --port 5173",
     "dev": "vitepress dev --host 0.0.0.0 --port 5173",
-    "build": "node scripts/generate-og-images.mjs && vitepress build",
+    "build": "node scripts/generate-og-images.mjs && vitepress build && node scripts/copy-questionnaire.mjs",
     "preview": "vitepress preview --host 0.0.0.0 --port 4173"
   },
   "devDependencies": {

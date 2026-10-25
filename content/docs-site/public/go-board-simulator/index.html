@@ -4,83 +4,110 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Go Board Simulator</title>
+  <link rel="icon" href="/favicon.png">
+  <script>(function(){var d=document.documentElement;try{var v=localStorage.getItem('basicsvm-ux');d.dataset.ux=/^[1-5]$/.test(v)?v:'1'}catch(e){d.dataset.ux='1'}try{var a=localStorage.getItem('vitepress-theme-appearance')||'auto';var dark=a==='dark'||(a!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);d.classList.toggle('dark',dark)}catch(e){}})()</script>
   <link rel="stylesheet" href="/go-board-simulator/style.css">
 </head>
 <body>
-  <div id="toolbar">
-    <b>Nandland Go Board Simulator</b>
-    <span>25 MHz</span>
-    <button id="runBtn">Compile / Run</button>
-    <small>Large compiler tools download only when you compile; they run in your browser.</small>
-    <button id="resetBtn">Reset</button>
-    <button id="pauseBtn">Pause</button>
-    <select id="speed"><option value="1">1x speed</option><option value="4">4x speed</option><option value="16">16x speed</option></select>
-    <span id="status">Ready</span>
-  </div>
+  <header id="nav">
+    <a id="title" href="/"><img src="/logo.webp" alt="" width="20" height="20">bASICs VM</a>
+    <nav id="links">
+      <a href="/">Start</a>
+      <a href="/use/">Use</a>
+      <a href="/simulator" class="active">Simulator</a>
+      <a href="/release/">Releases</a>
+      <a href="/build/">Advanced</a>
+      <a href="https://github.com/ZimengXiong/basicsvm" target="_blank" rel="noreferrer">GitHub</a>
+      <a href="https://github.com/ZimengXiong/basicsvm/issues/new" target="_blank" rel="noreferrer">Report Issue</a>
+    </nav>
+    <button id="menuBtn" type="button" aria-expanded="false" aria-controls="links" hidden>Menu</button>
+    <span class="nav-sep"></span>
+    <button id="appearance" type="button" role="switch" aria-label="Toggle dark mode"><span class="check"></span></button>
+  </header>
 
-  <main>
-    <section id="leftPane">
-      <div class="tabs">
-        <button id="codeTab" class="selected">design.v</button>
-        <button id="pinTab">go-board.pcf</button>
+  <main id="ide">
+    <section id="editorPane" class="pane">
+      <div class="pane-head">
+        <span class="pane-title">design.v</span>
+        <span id="status-pos" class="mono"></span>
+        <span class="spacer"></span>
+        <select id="examples" aria-label="Examples">
+          <option value="" disabled selected>Examples</option>
+          <option value="blink">Blink</option>
+          <option value="counter">Counter</option>
+          <option value="switches">Switches</option>
+          <option value="seven">7-segment</option>
+          <option value="vga">VGA</option>
+          <option value="none">Empty</option>
+        </select>
+        <button id="openBtn" type="button">Open</button>
+        <button id="saveBtn" type="button">Save</button>
+        <input id="fileInput" type="file" accept=".v,.sv,.txt" hidden>
       </div>
-
-      <div id="codeFile" class="file-view">
-        <div class="examples">
-          Examples:
-          <button data-example="none">None</button>
-          <button data-example="blink" class="active">Blink</button>
-          <button data-example="counter">Counter</button>
-          <button data-example="switches">Switches</button>
-          <button data-example="seven">7-segment</button>
-          <button data-example="vga">VGA</button>
+      <div class="editor">
+        <pre id="lines" aria-hidden="true">1</pre>
+        <div class="editor-scroll">
+          <pre id="hl" aria-hidden="true"></pre>
+          <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Verilog source"></textarea>
         </div>
-        <div class="editor-wrap"><pre id="lines">1</pre><textarea id="code" spellcheck="false" aria-label="Verilog source"></textarea></div>
-      </div>
-
-      <div id="pinFile" class="file-view" hidden>
-        <pre id="pinGrid"></pre>
-        <p><a href="https://nandland.com/wp-content/uploads/2022/06/Go_Board_V1.pdf" target="_blank" rel="noreferrer">Open board schematic</a></p>
-      </div>
-
-      <div id="consoleResize" title="Drag to resize compiler output"></div>
-      <div class="console">
-        <div><b>Compiler output</b><button id="clearBtn">Clear</button></div>
-        <pre id="log">Ready.</pre>
       </div>
     </section>
 
-    <section id="rightPane">
-      <div class="sim-title"><b>Board simulation</b><span>Time: <b id="simTime">0.000 ms</b> &nbsp; Edges: <b id="edges">0</b></span></div>
-      <div class="board-row">
+    <div id="vsplit" class="split v" role="separator" aria-orientation="vertical"></div>
+
+    <section id="boardPane" class="pane">
+      <div class="pane-head">
+        <button id="runBtn" type="button" class="glyph run" aria-label="Run" title="Run"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg></button>
+        <button id="pauseBtn" type="button" class="glyph pause" aria-label="Pause" title="Pause"><span class="when-running"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M4 2.5h3v11H4zM9 2.5h3v11H9z"/></svg></span><span class="when-paused"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg></span></button>
+        <button id="resetBtn" type="button" class="glyph reset" aria-label="Reset" title="Reset"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M12.9 6.2A5.3 5.3 0 1 0 13.3 9"/><path fill="currentColor" d="M13.6 2.6v4.2H9.4z"/></svg></button>
+        <select id="speed" aria-label="Speed"><option value="1">1×</option><option value="4">4×</option><option value="16">16×</option></select>
+        <span class="spacer"></span>
+        <span id="simTime" class="mono">0.000 ms</span>
+        <span id="status">Ready</span>
+        <span id="busy" class="busy" hidden><span></span></span>
+      </div>
+      <div class="board-area">
         <div class="board-card">
-          <img class="pcb-render" src="/go-board-simulator/assets/goboard-kicad.png" alt="Nandland Go Board">
+          <img class="pcb-render" src="/go-board-simulator/assets/goboard-v1.webp" alt="Nandland Go Board">
           <svg id="goBoard" viewBox="0 0 1376 872" aria-label="Interactive Go Board"></svg>
         </div>
-        <div class="monitor" id="vgaWindow">
-          <div class="monitor-title" id="vgaHandle"><b>VGA</b><span id="vgaStatus">NO SIGNAL</span></div>
-          <canvas id="screen" width="320" height="240"></canvas>
-          <small>640x480 @ 60Hz · <span id="frame">FRAME 0000</span></small>
+        <div class="vga-panel" id="vgaWindow">
+          <canvas id="screen" width="640" height="480"></canvas>
+          <div class="vga-bar"><span id="vgaStatus">NO SIGNAL</span><span id="vgaMode"></span><span id="frame" class="mono">0000</span></div>
         </div>
       </div>
-      <div class="hint">Hold the four board buttons with the mouse.</div>
-      <fieldset class="wave-panel">
-        <legend>Waveform viewer</legend>
-        <canvas id="waveform" width="800" height="230"></canvas>
-      </fieldset>
-      <div class="device-line">Device: iCE40HX1K &nbsp; Package: VQ100 &nbsp; Clock: 25,000,000 Hz &nbsp; <span id="hardwareReport">Client-side simulation · hardware fit not synthesized</span></div>
+    </section>
+
+    <div id="hsplit" class="split h" role="separator" aria-orientation="horizontal"></div>
+
+    <section id="dock" class="pane">
+      <div class="pane-head">
+        <div class="tabs" role="tablist">
+          <button type="button" class="tab selected" data-tab="wave" role="tab">Waveform</button>
+          <button type="button" class="tab" data-tab="log" role="tab">Output</button>
+          <button type="button" class="tab" data-tab="pins" role="tab">Pins</button>
+        </div>
+        <span class="spacer"></span>
+        <div class="dock-tools" data-for="wave">
+          <span id="waveReadout" class="mono"></span>
+          <button id="zoomOut" type="button" aria-label="Zoom out">−</button>
+          <button id="zoomIn" type="button" aria-label="Zoom in">+</button>
+          <button id="zoomAuto" type="button" aria-pressed="true">Auto</button>
+          <button id="zoomFit" type="button">Fit</button>
+          <button id="live" type="button" aria-pressed="true">Live</button>
+        </div>
+        <div class="dock-tools" data-for="log" hidden>
+          <button id="clearBtn" type="button">Clear</button>
+        </div>
+      </div>
+      <div class="dock-body" data-panel="wave"><canvas id="waveform"></canvas></div>
+      <div class="dock-body" data-panel="log" hidden><pre id="log"></pre></div>
+      <div class="dock-body" data-panel="pins" hidden><div id="pinGrid"></div></div>
     </section>
   </main>
 
-  <button id="pinsBtn" hidden>Pin map</button>
-  <dialog id="pins"><button id="closePins">Close</button></dialog>
-  <div id="compileOverlay" hidden>
-    <div>
-      <b>Yosys + Clang compiling…</b>
-      <progress aria-label="Compilation in progress"></progress>
-      <pre id="compileProgress">Loading browser WebAssembly.</pre>
-      <small>The simulator view is paused while this runs locally.</small>
-    </div>
+  <div class="ux-switcher" id="uxSwitcher">
+    <button type="button" data-ux="1">1</button><button type="button" data-ux="2">2</button><button type="button" data-ux="3">3</button><button type="button" data-ux="4">4</button><button type="button" data-ux="5">5</button>
   </div>
   <script src="/go-board-simulator/verilog-sim.js"></script>
   <script type="module" src="/go-board-simulator/app.js"></script>

@@ -1,0 +1,1120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' https://upload.wikimedia.org; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src https://questionnaire-api.alpacawebservices.com; form-action 'none'; base-uri 'none'; frame-ancestors 'none'">
+  <title>bASICs VM Student Questionnaire</title>
+  <style>
+    :root {
+      --yellow: #ffd400;
+      --yellow-hover: #f0c700;
+      --black: #171717;
+      --page: #f1f1ee;
+      --paper: #ffffff;
+      --card-line: #d6d6d1;
+      --panel: #121212;
+      --panel-2: #1b1b1b;
+      --text: #f4f4ef;
+      --muted: #b9b9ae;
+      --line: #404039;
+      --danger: #a13a32;
+      --ok: #28733b;
+      --radius: 18px;
+      --content-pad: clamp(18px, 2.8vw, 26px);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--black);
+      background: var(--page);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    a { color: #574900; }
+
+    .logo {
+      width: 26px;
+      height: 26px;
+      flex: 0 0 auto;
+      object-fit: contain;
+    }
+
+    .logo-spacer { display: inline-block; }
+
+    .shell {
+      width: min(1040px, calc(100% - 28px));
+      margin: 0 auto 48px;
+    }
+
+    .masthead {
+      position: relative;
+      padding: var(--content-pad);
+      padding-left: 0;
+      color: var(--black);
+      background: var(--yellow);
+      border: 0;
+      border-radius: 0;
+      box-shadow: 0 0 0 100vmax var(--yellow);
+      clip-path: inset(0 -100vmax);
+    }
+
+    h1 {
+      max-width: 680px;
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1;
+      letter-spacing: -0.035em;
+    }
+
+    .duration {
+      margin: 9px 0 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    form {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      margin-top: 12px;
+    }
+
+    .section {
+      margin: 0 0 14px;
+      padding: var(--content-pad);
+      color: var(--black);
+      background: var(--paper);
+      border: 1px solid var(--card-line);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(48, 46, 42, 0.06);
+      scroll-margin-top: 16px;
+    }
+
+    .section:nth-of-type(even) { background: var(--paper); }
+
+    .section.incomplete {
+      border-color: #c86f66;
+      box-shadow: 0 0 0 2px #f0d2ce;
+    }
+
+    .section.incomplete h2 { color: #813b35; }
+
+    .section h2 {
+      margin: 0 0 16px;
+      font-size: 1.3rem;
+    }
+
+    .section h3 {
+      margin: 24px 0 11px;
+      padding-top: 18px;
+      border-top: 1px solid #d5d5d0;
+      font-size: 1.12rem;
+    }
+
+    .section-shot {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin: 0 0 18px;
+      background: #fff;
+      border: 1px solid #d0d0cb;
+      border-radius: 8px;
+    }
+
+    fieldset {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    legend {
+      width: 100%;
+      margin: 0 0 8px;
+      color: inherit;
+      font-weight: 700;
+    }
+
+    .field + .field { margin-top: 15px; }
+
+    #simulatorDetails:not([hidden]) { margin-top: 15px; }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 26px;
+    }
+
+    .options.scale {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .choice {
+      display: flex;
+      min-height: 50px;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 4px;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid #ddddda;
+      border-radius: 0;
+      font-size: 0.97rem;
+      cursor: pointer;
+    }
+
+    .choice:hover { background: #f5f5f2; }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      accent-color: var(--yellow);
+      color-scheme: light;
+    }
+
+    textarea {
+      width: 100%;
+      color: var(--black);
+      background: #fff;
+      border: 1px solid #aaa;
+      border-radius: 7px;
+      font: inherit;
+    }
+
+    textarea { min-height: 88px; padding: 10px; resize: vertical; }
+
+    input[type="email"] {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 12px;
+      color: var(--black);
+      background: #fff;
+      border: 1px solid #aaa;
+      border-radius: 7px;
+      font: inherit;
+    }
+
+    textarea:focus,
+    input[type="email"]:focus,
+    input:focus-visible,
+    button:focus-visible {
+      outline: 2px solid #3d7197;
+      outline-offset: 3px;
+    }
+
+    .matrix {
+      overflow-x: auto;
+      border: 1px solid #cfcfca;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 630px;
+      border-collapse: collapse;
+      color: var(--black);
+      background: #fff;
+    }
+
+    th, td {
+      padding: 8px 7px;
+      border-bottom: 1px solid #ddddda;
+      text-align: center;
+    }
+
+    th {
+      color: var(--black);
+      background: var(--yellow);
+      font-size: 0.78rem;
+    }
+
+    th:first-child,
+    td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      width: 210px;
+      text-align: left;
+    }
+
+    td:first-child { background: #f7f7f4; }
+    tr:last-child td { border-bottom: 0; }
+
+    .matrix label {
+      display: inline-grid;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .radio-text { display: none; }
+
+    .matrix input { margin: 0; }
+
+    [hidden] { display: none !important; }
+
+    .actions {
+      padding: 7px 0 2px;
+      text-align: center;
+    }
+
+    button {
+      min-width: min(100%, 330px);
+      padding: 14px 24px;
+      color: var(--black);
+      background: var(--yellow);
+      border: 1px solid #d7b300;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--yellow-hover); }
+    button:active { background: #e3bd00; }
+    button:disabled {
+      color: #665700;
+      background: #fff0a6;
+      border-color: #e5c64d;
+      cursor: wait;
+      opacity: 1;
+    }
+
+    .status {
+      min-height: 28px;
+      margin: 16px 0 0;
+      font-weight: 700;
+    }
+
+    .status.error { color: var(--danger); }
+    .status.ok { color: var(--ok); }
+
+    .success {
+      display: none;
+      padding: 54px clamp(20px, 7vw, 72px);
+      color: var(--black);
+      background: var(--paper);
+      border: 1px solid var(--card-line);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+
+    .success h2 { color: var(--black); font-size: 1.6rem; }
+
+    .email-copy {
+      max-width: 540px;
+      margin: 28px auto 0;
+      padding-top: 24px;
+      border-top: 1px solid var(--card-line);
+      text-align: left;
+    }
+
+    .email-copy h3 { margin: 0 0 14px; font-size: 1.15rem; }
+    .email-copy button { width: 100%; margin-top: 12px; }
+    .email-note { margin: 6px 0 0; font-size: 0.9rem; }
+
+    .honeypot {
+      position: absolute !important;
+      left: -10000px !important;
+      width: 1px !important;
+      height: 1px !important;
+      overflow: hidden !important;
+    }
+
+    @media (max-width: 680px) {
+      .shell { width: min(100% - 16px, 1040px); }
+      .options { grid-template-columns: 1fr; }
+      .masthead { padding: 17px 0; }
+      .section { padding: 15px 13px; }
+      form { padding: 0; }
+      h1 { font-size: clamp(2rem, 11.5vw, 3rem); }
+
+      .matrix {
+        overflow: visible;
+        border: 0;
+      }
+
+      .matrix table,
+      .matrix tbody,
+      .matrix tr,
+      .matrix td {
+        display: block;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .matrix table { background: transparent; }
+
+      .matrix thead { display: none; }
+
+      .matrix tr {
+        padding: 0 0 14px;
+        border-bottom: 1px solid #d6d6d1;
+      }
+
+      .matrix tr + tr { padding-top: 16px; }
+
+      .matrix td {
+        padding: 0;
+        border: 0;
+        text-align: left;
+      }
+
+      .matrix td:first-child {
+        position: static;
+        width: 100%;
+        padding: 0 0 8px;
+        background: transparent;
+        font-weight: 700;
+      }
+
+      .matrix label {
+        display: flex;
+        width: 100%;
+        height: 46px;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .radio-text { display: inline; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <h1>bASICs VM student feedback</h1>
+      <p class="duration">~5 minutes</p>
+    </header>
+
+    <form id="surveyForm" novalidate>
+      <section class="section">
+        <h2>Your background</h2>
+
+        <fieldset class="field">
+          <legend>What computer did you use?</legend>
+          <div class="options">
+            <label class="choice"><input type="radio" name="platform" value="windows_x86" required><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/8/87/Windows_logo_-_2021.svg" alt=""> Windows Intel/AMD</label>
+            <label class="choice"><input type="radio" name="platform" value="windows_arm" required><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/8/87/Windows_logo_-_2021.svg" alt=""> Windows ARM</label>
+            <label class="choice"><input type="radio" name="platform" value="mac_intel" required><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt=""> Intel Mac</label>
+            <label class="choice"><input type="radio" name="platform" value="mac_apple_silicon" required><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt=""> Apple silicon Mac</label>
+            <label class="choice"><input type="radio" name="platform" value="linux_x86" required><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt=""> Linux Intel/AMD</label>
+            <label class="choice"><input type="radio" name="platform" value="linux_arm" required><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt=""> Linux ARM</label>
+            <label class="choice"><input type="radio" name="platform" value="chromebook" required><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" alt=""> Chromebook</label>
+            <label class="choice"><input type="radio" name="platform" value="other" required><span class="logo logo-spacer" aria-hidden="true"></span> Other or not sure</label>
+          </div>
+        </fieldset>
+
+        <h3>Experience before bASICs VM</h3>
+        <div class="matrix">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Topic</th>
+                <th scope="col">None</th>
+                <th scope="col">Saw it once</th>
+                <th scope="col">A little</th>
+                <th scope="col">Some projects</th>
+                <th scope="col">A lot</th>
+              </tr>
+            </thead>
+            <tbody id="experienceRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>What you used</h2>
+
+        <fieldset class="field required-group" data-required-group="parts">
+          <legend>Which parts of bASICs VM did you use?</legend>
+          <div class="options">
+            <label class="choice"><input type="checkbox" name="parts" value="virtual_machine"> Virtual machine</label>
+            <label class="choice"><input type="checkbox" name="parts" value="browser_environment"> In-browser FPGA simulator</label>
+            <label class="choice"><input type="checkbox" name="parts" value="fpga_flow"> FPGA flow</label>
+            <label class="choice"><input type="checkbox" name="parts" value="asic_flow"> ASIC flow</label>
+            <label class="choice"><input type="checkbox" name="parts" value="documentation"> Documentation only</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>Which virtual machine app did you use?</legend>
+          <div class="options">
+            <label class="choice"><input type="radio" name="vm_app" value="not_used" checked><span class="logo logo-spacer" aria-hidden="true"></span> None</label>
+            <label class="choice"><input type="radio" name="vm_app" value="utm"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/b/be/UTM_logo.svg" alt=""> UTM</label>
+            <label class="choice"><input type="radio" name="vm_app" value="virtualbox"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/f/ff/VirtualBox_2024_Logo.svg" alt=""> VirtualBox</label>
+            <label class="choice"><input type="radio" name="vm_app" value="vmware"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Vmware.svg" alt=""> VMware</label>
+            <label class="choice"><input type="radio" name="vm_app" value="parallels"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/a/af/Parallels_Logo.svg" alt=""> Parallels</label>
+            <label class="choice"><input type="radio" name="vm_app" value="hyper_v"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" alt=""> Hyper-V</label>
+            <label class="choice"><input type="radio" name="vm_app" value="other"><span class="logo logo-spacer" aria-hidden="true"></span> Other or not sure</label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="section">
+        <img class="section-shot" src="/survey/screenshots/simulator.gif" alt="The in-browser FPGA simulator with Verilog code, a Go Board, and waveforms">
+        <h2>In-browser FPGA simulator</h2>
+
+        <fieldset class="field">
+          <legend>Did you use the in-browser FPGA simulator?</legend>
+          <div class="options">
+            <label class="choice"><input type="radio" name="simulator_used" value="yes" required> Yes</label>
+            <label class="choice"><input type="radio" name="simulator_used" value="no" required> No</label>
+          </div>
+        </fieldset>
+
+        <div id="simulatorDetails" hidden>
+          <fieldset class="field required-group" data-required-group="simulator_tasks">
+            <legend>What did you do in the simulator?</legend>
+            <div class="options">
+              <label class="choice"><input type="checkbox" name="simulator_tasks" value="opened_example"> Opened an example</label>
+              <label class="choice"><input type="checkbox" name="simulator_tasks" value="edited_verilog"> Edited Verilog</label>
+              <label class="choice"><input type="checkbox" name="simulator_tasks" value="ran_simulation"> Ran a simulation</label>
+              <label class="choice"><input type="checkbox" name="simulator_tasks" value="viewed_waveforms"> Viewed waveforms</label>
+              <label class="choice"><input type="checkbox" name="simulator_tasks" value="tested_design"> Tested an FPGA design</label>
+              <input type="checkbox" name="simulator_tasks" value="did_not_use" hidden>
+            </div>
+          </fieldset>
+
+          <div class="matrix field">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Statement</th>
+                  <th scope="col">No</th>
+                  <th scope="col">Mostly no</th>
+                  <th scope="col">Not sure</th>
+                  <th scope="col">Mostly yes</th>
+                  <th scope="col">Yes</th>
+                  <th scope="col">N/A</th>
+                </tr>
+              </thead>
+              <tbody id="simulatorRows"></tbody>
+            </table>
+          </div>
+
+          <div class="field">
+            <label for="simulatorChange"><strong>What should change in the simulator?</strong></label>
+            <textarea id="simulatorChange" name="simulator_change" maxlength="1200"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>VM and Go Board results</h2>
+
+        <fieldset class="field">
+          <legend>How did the VM start?</legend>
+          <div class="options">
+            <label class="choice"><input type="radio" name="vm_start_result" value="first_try" required> First try</label>
+            <label class="choice"><input type="radio" name="vm_start_result" value="after_retry" required> After a retry</label>
+            <label class="choice"><input type="radio" name="vm_start_result" value="with_help" required> Only with help</label>
+            <label class="choice"><input type="radio" name="vm_start_result" value="never_started" required> Never started</label>
+            <label class="choice"><input type="radio" name="vm_start_result" value="not_used" required> Did not use the VM</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>Time from download to a working VM</legend>
+          <div class="options">
+            <label class="choice"><input type="radio" name="vm_setup_time" value="under_10_min" required> Under 10 minutes</label>
+            <label class="choice"><input type="radio" name="vm_setup_time" value="10_to_30_min" required> 10–30 minutes</label>
+            <label class="choice"><input type="radio" name="vm_setup_time" value="31_to_60_min" required> 31–60 minutes</label>
+            <label class="choice"><input type="radio" name="vm_setup_time" value="over_60_min" required> More than 60 minutes</label>
+            <label class="choice"><input type="radio" name="vm_setup_time" value="no_working_vm" required> No working VM</label>
+            <label class="choice"><input type="radio" name="vm_setup_time" value="not_used" required> Did not use the VM</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>Do you think you would have been able to install the VM tools on your own machine?</legend>
+          <div class="options">
+            <label class="choice"><input type="radio" name="could_install_tools" value="yes" required> Yes</label>
+            <label class="choice"><input type="radio" name="could_install_tools" value="probably_yes" required> Probably yes</label>
+            <label class="choice"><input type="radio" name="could_install_tools" value="not_looked" required> I have not looked into it</label>
+            <label class="choice"><input type="radio" name="could_install_tools" value="probably_no" required> Probably no</label>
+            <label class="choice"><input type="radio" name="could_install_tools" value="no" required> No</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>Did the simulator and Go Board give the same result?</legend>
+          <div class="options">
+            <label class="choice"><input type="radio" name="simulator_board_match" value="same" required> Yes</label>
+            <label class="choice"><input type="radio" name="simulator_board_match" value="different" required> No</label>
+            <label class="choice"><input type="radio" name="simulator_board_match" value="simulator_only" required> Used only the simulator</label>
+            <label class="choice"><input type="radio" name="simulator_board_match" value="board_only" required> Used only the board</label>
+            <label class="choice"><input type="radio" name="simulator_board_match" value="not_compared" required> Did not compare them</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>Where did you stop?</legend>
+          <div class="options">
+            <label class="choice"><input type="radio" name="stopping_point" value="finished" required> Finished the planned task</label>
+            <label class="choice"><input type="radio" name="stopping_point" value="download" required> VM download</label>
+            <label class="choice"><input type="radio" name="stopping_point" value="vm_start" required> VM start</label>
+            <label class="choice"><input type="radio" name="stopping_point" value="verilog" required> Verilog editing</label>
+            <label class="choice"><input type="radio" name="stopping_point" value="simulation" required> Simulation</label>
+            <label class="choice"><input type="radio" name="stopping_point" value="synthesis" required> Yosys or nextpnr</label>
+            <label class="choice"><input type="radio" name="stopping_point" value="bitstream" required> Bitstream creation</label>
+            <label class="choice"><input type="radio" name="stopping_point" value="usb" required> USB or board programming</label>
+            <label class="choice"><input type="radio" name="stopping_point" value="openlane" required> OpenLane</label>
+            <label class="choice"><input type="radio" name="stopping_point" value="other" required> Other</label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="section">
+        <h2>Results and problems</h2>
+
+        <fieldset class="field required-group" data-required-group="completed">
+          <legend>What did you complete?</legend>
+          <div class="options">
+            <label class="choice"><input type="checkbox" name="completed" value="opened_environment"> Opened the environment</label>
+            <label class="choice"><input type="checkbox" name="completed" value="ran_example"> Ran an example</label>
+            <label class="choice"><input type="checkbox" name="completed" value="simulated_verilog"> Simulated Verilog</label>
+            <label class="choice"><input type="checkbox" name="completed" value="fpga_blink"> Made an FPGA blink</label>
+            <label class="choice"><input type="checkbox" name="completed" value="asic_flow"> Ran part or all of an ASIC flow</label>
+            <label class="choice"><input type="checkbox" name="completed" value="no_result"> Did not get a working result</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>Time to first useful result</legend>
+          <div class="options">
+            <label class="choice"><input type="radio" name="first_result_time" value="under_10_min" required> Under 10 minutes</label>
+            <label class="choice"><input type="radio" name="first_result_time" value="10_to_30_min" required> 10–30 minutes</label>
+            <label class="choice"><input type="radio" name="first_result_time" value="31_to_60_min" required> 31–60 minutes</label>
+            <label class="choice"><input type="radio" name="first_result_time" value="over_60_min" required> More than 60 minutes</label>
+            <label class="choice"><input type="radio" name="first_result_time" value="no_result" required> No useful result</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>How much help did you need?</legend>
+          <div class="options">
+            <label class="choice"><input type="radio" name="help_needed" value="none" required> None</label>
+            <label class="choice"><input type="radio" name="help_needed" value="small" required> A little</label>
+            <label class="choice"><input type="radio" name="help_needed" value="several_times" required> Several times</label>
+            <label class="choice"><input type="radio" name="help_needed" value="continuous" required> For most steps</label>
+            <label class="choice"><input type="radio" name="help_needed" value="could_not_continue" required> I could not continue</label>
+          </div>
+        </fieldset>
+
+        <h3>Problems</h3>
+
+        <fieldset class="field">
+          <legend>Which problems did you have?</legend>
+          <div class="options">
+            <label class="choice"><input type="checkbox" name="problems" value="download"> Download or file size</label>
+            <label class="choice"><input type="checkbox" name="problems" value="vm_start"> Virtual machine did not start</label>
+            <label class="choice"><input type="checkbox" name="problems" value="slow"> Slow performance</label>
+            <label class="choice"><input type="checkbox" name="problems" value="keyboard_mouse"> Keyboard or mouse input</label>
+            <label class="choice"><input type="checkbox" name="problems" value="network"> Network connection</label>
+            <label class="choice"><input type="checkbox" name="problems" value="permissions"> File or permission error</label>
+            <label class="choice"><input type="checkbox" name="problems" value="tool_config"> Tool configuration</label>
+            <label class="choice"><input type="checkbox" name="problems" value="board"> FPGA board connection</label>
+            <label class="choice"><input type="checkbox" name="problems" value="docs"> Instructions were unclear</label>
+            <label class="choice"><input type="checkbox" name="problems" value="none"> I did not have a problem</label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="longestProblem"><strong>Which problem took the most time, and what happened?</strong></label>
+          <textarea id="longestProblem" name="longest_problem" maxlength="1200"></textarea>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Documentation and next steps</h2>
+        <div class="matrix">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Statement</th>
+                <th scope="col">No</th>
+                <th scope="col">Mostly no</th>
+                <th scope="col">Not sure</th>
+                <th scope="col">Mostly yes</th>
+                <th scope="col">Yes</th>
+                <th scope="col">N/A</th>
+              </tr>
+            </thead>
+            <tbody id="usabilityRows"></tbody>
+          </table>
+        </div>
+
+        <div class="field">
+          <label for="unclearDocs"><strong>Was one instruction unclear or missing?</strong></label>
+          <textarea id="unclearDocs" name="unclear_docs" maxlength="1200"></textarea>
+        </div>
+
+        <h3>Next steps</h3>
+        <fieldset class="field">
+          <legend>Which additions would help you most?</legend>
+          <div class="options">
+            <label class="choice"><input type="checkbox" name="additions" value="more_examples"> More small examples</label>
+            <label class="choice"><input type="checkbox" name="additions" value="video"> Short videos</label>
+            <label class="choice"><input type="checkbox" name="additions" value="errors"> Error guide</label>
+            <label class="choice"><input type="checkbox" name="additions" value="mac_help"> More Mac help</label>
+            <label class="choice"><input type="checkbox" name="additions" value="windows_help"> More Windows help</label>
+            <label class="choice"><input type="checkbox" name="additions" value="browser_tools"> More browser tools</label>
+            <label class="choice"><input type="checkbox" name="additions" value="fpga_boards"> More FPGA boards</label>
+            <label class="choice"><input type="checkbox" name="additions" value="asic_lessons"> More ASIC lessons</label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="oneChange"><strong>If we could make one change, what should it be?</strong></label>
+          <textarea id="oneChange" name="one_change" required maxlength="1200"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="otherComments"><strong>Is there anything else that we should know?</strong></label>
+          <textarea id="otherComments" name="other_comments" maxlength="1200"></textarea>
+        </div>
+      </section>
+
+      <div class="honeypot" aria-hidden="true">
+        <label for="website">Leave this field empty</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="actions">
+        <button id="submitButton" type="submit">Send my answers</button>
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+      </div>
+    </form>
+
+    <section class="success" id="success" aria-live="polite">
+      <h2>Thank you.</h2>
+      <p>Response code: <strong id="responseId"></strong></p>
+      <form class="email-copy" id="emailCopyForm">
+        <h3>Have a copy of your responses sent to you?</h3>
+        <label for="responseEmail"><strong>Email address</strong></label>
+        <input id="responseEmail" name="email" type="email" autocomplete="email" maxlength="254" required>
+        <p class="email-note">Your email address will not be associated with your answers.</p>
+        <button id="emailCopyButton" type="submit">Send my copy</button>
+        <p class="status" id="emailCopyStatus" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const API_URL = "https://questionnaire-api.alpacawebservices.com/responses";
+    const EMAIL_API_URL = "https://questionnaire-api.alpacawebservices.com/responses/email";
+    const FORM_VERSION = "2026-07-30-v6";
+    const startedAt = Date.now();
+    const form = document.getElementById("surveyForm");
+    const submitButton = document.getElementById("submitButton");
+    const status = document.getElementById("status");
+    const emailCopyForm = document.getElementById("emailCopyForm");
+    const emailCopyButton = document.getElementById("emailCopyButton");
+    const emailCopyStatus = document.getElementById("emailCopyStatus");
+    let emailToken = "";
+    const DEVICE_STORAGE_KEY = "basics_vm_survey_device_id";
+
+    function getDeviceIdentifier() {
+      try {
+        const stored = localStorage.getItem(DEVICE_STORAGE_KEY);
+        if (stored && /^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/.test(stored)) {
+          return stored;
+        }
+        const created = crypto.randomUUID();
+        localStorage.setItem(DEVICE_STORAGE_KEY, created);
+        return created;
+      } catch {
+        return `session-${crypto.randomUUID()}`;
+      }
+    }
+
+    const deviceIdentifier = getDeviceIdentifier();
+
+    const experienceTopics = [
+      ["terminal", "Terminal commands"],
+      ["linux", "Linux"],
+      ["verilog", "Verilog or SystemVerilog"],
+      ["fpga", "FPGA tools"],
+      ["openlane", "OpenLane"],
+      ["asic_flow", "ASIC design flow"]
+    ];
+
+    const usabilityStatements = [
+      ["start_clear", "I knew where to start."],
+      ["setup_clear", "The setup steps were clear."],
+      ["tools_worked", "The tools worked without extra configuration."],
+      ["errors_helpful", "Errors gave me enough information to continue."],
+      ["docs_find", "I could find the documentation that I needed."],
+      ["docs_clear", "The documentation used clear language."],
+      ["result_fast", "I reached a useful result in a reasonable time."],
+      ["use_again", "I would use bASICs VM for another hardware project."]
+    ];
+
+    const simulatorStatements = [
+      ["easy_start", "The simulator was easy to open."],
+      ["no_install", "I could test Verilog without installing tools."],
+      ["results_clear", "The simulation results were clear."],
+      ["waveforms_useful", "The waveforms helped me find problems."],
+      ["before_board", "The simulator was useful before I used an FPGA board."],
+      ["use_again", "I would use the simulator again."]
+    ];
+
+    function makeMatrixRows(targetId, rows, prefix, values) {
+      const target = document.getElementById(targetId);
+      for (const [key, label] of rows) {
+        const tr = document.createElement("tr");
+        const title = document.createElement("td");
+        title.textContent = label;
+        tr.appendChild(title);
+        for (const [value, valueLabel] of values) {
+          const td = document.createElement("td");
+          const radioLabel = document.createElement("label");
+          const radio = document.createElement("input");
+          const radioText = document.createElement("span");
+          radio.type = "radio";
+          radio.name = `${prefix}_${key}`;
+          radio.value = value;
+          radio.required = true;
+          radio.setAttribute("aria-label", `${label}: ${valueLabel}`);
+          radioText.className = "radio-text";
+          radioText.textContent = valueLabel;
+          radioLabel.appendChild(radio);
+          radioLabel.appendChild(radioText);
+          td.appendChild(radioLabel);
+          tr.appendChild(td);
+        }
+        target.appendChild(tr);
+      }
+    }
+
+    const experienceValues = [
+      ["0", "None"],
+      ["1", "Saw it once"],
+      ["2", "A little"],
+      ["3", "Some projects"],
+      ["4", "A lot"]
+    ];
+    const ratingValues = [
+      ["1", "No"],
+      ["2", "Mostly no"],
+      ["3", "Not sure"],
+      ["4", "Mostly yes"],
+      ["5", "Yes"],
+      ["na", "N/A"]
+    ];
+
+    makeMatrixRows("experienceRows", experienceTopics, "experience", experienceValues);
+    makeMatrixRows("usabilityRows", usabilityStatements, "usability", ratingValues);
+    makeMatrixRows("simulatorRows", simulatorStatements, "simulator", ratingValues);
+
+    const simulatorDetails = document.getElementById("simulatorDetails");
+
+    function setSimulatorMode(value) {
+      const used = value === "yes";
+      simulatorDetails.hidden = !used;
+
+      for (const input of simulatorDetails.querySelectorAll("input, textarea")) {
+        input.disabled = !used;
+      }
+
+      if (value === "no") {
+        const didNotUse = simulatorDetails.querySelector('input[value="did_not_use"]');
+        didNotUse.checked = true;
+        didNotUse.dataset.autoAnswer = "true";
+        for (const [key] of simulatorStatements) {
+          const notApplicable = simulatorDetails.querySelector(
+            `input[name="simulator_${key}"][value="na"]`
+          );
+          notApplicable.checked = true;
+          notApplicable.dataset.autoAnswer = "true";
+        }
+      }
+
+      if (used) {
+        for (const input of simulatorDetails.querySelectorAll("[data-auto-answer]")) {
+          input.checked = false;
+          delete input.dataset.autoAnswer;
+        }
+      }
+    }
+
+    for (const input of form.elements.simulator_used) {
+      input.addEventListener("change", () => setSimulatorMode(input.value));
+    }
+    setSimulatorMode("");
+
+    function checkedValues(name) {
+      return Array.from(form.querySelectorAll(`input[name="${name}"]:checked`), input => input.value);
+    }
+
+    function namedMatrix(prefix, rows) {
+      const result = {};
+      for (const [key] of rows) {
+        const input = form.querySelector(`input[name="${prefix}_${key}"]:checked`);
+        result[key] = input ? input.value : null;
+      }
+      return result;
+    }
+
+    function requiredGroupsValid() {
+      for (const fieldset of form.querySelectorAll("[data-required-group]")) {
+        if (fieldset.closest("[hidden]")) continue;
+        const name = fieldset.dataset.requiredGroup;
+        const enabledInputs = fieldset.querySelectorAll(`input[name="${name}"]:not(:disabled)`);
+        if (enabledInputs.length > 0 && checkedValues(name).length === 0) return false;
+      }
+      return true;
+    }
+
+    let showIncompleteSections = false;
+
+    function markIncompleteSections(scrollToFirst) {
+      const incomplete = [];
+
+      for (const section of form.querySelectorAll(".section")) {
+        const invalidControl = Array.from(
+          section.querySelectorAll("input:not(:disabled), textarea:not(:disabled)")
+        ).find(control => !control.checkValidity());
+
+        const incompleteGroup = Array.from(
+          section.querySelectorAll("[data-required-group]")
+        ).find(fieldset => {
+          if (fieldset.closest("[hidden]")) return false;
+          const name = fieldset.dataset.requiredGroup;
+          const inputs = fieldset.querySelectorAll(`input[name="${name}"]:not(:disabled)`);
+          return inputs.length > 0 && checkedValues(name).length === 0;
+        });
+
+        const isIncomplete = Boolean(invalidControl || incompleteGroup);
+        section.classList.toggle("incomplete", isIncomplete);
+        if (isIncomplete) {
+          section.setAttribute("aria-label", `${section.querySelector("h2").textContent}, incomplete`);
+          incomplete.push({
+            section,
+            control: invalidControl || incompleteGroup.querySelector("input:not(:disabled)")
+          });
+        } else {
+          section.removeAttribute("aria-label");
+        }
+      }
+
+      if (scrollToFirst && incomplete.length > 0) {
+        const first = incomplete[0];
+        first.section.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.setTimeout(() => {
+          if (first.control) first.control.focus({ preventScroll: true });
+        }, 350);
+      }
+
+      return incomplete;
+    }
+
+    form.addEventListener("input", () => {
+      if (!showIncompleteSections) return;
+      const incomplete = markIncompleteSections(false);
+      if (incomplete.length === 0) {
+        status.textContent = "";
+        status.className = "status";
+      }
+    });
+
+    async function collectDiagnostics() {
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const diagnostics = {
+        device_id: deviceIdentifier,
+        user_agent: navigator.userAgent || "",
+        platform: navigator.platform || "",
+        vendor: navigator.vendor || "",
+        language: navigator.language || "",
+        languages: Array.from(navigator.languages || []).slice(0, 10),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+        screen: {
+          width: screen.width,
+          height: screen.height,
+          available_width: screen.availWidth,
+          available_height: screen.availHeight,
+          color_depth: screen.colorDepth,
+          pixel_depth: screen.pixelDepth
+        },
+        viewport: {
+          width: window.innerWidth,
+          height: window.innerHeight
+        },
+        device_pixel_ratio: window.devicePixelRatio || 1,
+        hardware_concurrency: navigator.hardwareConcurrency || null,
+        device_memory_gb: navigator.deviceMemory || null,
+        max_touch_points: navigator.maxTouchPoints || 0,
+        cookies_enabled: navigator.cookieEnabled,
+        do_not_track: navigator.doNotTrack || "",
+        online: navigator.onLine,
+        connection: connection ? {
+          effective_type: connection.effectiveType || "",
+          downlink_mbps: connection.downlink ?? null,
+          round_trip_ms: connection.rtt ?? null,
+          save_data: Boolean(connection.saveData)
+        } : null,
+        user_agent_data: null
+      };
+      if (navigator.userAgentData) {
+        const basic = {
+          brands: navigator.userAgentData.brands || [],
+          mobile: navigator.userAgentData.mobile,
+          platform: navigator.userAgentData.platform || ""
+        };
+        try {
+          diagnostics.user_agent_data = {
+            ...basic,
+            ...await navigator.userAgentData.getHighEntropyValues([
+              "architecture",
+              "bitness",
+              "model",
+              "platformVersion",
+              "uaFullVersion",
+              "fullVersionList",
+              "wow64"
+            ])
+          };
+        } catch {
+          diagnostics.user_agent_data = basic;
+        }
+      }
+      return diagnostics;
+    }
+
+    async function payload() {
+      return {
+        form_version: FORM_VERSION,
+        started_at: new Date(startedAt).toISOString(),
+        consent: true,
+        website: form.elements.website.value,
+        diagnostics: await collectDiagnostics(),
+        answers: {
+          parts: checkedValues("parts"),
+          platform: form.elements.platform.value,
+          vm_app: form.elements.vm_app.value,
+          prior_experience: namedMatrix("experience", experienceTopics),
+          completed: checkedValues("completed"),
+          first_result_time: form.elements.first_result_time.value,
+          help_needed: form.elements.help_needed.value,
+          vm_start_result: form.elements.vm_start_result.value,
+          vm_setup_time: form.elements.vm_setup_time.value,
+          could_install_tools: form.elements.could_install_tools.value,
+          simulator_board_match: form.elements.simulator_board_match.value,
+          stopping_point: form.elements.stopping_point.value,
+          simulator_used: form.elements.simulator_used.value,
+          simulator_tasks: checkedValues("simulator_tasks"),
+          simulator_usability: namedMatrix("simulator", simulatorStatements),
+          simulator_change: form.elements.simulator_change.value.trim(),
+          problems: checkedValues("problems"),
+          longest_problem: form.elements.longest_problem.value.trim(),
+          usability: namedMatrix("usability", usabilityStatements),
+          unclear_docs: form.elements.unclear_docs.value.trim(),
+          additions: checkedValues("additions"),
+          one_change: form.elements.one_change.value.trim(),
+          other_comments: form.elements.other_comments.value.trim()
+        }
+      };
+    }
+
+    emailCopyForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      emailCopyStatus.textContent = "";
+      emailCopyStatus.className = "status";
+
+      if (!emailCopyForm.checkValidity()) {
+        emailCopyForm.reportValidity();
+        return;
+      }
+
+      emailCopyButton.disabled = true;
+      emailCopyButton.textContent = "Sending…";
+
+      try {
+        const response = await fetch(EMAIL_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            response_id: document.getElementById("responseId").textContent,
+            email_token: emailToken,
+            email: emailCopyForm.elements.email.value.trim()
+          })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(result.error || "The email could not be sent.");
+        }
+        emailCopyForm.elements.email.disabled = true;
+        emailCopyButton.textContent = "Sent";
+        emailCopyStatus.textContent = "Sent. Check your inbox.";
+        emailCopyStatus.className = "status ok";
+      } catch (error) {
+        emailCopyStatus.textContent = error.message;
+        emailCopyStatus.className = "status error";
+        emailCopyButton.disabled = false;
+        emailCopyButton.textContent = "Send my copy";
+      }
+    });
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      status.textContent = "";
+      status.className = "status";
+
+      if (!form.checkValidity() || !requiredGroupsValid()) {
+        showIncompleteSections = true;
+        markIncompleteSections(true);
+        status.textContent = "Complete the required questions before you send the form.";
+        status.className = "status error";
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = "Sending…";
+      status.textContent = "Sending your answers to the bASICs VM server…";
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(await payload())
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(result.error || "The server did not accept the response.");
+        }
+        document.getElementById("responseId").textContent = result.response_id;
+        emailToken = result.email_token || "";
+        form.style.display = "none";
+        document.getElementById("success").style.display = "block";
+        document.getElementById("success").scrollIntoView({ behavior: "smooth" });
+      } catch (error) {
+        status.textContent = `The form was not sent. ${error.message} Keep this page open and try again.`;
+        status.className = "status error";
+        submitButton.disabled = false;
+        submitButton.textContent = "Send my answers";
+      }
+    });
+  </script>
+</body>
+</html>

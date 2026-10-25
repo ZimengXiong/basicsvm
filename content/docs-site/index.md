@@ -1,6 +1,9 @@
-# Start Here
+---
+prev: false
+next: false
+---
 
-<p class="start-subtitle">Select your operating system and hardware architecture below</p>
+# Start Here
 
 <div class="start-sections">
 
@@ -18,17 +21,11 @@
           <span class="platform-row-name">macOS on Apple Silicon</span>
           <span class="platform-row-spec">M1, M2, M3, M4, M5 or newer</span>
         </div>
-        <div class="platform-row-right">
-          <svg class="arrow-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
       </a>
       <a class="platform-row" href="./install/mac-intel.html">
         <div class="platform-row-left">
           <span class="platform-row-name">macOS Intel</span>
           <span class="platform-row-spec">Intel processor</span>
-        </div>
-        <div class="platform-row-right">
-          <svg class="arrow-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
       </a>
     </div>
@@ -48,17 +45,11 @@
           <span class="platform-row-name">Windows x86</span>
           <span class="platform-row-spec">Intel or AMD CPU</span>
         </div>
-        <div class="platform-row-right">
-          <svg class="arrow-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
       </a>
       <a class="platform-row" href="./install/windows-arm.html">
         <div class="platform-row-left">
           <span class="platform-row-name">Windows on ARM</span>
           <span class="platform-row-spec">Snapdragon / ARM CPU</span>
-        </div>
-        <div class="platform-row-right">
-          <svg class="arrow-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
       </a>
     </div>
@@ -67,9 +58,7 @@
   <!-- Linux Section -->
   <div class="platform-group">
     <div class="platform-group-header">
-      <svg class="group-icon" viewBox="0 0 24 24" width="22" height="22">
-        <path fill="currentColor" d="M12 2c-2.8 0-4.7 2.4-4.7 5.5 0 1.2.3 2.3.8 3.2-1.7 1.2-2.8 3.2-2.8 5.4 0 1.4.5 2.8 1.4 3.8-.5.5-.8 1.2-.8 1.9 0 1.6 1.3 2.9 2.9 2.9.8 0 1.6-.3 2.1-.9.7.2 1.4.3 2.1.3s1.4-.1 2.1-.3c.5.6 1.3.9 2.1.9 1.6 0 2.9-1.3 2.9-2.9 0-.7-.3-1.4-.8-1.9.9-1 1.4-2.4 1.4-3.8 0-2.2-1.1-4.2-2.8-5.4.5-.9.8-2 .8-3.2C16.7 4.4 14.8 2 12 2Z"/>
-      </svg>
+      <span class="group-icon tux" role="img" aria-label="Linux"></span>
       <span class="platform-group-title">Linux</span>
     </div>
     <div class="platform-rows">
@@ -78,17 +67,34 @@
           <span class="platform-row-name">Linux x86</span>
           <span class="platform-row-spec">Intel or AMD CPU</span>
         </div>
-        <div class="platform-row-right">
-          <svg class="arrow-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
       </a>
       <a class="platform-row" href="./install/linux-arm.html">
         <div class="platform-row-left">
           <span class="platform-row-name">Linux ARM</span>
           <span class="platform-row-spec">ARM64 CPU</span>
         </div>
-        <div class="platform-row-right">
-          <svg class="arrow-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="platform-group">
+    <div class="platform-group-header">
+      <span class="platform-group-title">Then</span>
+    </div>
+    <div class="platform-rows">
+      <a class="platform-row" href="./start/first-boot.html">
+        <div class="platform-row-left">
+          <span class="platform-row-name">First Boot</span>
+        </div>
+      </a>
+      <a class="platform-row" href="./use/index.html">
+        <div class="platform-row-left">
+          <span class="platform-row-name">VM Basics</span>
+        </div>
+      </a>
+      <a class="platform-row" href="./simulator.html">
+        <div class="platform-row-left">
+          <span class="platform-row-name">Go Board Simulator</span>
         </div>
       </a>
     </div>

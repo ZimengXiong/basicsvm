@@ -5,78 +5,19 @@ function runBoardInWorker(source,inputs,progress){
 }
 let nativeWorker=null,nativeInputPorts=[],nativeFrameCanvas=null;
 function runNativeInWorker(source,progress){
-  nativeWorker?.terminate();nativeWorker=new Worker('/go-board-simulator/native-compile-worker.js',{type:'module'});
-  return new Promise((resolve,reject)=>{let compiled=false;nativeWorker.onmessage=event=>{const data=event.data;if(data.type==='progress')progress(data.message);else if(data.type==='compiled'){compiled=true;resolve(data)}else if(data.type==='frame'||data.type==='sample')handleNativeRuntime(data);else if(data.type==='error'){if(!compiled)reject(new Error(data.message));else{$('#status').textContent='Error';$('#log').textContent+=`\nNATIVE RUNTIME ERROR: ${data.message}`}}};nativeWorker.onerror=event=>{if(!compiled)reject(new Error(event.message||'Native compilation worker failed'))};nativeWorker.postMessage({type:'compile',source})});
+  nativeWorker||=new Worker('/go-board-simulator/native-compile-worker.js',{type:'module'});const worker=nativeWorker;worker.postMessage({type:'stop'});
+  return new Promise((resolve,reject)=>{let compiled=false;worker.onmessage=event=>{const data=event.data;if(data.type==='progress')progress(data.message);else if(data.type==='compiled'){compiled=true;resolve(data)}else if(data.type==='frame'||data.type==='sample'){if(compiled)handleNativeRuntime(data)}else if(data.type==='error'){if(!compiled)reject(new Error(data.message));else{setStatus('Error');setLog(`${$('#log').textContent}\n${data.message}`.trim())}}};worker.onerror=event=>{if(!compiled)reject(new Error(event.message||'Native compilation worker failed'))};worker.postMessage({type:'compile',source})});
 }
 
-function boardMarkup(){
-  const hPins=Array.from({length:24},(_,i)=>`<path class="pin" d="M${351+i*8} 132v-13M${351+i*8} 280v13"/>`).join('');
-  const vPins=Array.from({length:17},(_,i)=>`<path class="pin" d="M338 ${142+i*8}h-13M545 ${142+i*8}h13"/>`).join('');
-  const vias=[[247,118],[274,153],[291,185],[306,224],[273,267],[234,308],[301,331],[379,317],[446,319],[516,319],[590,320],[681,329],[762,326],[816,290],[805,346],[693,351],[621,355],[449,353],[390,365],[318,383],[267,398],[239,430],[278,463],[312,492],[350,512],[438,548],[571,540],[670,537],[755,511],[809,488],[783,427],[742,391],[210,375],[191,414],[190,493],[223,534],[598,75],[707,76],[848,85]];
-  const viaSvg=vias.map(([x,y])=>`<circle class="via" cx="${x}" cy="${y}" r="3"/>`).join('');
-  const traces=[
-    'M221 130H310l18 18','M220 143h78l30 22','M218 156h69l41 27','M217 169h60l51 32','M217 182h49l62 37','M217 195h37l74 42','M218 210h26l84 45',
-    'M558 143h39V91h82','M558 155h52V99h69','M558 167h65v-58h56','M558 179h78v-61h43','M558 192h90v-65h31','M558 206h102v-70h19','M558 220h115v-76h6',
-    'M360 293v26h-74v80','M378 293v43H302v62','M397 293v56h-76v50','M416 293v69h31v52','M435 293v54h71v67','M454 293v42h111v79','M474 293v30h153v91','M493 293v20h196v100',
-    'M559 236h172v87h79','M559 247h158v91h93','M559 258h143v95h108','M559 269h129v99h122','M320 249h-55v88h-59','M320 260h-42v93h-72','M320 271h-28v97h-86',
-    'M286 399h67v98h69','M287 410h52v104h99','M286 421h37v108h130','M693 414h48v-34h72','M693 427h61v-31h59','M693 440h74v-27h46','M693 453h87v-23h33'
-  ].map((d,i)=>`<path class="trace${i%3===0?' thin':''}" d="${d}"/>`).join('');
-  const passives=[];
-  const coords=[[249,284],[264,284],[279,284],[294,284],[243,299],[259,299],[275,299],[291,299],[232,318],[248,318],[264,318],[280,318],[296,318],[218,337],[235,337],[252,337],[269,337],[286,337],[303,337],[207,356],[225,356],[243,356],[261,356],[279,356],[297,356],[315,356],[224,382],[242,382],[260,382],[278,382],[296,382],[314,382],[241,403],[259,403],[277,403],[295,403],[313,403],[331,403],[244,426],[262,426],[280,426],[298,426],[316,426],[334,426],[250,449],[268,449],[286,449],[304,449],[322,449],[340,449],[262,472],[280,472],[298,472],[316,472],[334,472],[352,472]];
-  coords.forEach(([x,y],i)=>passives.push(`<g transform="translate(${x} ${y}) rotate(${i%4===0?90:0})"><rect class="passive ${i%5===0?'dark':''}" x="-6" y="-3" width="12" height="6" rx="1"/><path class="solder" d="M-9-3h3v6h-3zM6-3h3v6H6z"/></g>`));
-  const tinyLabels=['R10','C11','C1','R8','R6','C12','R5','C5','C9','C6','C3','R3','R4','R1','R2','C4','C10','C8'];
-  const labelSvg=tinyLabels.map((t,i)=>`<text class="silk" x="${229+(i%6)*20}" y="${276+Math.floor(i/6)*44}" font-size="7">${t}</text>`).join('');
-  const pmodPins=Array.from({length:12},(_,i)=>`<g><rect class="pad" x="${833+(i%2)*31}" y="${373+Math.floor(i/2)*27}" width="14" height="14" rx="2"/><circle cx="${840+(i%2)*31}" cy="${380+Math.floor(i/2)*27}" r="3.6" fill="#13110e"/></g>`).join('');
-  const seven=(x,n)=>`<g transform="translate(${x} 105)"><rect class="display-shell" width="105" height="171" rx="3"/><rect class="display-window" x="10" y="11" width="85" height="149" rx="5"/><svg class="digit" data-digit="${n}" x="17" y="17" width="72" height="136" viewBox="0 0 70 112"><path class="seg a" d="M16 8h38l6 6-7 6H17l-7-6z"/><path class="seg b" d="M57 17l6 6v30l-7 6-6-7V25z"/><path class="seg c" d="M55 62l7 6v29l-7 7-6-7V69z"/><path class="seg d" d="M15 94h37l6 6-8 6H16l-7-6z"/><path class="seg e" d="M8 61l7 7v28l-7 7-6-7V68z"/><path class="seg f" d="M9 17l7 7v28l-7 7-6-7V24z"/><path class="seg g" d="M15 51h38l7 6-7 7H15l-7-7z"/></svg><circle cx="88" cy="146" r="5" fill="#6e6560"/></g>`;
-  const sw=(x,y,n)=>`<g id="sw${n}" class="switch" role="button" tabindex="0" aria-label="Switch ${n}" transform="translate(${x} ${y})"><rect class="switch-shell" width="79" height="58" rx="5"/><path stroke="#272827" stroke-width="3" d="M7 9h65M7 49h65"/><circle class="switch-ring" cx="39.5" cy="29" r="19"/><circle class="cap" cx="39.5" cy="29" r="12"/><circle cx="35" cy="25" r="3" fill="#5d5b55" opacity=".5"/><text x="39.5" y="-8">SW${n}</text></g>`;
-  return `
-  <defs>
-    <linearGradient id="pcb" x2="0" y2="1"><stop stop-color="#7b153c"/><stop offset=".5" stop-color="#681331"/><stop offset="1" stop-color="#541027"/></linearGradient>
-    <linearGradient id="chip" x2=".8" y2="1"><stop stop-color="#363432"/><stop offset=".45" stop-color="#171818"/><stop offset="1" stop-color="#090a0a"/></linearGradient>
-    <linearGradient id="metal" x2="1" y2="1"><stop stop-color="#676d6d"/><stop offset=".2" stop-color="#d5d7d2"/><stop offset=".52" stop-color="#777d7c"/><stop offset=".82" stop-color="#dadbd6"/><stop offset="1" stop-color="#5e6464"/></linearGradient>
-    <linearGradient id="switchMetal" x2="0" y2="1"><stop stop-color="#d2d0c7"/><stop offset=".25" stop-color="#85877f"/><stop offset=".7" stop-color="#b6b6ad"/><stop offset="1" stop-color="#666863"/></linearGradient>
-    <radialGradient id="cap"><stop offset="0" stop-color="#44433f"/><stop offset=".55" stop-color="#242522"/><stop offset="1" stop-color="#0b0c0b"/></radialGradient>
-    <linearGradient id="display" x2="1" y2="1"><stop stop-color="#d8d2c2"/><stop offset=".15" stop-color="#57534c"/><stop offset=".5" stop-color="#c7c1b4"/><stop offset=".8" stop-color="#4c4944"/><stop offset="1" stop-color="#b8b2a6"/></linearGradient>
-    <filter id="ledGlow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <filter id="segGlow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <filter id="partShadow"><feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity=".65"/></filter>
-    <pattern id="fiberglass" width="17" height="17" patternUnits="userSpaceOnUse"><path d="M0 2L17 0M0 10L17 8" stroke="#fff" stroke-opacity=".025"/><circle cx="4" cy="6" r=".6" fill="#fff" opacity=".06"/></pattern>
-  </defs>
-  <g filter="url(#partShadow)"><rect class="pcb-edge" x="112" y="57" width="768" height="523" rx="3"/><rect x="114" y="59" width="764" height="519" fill="url(#fiberglass)" opacity=".8"/></g>
-  <g>${traces}${viaSvg}</g>
-  <g><circle class="hole" cx="153" cy="82" r="18"/><circle class="hole-core" cx="153" cy="82" r="10"/><circle class="hole" cx="838" cy="82" r="18"/><circle class="hole-core" cx="838" cy="82" r="10"/><circle class="hole" cx="151" cy="548" r="18"/><circle class="hole-core" cx="151" cy="548" r="10"/><circle class="hole" cx="838" cy="548" r="18"/><circle class="hole-core" cx="838" cy="548" r="10"/></g>
-  <g class="silk"><text x="202" y="89" font-size="25" letter-spacing="2">NANDLAND.COM  GO BOARD</text><path class="silk-line" d="M190 67H786M188 96H570"/><text x="705" y="563" font-size="9">REV C</text><text x="183" y="563" font-size="19" letter-spacing="1">POWER</text><text x="118" y="431" font-size="10" transform="rotate(-90 118 431)">J1</text><text x="117" y="260" font-size="10" transform="rotate(-90 117 260)">J2</text><text x="816" y="361" font-size="10">J3</text></g>
-  <!-- left edge VGA connector -->
-  <g filter="url(#partShadow)"><path d="M47 116h124l29 30v165l-29 30H47Z" fill="url(#metal)" stroke="#555b5b" stroke-width="3"/><path d="M65 139h93l19 18v143l-19 18H65Z" fill="#101719" stroke="#3a4040" stroke-width="4"/><rect x="86" y="153" width="59" height="150" rx="7" fill="#0d1213"/><g fill="#d6b955">${Array.from({length:15},(_,i)=>`<circle cx="${99+(i%3)*17}" cy="${169+Math.floor(i/3)*29}" r="4"/>`).join('')}</g><circle cx="57" cy="151" r="11" fill="#ad8d39" stroke="#3c3525" stroke-width="4"/><circle cx="57" cy="306" r="11" fill="#ad8d39" stroke="#3c3525" stroke-width="4"/></g>
-  <!-- micro USB -->
-  <g filter="url(#partShadow)"><path d="M83 456h100v71H83l-21-12v-47Z" fill="url(#metal)" stroke="#545b5c" stroke-width="3"/><path d="M72 473h72v37H72l-13-7v-23Z" fill="#151d20"/><g stroke="#d9bd62" stroke-width="3"><path d="M131 477v29M120 477v29M109 477v29M98 477v29M87 477v29"/></g><text class="silk" x="91" y="447" font-size="10">USB</text></g>
-  <!-- main FPGA, true upper-center placement -->
-  <g filter="url(#partShadow)"><rect class="chip-body" x="338" y="132" width="220" height="148" rx="2"/>${hPins}${vPins}<circle cx="353" cy="147" r="4" fill="#d5c99f"/><text class="chip-text" x="448" y="177" text-anchor="middle" font-size="18" font-weight="700" transform="rotate(90 448 206)">LATTICE</text><text class="chip-text" x="426" y="236" text-anchor="middle" font-size="11" transform="rotate(90 426 206)">iCE40HX1K-VQ100</text><text class="silk" x="346" y="121" font-size="10">U6</text></g>
-  <!-- clock and configuration -->
-  <g filter="url(#partShadow)"><rect class="chip-body" x="236" y="105" width="56" height="31"/><g class="pin"><path d="M243 103V95M255 103V95M267 103V95M279 103V95M243 138v8M255 138v8M267 138v8M279 138v8"/></g><text class="chip-text" x="264" y="124" text-anchor="middle" font-size="7">25.000 MHz</text><text class="silk" x="238" y="99" font-size="8">X2</text><rect class="chip-body" x="201" y="113" width="24" height="20"/><text class="silk" x="200" y="108" font-size="7">U7</text></g>
-  <!-- dual 7 segment modules -->
-  <g filter="url(#partShadow)">${seven(609,1)}${seven(720,2)}</g><text class="silk" x="615" y="99" font-size="9">DS1</text><text class="silk" x="727" y="99" font-size="9">DS2</text>
-  <!-- LEDs with surrounding pads -->
-  <g class="led-row">${[365,432,499,566].map((x,i)=>`<g class="led-site"><text x="${x-9}" y="326">D${i+1}</text><rect class="solder" x="${x-17}" y="337" width="9" height="10" rx="1"/><circle id="led${i+1}" class="led" cx="${x}" cy="342" r="8"/><rect class="solder" x="${x+9}" y="337" width="9" height="10" rx="1"/></g>`).join('')}</g>
-  <!-- dense USB/power support circuitry -->
-  <g>${passives.join('')}${labelSvg}<rect class="chip-body" x="190" y="248" width="41" height="61"/><g class="pin"><path d="M188 257h-10M188 267h-10M188 277h-10M188 287h-10M188 297h-10M233 257h10M233 267h10M233 277h10M233 287h10M233 297h10"/></g><text class="chip-text" x="211" y="280" text-anchor="middle" font-size="7" transform="rotate(90 211 280)">FT232R</text><text class="silk" x="191" y="242" font-size="8">U1</text><rect class="chip-body" x="301" y="305" width="29" height="20"/><text class="silk" x="300" y="300" font-size="7">U2</text><rect class="chip-body" x="204" y="373" width="29" height="22"/><text class="silk" x="205" y="368" font-size="7">U3</text><rect class="chip-body" x="178" y="410" width="33" height="19"/><text class="silk" x="179" y="405" font-size="7">U4</text><rect x="171" y="532" width="29" height="11" fill="#e7d8c5" stroke="#715"/><text class="silk" x="176" y="526" font-size="8">D5</text><circle cx="213" cy="536" r="6" fill="#51ec71" filter="url(#ledGlow)"/></g>
-  <!-- button matrix -->
-  <g filter="url(#partShadow)">${sw(456,400,1)}${sw(590,400,3)}${sw(456,493,2)}${sw(590,493,4)}</g>
-  <!-- surrounding button passives -->
-  <g>${[[430,420],[430,450],[430,513],[430,544],[550,387],[570,387],[684,419],[684,451],[684,512],[684,543],[710,470],[732,470],[753,470]].map(([x,y],i)=>`<g transform="translate(${x} ${y}) rotate(${i%2?90:0})"><rect class="passive ${i%3?'':'dark'}" x="-7" y="-3" width="14" height="6"/><path class="solder" d="M-10-3h3v6h-3zM7-3h3v6H7z"/></g>`).join('')}</g>
-  <!-- PMOD header -->
-  <g filter="url(#partShadow)"><rect class="pmod-shell" x="821" y="358" width="78" height="181"/>${pmodPins}<text class="silk" x="810" y="350" font-size="9">PMOD</text></g>
-  <g class="silk" font-size="7"><text x="794" y="383">1</text><text x="793" y="410">2</text><text x="793" y="437">3</text><text x="793" y="464">4</text><text x="793" y="491">G</text><text x="793" y="518">V</text></g>
-  <g class="silk-line"><path d="M327 114h238v185H327z"/><path d="M602 96h230v188H602z"/><path d="M446 384h235v181H446z"/></g>`;
-}
 
-$('#goBoard').setAttribute('viewBox','0 0 1376 872');
+// Board overlay in PCB millimetres: origin top-left of the PCB, matching the render's framing.
+$('#goBoard').setAttribute('viewBox','-14.975 -3.863 100 59.882');
 $('#goBoard').innerHTML=`
-  <defs><filter id="ledGlow"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="segGlow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-  <g class="led-row">${[713,803,893,983].map((x,i)=>`<g class="led-site"><circle id="led${i+1}" class="led" cx="${x}" cy="436" r="11"/></g>`).join('')}</g>
-  <g transform="translate(852 113)"><rect width="159" height="264" rx="3" fill="#5c6163"/><svg class="digit" data-digit="1" x="9" y="9" width="141" height="246" viewBox="0 0 70 112"><path class="seg a" d="M16 8h38l6 6-7 6H17l-7-6z"/><path class="seg b" d="M57 17l6 6v30l-7 6-6-7V25z"/><path class="seg c" d="M55 62l7 6v29l-7 7-6-7V69z"/><path class="seg d" d="M15 94h37l6 6-8 6H16l-7-6z"/><path class="seg e" d="M8 61l7 7v28l-7 7-6-7V68z"/><path class="seg f" d="M9 17l7 7v28l-7 7-6-7V24z"/><path class="seg g" d="M15 51h38l7 6-7 7H15l-7-7z"/></svg></g>
-  <g transform="translate(1018 113)"><rect width="158" height="264" rx="3" fill="#5c6163"/><svg class="digit" data-digit="2" x="9" y="9" width="140" height="246" viewBox="0 0 70 112"><path class="seg a" d="M16 8h38l6 6-7 6H17l-7-6z"/><path class="seg b" d="M57 17l6 6v30l-7 6-6-7V25z"/><path class="seg c" d="M55 62l7 6v29l-7 7-6-7V69z"/><path class="seg d" d="M15 94h37l6 6-8 6H16l-7-6z"/><path class="seg e" d="M8 61l7 7v28l-7 7-6-7V68z"/><path class="seg f" d="M9 17l7 7v28l-7 7-6-7V24z"/><path class="seg g" d="M15 51h38l7 6-7 7H15l-7-7z"/></svg></g>
-  ${[[866,537,1],[1046,537,3],[866,697,2],[1046,697,4]].map(([x,y,n])=>`<g id="sw${n}" class="switch" role="button" tabindex="0" aria-label="Switch ${n}" transform="translate(${x} ${y})"><circle class="cap" cx="0" cy="0" r="34"/></g>`).join('')}`;
+  <defs><filter id="ledGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation=".8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="segGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation=".22" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <g class="led-row">${[40.6,47.7,54.8,61.9].map((x,i)=>`<circle id="led${i+1}" class="led" cx="${x}" cy="28.3" r=".85"/>`).join('')}</g>
+  <g class="digit" data-digit="1"><polygon class="seg a" points="53.71,7.3 58.91,7.3 59.27,7.75 58.66,8.25 53.61,8.25 53.31,7.8"/><polygon class="seg g" points="52.9,13.42 58.2,13.42 58.7,13.9 58.05,14.38 52.85,14.38 52.35,13.9"/><polygon class="seg d" points="51.69,19.55 56.89,19.55 57.24,20 56.69,20.5 51.59,20.5 51.24,20"/><polygon class="seg f" points="52.62,8.2 53.5,7.9 53.03,13.15 52.43,13.6 52.02,13.25"/><polygon class="seg b" points="58.87,8.2 59.75,7.9 59.28,13.15 58.68,13.6 58.27,13.25"/><polygon class="seg e" points="51.54,14.5 52.42,14.2 51.95,19.45 51.35,19.9 50.94,19.55"/><polygon class="seg c" points="57.79,14.5 58.67,14.2 58.2,19.45 57.6,19.9 57.19,19.55"/></g>
+  <g class="digit" data-digit="2"><polygon class="seg a" points="66.21,7.3 71.41,7.3 71.77,7.75 71.16,8.25 66.11,8.25 65.81,7.8"/><polygon class="seg g" points="65.4,13.42 70.7,13.42 71.2,13.9 70.55,14.38 65.35,14.38 64.85,13.9"/><polygon class="seg d" points="64.19,19.55 69.39,19.55 69.74,20 69.19,20.5 64.09,20.5 63.74,20"/><polygon class="seg f" points="65.12,8.2 66,7.9 65.53,13.15 64.93,13.6 64.52,13.25"/><polygon class="seg b" points="71.37,8.2 72.25,7.9 71.78,13.15 71.18,13.6 70.77,13.25"/><polygon class="seg e" points="64.04,14.5 64.92,14.2 64.44,19.45 63.85,19.9 63.44,19.55"/><polygon class="seg c" points="70.29,14.5 71.17,14.2 70.69,19.45 70.1,19.9 69.69,19.55"/></g>
+  ${[[45.4,38.2,1],[45.4,48,2],[60.2,38.2,3],[60.2,48,4]].map(([x,y,n])=>`<g id="sw${n}" class="switch" role="button" tabindex="0" aria-label="Switch ${n}" transform="translate(${x} ${y})"><circle class="cap" cx="0" cy="0" r="2.7"/></g>`).join('')}`;
 
 const examples={
 none:`module go_board (input CLK);
@@ -88,10 +29,6 @@ switches:`module go_board (\n  input SW1, SW2, SW3, SW4,\n  output LED1, LED2, L
 seven:`module go_board (input CLK,\n  output S1_A, S1_B, S1_C, S1_D, S1_E, S1_F, S1_G,\n  output S2_A, S2_B, S2_C, S2_D, S2_E, S2_F, S2_G);\n  reg [27:0] r_Count = 0;\n  reg [6:0] s1, s2;\n  always @(posedge CLK) r_Count <= r_Count + 1'b1;\n  always @(*) begin\n    case (r_Count[27:24] % 10)\n      0:s1=7'b1111110; 1:s1=7'b0110000; 2:s1=7'b1101101; 3:s1=7'b1111001; 4:s1=7'b0110011;\n      5:s1=7'b1011011; 6:s1=7'b1011111; 7:s1=7'b1110000; 8:s1=7'b1111111; default:s1=7'b1111011;\n    endcase\n    case (r_Count[23:20] % 10)\n      0:s2=7'b1111110; 1:s2=7'b0110000; 2:s2=7'b1101101; 3:s2=7'b1111001; 4:s2=7'b0110011;\n      5:s2=7'b1011011; 6:s2=7'b1011111; 7:s2=7'b1110000; 8:s2=7'b1111111; default:s2=7'b1111011;\n    endcase\n  end\n  assign {S1_A,S1_B,S1_C,S1_D,S1_E,S1_F,S1_G}=~s1;\n  assign {S2_A,S2_B,S2_C,S2_D,S2_E,S2_F,S2_G}=~s2;\nendmodule`,
 vga:`module vga_fun (\n  input wire CLK,\n  output wire VGA_HS,\n  output wire VGA_VS,\n  output wire VGA_R0, VGA_R1, VGA_R2,\n  output wire VGA_G0, VGA_G1, VGA_G2,\n  output wire VGA_B0, VGA_B1, VGA_B2\n);\n  reg [2:0] vga_r, vga_g, vga_b;\n  assign {VGA_R2,VGA_R1,VGA_R0}=vga_r;\n  assign {VGA_G2,VGA_G1,VGA_G0}=vga_g;\n  assign {VGA_B2,VGA_B1,VGA_B0}=vga_b;\n  localparam H_VISIBLE = 640;\n  localparam H_FRONT = 18;\n  localparam H_SYNC = 92;\n  localparam H_TOTAL = 800;\n  localparam V_VISIBLE = 480;\n  localparam V_FRONT = 10;\n  localparam V_SYNC = 2;\n  localparam V_TOTAL = 525;\n  localparam SMILE_SIZE = 72;\n  localparam MAX_SMILE_X = H_VISIBLE - SMILE_SIZE;\n  localparam MAX_SMILE_Y = V_VISIBLE - SMILE_SIZE;\n  reg [9:0] h_count;\n  reg [9:0] v_count;\n  reg [23:0] frame_count;\n  reg [9:0] smile_x;\n  reg [9:0] smile_y;\n  reg smile_right;\n  reg smile_down;\n  wire frame_end = (h_count == H_TOTAL - 1) && (v_count == V_TOTAL - 1);\n  wire active_video = (h_count < H_VISIBLE) && (v_count < V_VISIBLE);\n  assign VGA_HS = ~((h_count >= H_VISIBLE + H_FRONT) && (h_count < H_VISIBLE + H_FRONT + H_SYNC));\n  assign VGA_VS = ~((v_count >= V_VISIBLE + V_FRONT) && (v_count < V_VISIBLE + V_FRONT + V_SYNC));\n  always @(posedge CLK) begin\n    if (h_count == H_TOTAL - 1) begin\n      h_count <= 0;\n      if (v_count == V_TOTAL - 1) v_count <= 0;\n      else v_count <= v_count + 1'b1;\n    end else h_count <= h_count + 1'b1;\n  end\n  always @(posedge CLK) begin\n    if (frame_end) begin\n      frame_count <= frame_count + 1'b1;\n      if (smile_right) begin\n        if (smile_x >= MAX_SMILE_X - 2) begin smile_x <= MAX_SMILE_X; smile_right <= 1'b0; end\n        else smile_x <= smile_x + 2;\n      end else begin\n        if (smile_x <= 2) begin smile_x <= 0; smile_right <= 1'b1; end\n        else smile_x <= smile_x - 2;\n      end\n      if (smile_down) begin\n        if (smile_y >= MAX_SMILE_Y - 1) begin smile_y <= MAX_SMILE_Y; smile_down <= 1'b0; end\n        else smile_y <= smile_y + 1;\n      end else begin\n        if (smile_y <= 1) begin smile_y <= 0; smile_down <= 1'b1; end\n        else smile_y <= smile_y - 1;\n      end\n    end\n  end\n  initial begin\n    h_count = 0;\n    v_count = 0;\n    frame_count = 0;\n    smile_x = 40;\n    smile_y = 70;\n    smile_right = 1'b1;\n    smile_down = 1'b1;\n  end\n  wire [7:0] background_phase = {2'b00, h_count[7:2]} + {2'b00, v_count[7:2]} + frame_count[7:0];\n  wire sparkle = (&(h_count[4:0] ^ v_count[4:0])) && (h_count[8:6] == (v_count[8:6] ^ frame_count[8:6]));\n  wire inside_smiley = (h_count >= smile_x) && (h_count < smile_x + SMILE_SIZE) && (v_count >= smile_y) && (v_count < smile_y + SMILE_SIZE);\n  wire [9:0] local_x = h_count - smile_x;\n  wire [9:0] local_y = v_count - smile_y;\n  wire smile_border = inside_smiley && ((local_x < 4) || (local_x >= 68) || (local_y < 4) || (local_y >= 68));\n  wire blinking = &frame_count[6:4];\n  wire left_eye_open = (local_x >= 16) && (local_x < 28) && (local_y >= 17) && (local_y < 33);\n  wire right_eye_open = (local_x >= 44) && (local_x < 56) && (local_y >= 17) && (local_y < 33);\n  wire left_eye_closed = (local_x >= 16) && (local_x < 28) && (local_y >= 25) && (local_y < 28);\n  wire right_eye_closed = (local_x >= 44) && (local_x < 56) && (local_y >= 25) && (local_y < 28);\n  wire eye_pixel = blinking ? (left_eye_closed || right_eye_closed) : (left_eye_open || right_eye_open);\n  wire mouth_pixel = ((local_x >= 17) && (local_x < 22) && (local_y >= 45) && (local_y < 53)) || ((local_x >= 50) && (local_x < 55) && (local_y >= 45) && (local_y < 53)) || ((local_x >= 22) && (local_x < 50) && (local_y >= 51) && (local_y < 57));\n  wire face_highlight = (local_x >= 8) && (local_x < 15) && (local_y >= 8) && (local_y < 15);\n  always @(*) begin\n    vga_r = 3'b000;\n    vga_g = 3'b000;\n    vga_b = 3'b000;\n    if (active_video) begin\n      vga_r = background_phase[7:5];\n      vga_g = {background_phase[4:3], background_phase[7]};\n      vga_b = {background_phase[2:1], background_phase[5]};\n      if (sparkle) begin vga_r = 3'b111; vga_g = 3'b111; vga_b = 3'b111; end\n      if (inside_smiley) begin\n        vga_r = 3'b111; vga_g = 3'b110; vga_b = 3'b000;\n        if (smile_border) begin vga_r = 3'b101; vga_g = 3'b010; vga_b = 3'b000; end\n        if (eye_pixel || mouth_pixel) begin vga_r = 3'b000; vga_g = 3'b000; vga_b = 3'b000; end\n        if (face_highlight) begin vga_r = 3'b111; vga_g = 3'b111; vga_b = 3'b111; end\n      end\n    end\n  end\nendmodule`};
 const pins={Clock:['CLK · 15'],LEDs:['LED1 · 56','LED2 · 57','LED3 · 59','LED4 · 60'],Buttons:['SW1 · 53','SW2 · 51','SW3 · 54','SW4 · 52'],'7-segment 1':['S1_A · 3','S1_B · 4','S1_C · 93','S1_D · 91','S1_E · 90','S1_F · 1','S1_G · 2'],'7-segment 2':['S2_A · 100','S2_B · 99','S2_C · 97','S2_D · 95','S2_E · 94','S2_F · 8','S2_G · 96'],VGA:['VGA_HS · 26','VGA_VS · 27','VGA_R0/1/2 · 36/37/40','VGA_G0/1/2 · 29/30/33','VGA_B0/1/2 · 28/41/42'],UART:['RX · 73','TX · 74'],PMOD:['PMOD1/2/3/4 · 65/64/63/62','PMOD7/8/9/10 · 78/79/80/81']};
-$('#pinGrid').innerHTML=Object.entries(pins).map(([k,v])=>`<div class="pin-group"><b>${k}</b>${v.map(x=>`<code>${x}</code>`).join('')}</div>`).join('');
-let mode='blink',running=false,paused=false,ticks=0,edgeRemainder=0,buttons=[0,0,0,0],last=performance.now(),frame=0,sim=null,compiledSource='',wave=[],waveSignals=[],wasmResult=null,wasmOutputs={},vgaPixels=null,compileSerial=0,wavePlayback=0,vgaPlayback=0,hasClockedDesign=false,nativeActive=false;
-function load(name){nativeWorker?.terminate();nativeWorker=null;nativeActive=false;mode=name;$('#code').value=examples[name];$$('.examples button').forEach(b=>b.classList.toggle('active',b.dataset.example===name));lines();running=false;paused=false;sim=null;wasmResult=null;wasmOutputs={};wave=[];waveSignals=[];vgaPixels=null;ticks=0;frame=0;$('#status').textContent='Ready';$('#log').textContent='Press Compile / Run.';drawWave();drawVga();renderModel(false)}
-function lines(){const n=$('#code').value.split('\n').length;$('#lines').textContent=Array.from({length:n},(_,i)=>i+1).join('\n')}
 function parseVcd(vcd,ports,samples=180){
   if(!vcd)return [];
   const idToPort={},widths={};let maxTime=0;
@@ -113,40 +50,249 @@ function renderPackedVga(data,count,width,height,ports){
   if(!data||!count||!width||!height)return null;const colors=ports.filter(p=>p.dir==='output'&&/VGA/i.test(p.name)),find=re=>colors.find(p=>re.test(p.name)),rp=find(/(?:Red|_R)$/i),gp=find(/(?:Grn|Green|_G)$/i),bp=find(/(?:Blu|Blue|_B)$/i);if(!rp||!gp||!bp)return null;const pixels=width*height,available=Math.min(count,Math.floor(data.length/(pixels*3))),frames=[];
   for(let f=0;f<available;f++){const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const cx=canvas.getContext('2d'),img=cx.createImageData(width,height),start=f*pixels*3;for(let p=0;p<pixels;p++){const src=start+p*3,dst=p*4;img.data[dst]=Math.round(255*data[src]/Math.max(1,(1<<rp.bits)-1));img.data[dst+1]=Math.round(255*data[src+1]/Math.max(1,(1<<gp.bits)-1));img.data[dst+2]=Math.round(255*data[src+2]/Math.max(1,(1<<bp.bits)-1));img.data[dst+3]=255}cx.putImageData(img,0,0);frames.push(canvas)}return frames;
 }
-function handleNativeRuntime(data){
-  if(!nativeActive)return;wasmOutputs=data.outputs||{};frame=data.frameNumber||frame;const sample={};for(const s of waveSignals){if(s.dir==='input'){const m=s.name.match(/(?:Switch_|SW|BUTTON)([1-4])/i);sample[s.name]=m?buttons[Number(m[1])-1]:0}else sample[s.name]=wasmOutputs[s.name]||0}wave.push(sample);if(wave.length>180)wave.shift();if(data.type==='frame'){nativeFrameCanvas||=document.createElement('canvas');nativeFrameCanvas.width=320;nativeFrameCanvas.height=240;nativeFrameCanvas.getContext('2d').putImageData(new ImageData(data.frame,320,240),0,0);vgaPixels=nativeFrameCanvas;ticks=frame*420000;drawVga();$('#frame').textContent='FRAME '+String(frame).padStart(4,'0')}else ticks+=25_000_000/60*+$('#speed').value;renderModel(false);if(!(frame%4))drawWave()
+const SEG_MAP=['abcdef','bc','abdeg','abcdg','bcfg','acdfg','acdefg','abc','abcdefg','abcdfg','abcefg','cdefg','adef','bcdeg','adefg','aefg'];const segLetter=el=>el.dataset.seg||(el.dataset.seg=[...el.classList].find(x=>x.length===1));
+function setDigit(which,n){const map=n==null?'':SEG_MAP[n&15];for(const s of segEls[which]){const on=map.includes(segLetter(s));if(s.classList.contains('on')!==on)s.classList.toggle('on',on)}}
+function outputValue(names){if(sim){try{return Number(sim.output(names))}catch{}}for(const n of names)if(Object.hasOwn(wasmOutputs,n))return Number(wasmOutputs[n]);return 0}
+function setPhysicalDigit(which,prefix){const names='ABCDEFG';segEls[which].forEach((segment,i)=>{const n=`${prefix}_${names[i]}`,d=dutyOf([n]),lit=d==null?(outputValue([n])?0:1):1-d,on=lit>0.02;if(segment.classList.contains('on')!==on)segment.classList.toggle('on',on);const op=on&&d!=null?String(Math.round((0.3+0.7*lit)*100)/100):'';if(segment.style.opacity!==op)segment.style.opacity=op})}
+
+// ---------------------------------------------------------------- state
+const isClock=name=>/^(i_)?clk$|clock/i.test(name);
+const CYCLES_PER_SEC=25_000_000,PS_PER_CYCLE=40000;
+let vgaInfo=null;
+let mode='blink',running=false,paused=false,ticks=0,buttons=[0,0,0,0],latched=[false,false,false,false],frame=0,sim=null,compiledSource='',wave=[],wasmResult=null,wasmOutputs={},vgaPixels=null,compileSerial=0,wavePlayback=0,vgaPlayback=0,hasClockedDesign=false,nativeActive=false,last=performance.now(),vcdEnd=0,outSigByIndex=[],inSigByIndex=[];
+const trace={signals:[],end:0,playhead:null,overflow:false};
+let dutyByName=null,outputPortNames=[];
+function dutyOf(names){if(!dutyByName)return null;for(const n of names)if(n in dutyByName)return dutyByName[n];return null}
+const SIGNAL_CAP=600000;
+function traceReset(ports,widths={}){trace.signals=ports.filter(p=>!isClock(p.name)).map(p=>({name:p.name,dir:p.dir,bits:widths[p.name]||p.bits||1,t:[],v:[]}));trace.end=0;trace.playhead=null;trace.overflow=false}
+function traceClear(){for(const s of trace.signals){s.t.length=0;s.v.length=0}trace.end=0;trace.playhead=null;trace.overflow=false}
+function traceAdd(sig,cycle,value){const n=sig.t.length;if(n&&sig.t[n-1]===cycle){sig.v[n-1]=value;return}if(n&&sig.v[n-1]===value)return;if(n&&sig.t[n-1]>cycle)return;sig.t.push(cycle);sig.v.push(value);if(n>SIGNAL_CAP){sig.t.splice(0,SIGNAL_CAP>>1);sig.v.splice(0,SIGNAL_CAP>>1)}}
+function upperBound(arr,x){let lo=0,hi=arr.length;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<=x)lo=mid+1;else hi=mid}return lo}
+function valueAt(sig,cycle){const i=upperBound(sig.t,cycle)-1;return i<0?null:sig.v[i]}
+function buttonForPort(name){const m=name.match(/(?:Switch_|SW|BUTTON)([1-4])/i);return m?buttons[Number(m[1])-1]:0}
+function setStatus(text){$('#status').textContent=text}
+function summary(top,ports,extra){const w=p=>p.bits>1?`${p.name} [${p.bits-1}:0]`:p.name;const ins=ports.filter(p=>p.dir==='input').map(w),outs=ports.filter(p=>p.dir==='output').map(w);return [`module ${top}`,`inputs  ${ins.join(', ')||'none'}`,`outputs ${outs.join(', ')||'none'}`,extra].filter(Boolean).join('\n')}
+function detectMode(ports){const outs=ports.filter(p=>p.dir==='output').map(p=>p.name),ins=ports.filter(p=>p.dir==='input').map(p=>p.name);mode=outs.some(n=>/VGA/i.test(n))?'vga':outs.some(n=>/Segment|7Seg|^S[12]_[A-G]$/i.test(n))?'seven':ins.some(n=>/Switch|Button|^SW/i.test(n))?'switches':'logic'}
+
+function loadVcdTrace(vcd){
+  if(!vcd)return;const ids={};let unitPs=1,maxTime=0;const ts=vcd.match(/\$timescale\s+(\d+)\s*(fs|ps|ns|us|ms|s)/);if(ts)unitPs=+ts[1]*{fs:.001,ps:1,ns:1e3,us:1e6,ms:1e9,s:1e12}[ts[2]];
+  for(const line of vcd.split('\n')){const v=line.match(/^\$var\s+\w+\s+(\d+)\s+(\S+)\s+(\S+)/);if(v){const sig=trace.signals.find(s=>s.name===v[3]);if(sig){ids[v[2]]=sig;sig.bits=+v[1]}}else if(line[0]==='#')maxTime=Math.max(maxTime,+line.slice(1))}
+  let time=0;for(const line of vcd.split('\n')){if(line[0]==='#'){time=+line.slice(1);continue}let id,val;if(line[0]==='b'){const m=line.match(/^b([01xXzZ]+)\s+(\S+)/);if(m){val=m[1];id=m[2]}}else if(/^[01xXzZ]/.test(line)){val=line[0];id=line.slice(1).trim()}const sig=ids[id];if(sig)traceAdd(sig,time*unitPs/PS_PER_CYCLE,/[xz]/i.test(val)?0:parseInt(val,2))}
+  vcdEnd=maxTime*unitPs/PS_PER_CYCLE;trace.end=vcdEnd;trace.playhead=0
 }
+
+// ---------------------------------------------------------------- editor
+const code=$('#code'),hl=$('#hl'),linesEl=$('#lines');
+const KEYWORDS=/^(module|endmodule|always|always_ff|always_comb|assign|begin|end|if|else|case|casez|casex|endcase|default|posedge|negedge|initial|function|endfunction|task|endtask|generate|endgenerate|for|while|repeat|genvar|or|and|not|xor|nand|nor|return)$/;
+const TYPES=/^(input|output|inout|wire|reg|logic|integer|parameter|localparam|signed|unsigned|bit|byte|int|shortint|longint|real|time)$/;
+const TOKEN=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:[^"\\\n]|\\.)*")|(\b\d*'[sS]?[bBhHdDoO][0-9a-fA-F_xXzZ?]+\b|\b\d[\d_]*(?:\.\d+)?\b)|(`?\b[A-Za-z_$][\w$]*\b)|([()\[\]{};,:.<>=!~&|^+\-*\/%?@#])/g;
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function highlight(src){let out='',i=0;for(const m of src.matchAll(TOKEN)){out+=esc(src.slice(i,m.index));i=m.index+m[0].length;const t=esc(m[0]);if(m[1])out+=`<span class="tk-c">${t}</span>`;else if(m[2])out+=`<span class="tk-s">${t}</span>`;else if(m[3])out+=`<span class="tk-n">${t}</span>`;else if(m[4])out+=m[0][0]==='`'?`<span class="tk-m">${t}</span>`:KEYWORDS.test(m[0])?`<span class="tk-k">${t}</span>`:TYPES.test(m[0])?`<span class="tk-t">${t}</span>`:t;else out+=`<span class="tk-p">${t}</span>`}return out+esc(src.slice(i))}
+let errorLines=new Set();
+let curLine=1;
+function caretPos(){const before=code.value.slice(0,code.selectionStart),lines=before.split('\n');return {line:lines.length,col:lines[lines.length-1].length+1}}
+const narrow=matchMedia('(max-width: 900px)');
+function fitEditor(){if(!narrow.matches){$('#editorPane').style.removeProperty('--editor-h');return}const n=code.value.split('\n').length,lh=parseFloat(getComputedStyle(code).lineHeight)||19.5;$('#editorPane').style.setProperty('--editor-h',Math.round(n*lh+16+40+24)+'px')}
+narrow.addEventListener('change',fitEditor);
+function refreshEditor(){fitEditor();hl.innerHTML=highlight(code.value)+'\n';const n=code.value.split('\n').length;linesEl.innerHTML=Array.from({length:n},(_,i)=>`<span${errorLines.has(i+1)?' class="err"':i+1===curLine?' class="cur"':''}>${i+1}</span>`).join('');syncScroll()}
+function updateCaret(){const p=caretPos();$('#status-pos').textContent=`${p.line}:${p.col}`;if(p.line!==curLine){const prev=linesEl.children[curLine-1],next=linesEl.children[p.line-1];prev?.classList.remove('cur');if(next&&!next.classList.contains('err'))next.classList.add('cur');curLine=p.line}}
+function gotoLine(n){const lines=code.value.split('\n');let pos=0;for(let i=0;i<n-1&&i<lines.length;i++)pos+=lines[i].length+1;code.focus();code.setSelectionRange(pos,pos+(lines[n-1]?.length||0));code.scrollTop=Math.max(0,(n-4)*parseFloat(getComputedStyle(code).lineHeight));syncScroll();updateCaret()}
+function toggleComment(){const v=code.value,s0=code.selectionStart,s1=code.selectionEnd,a=v.lastIndexOf('\n',s0-1)+1,bEnd=v.indexOf('\n',s1);const b=bEnd<0?v.length:bEnd,block=v.slice(a,b),lines=block.split('\n'),all=lines.every(l=>/^\s*\/\//.test(l)||!l.trim());const out=lines.map(l=>all?l.replace(/^(\s*)\/\/ ?/,'$1'):l.trim()?l.replace(/^(\s*)/,'$1// '):l).join('\n');code.setRangeText(out,a,b,'select');refreshEditor();saveCode()}
+function syncScroll(){hl.scrollTop=code.scrollTop;hl.scrollLeft=code.scrollLeft;linesEl.scrollTop=code.scrollTop}
+function markErrors(log){errorLines=new Set();for(const m of (log||'').matchAll(/design\.v:(\d+)/g))errorLines.add(+m[1]);refreshEditor();if(errorLines.size){const first=Math.min(...errorLines);code.scrollTop=Math.max(0,(first-4)*parseFloat(getComputedStyle(code).lineHeight));syncScroll()}}
+function saveCode(){try{localStorage.setItem('goboard-code',code.value)}catch{}}
+code.addEventListener('input',()=>{refreshEditor();saveCode()});
+code.addEventListener('scroll',syncScroll);
+code.addEventListener('keydown',e=>{const mod=e.ctrlKey||e.metaKey;
+  if(e.key==='Tab'){e.preventDefault();const s=code.selectionStart,t=code.selectionEnd;if(s!==t&&code.value.slice(s,t).includes('\n')){const v=code.value,a=v.lastIndexOf('\n',s-1)+1,bEnd=v.indexOf('\n',t),b=bEnd<0?v.length:bEnd,lines=v.slice(a,b).split('\n'),out=lines.map(l=>e.shiftKey?l.replace(/^  /,''):'  '+l).join('\n');code.setRangeText(out,a,b,'select')}else if(e.shiftKey){const v=code.value,a=v.lastIndexOf('\n',s-1)+1;if(v.slice(a,a+2)==='  ')code.setRangeText('',a,a+2,'preserve')}else code.setRangeText('  ',s,t,'end');refreshEditor();saveCode()}
+  else if(e.key==='Enter'&&mod){e.preventDefault();compile()}
+  else if(e.key==='Enter'){e.preventDefault();const v=code.value,s=code.selectionStart,a=v.lastIndexOf('\n',s-1)+1,line=v.slice(a,s),indent=(line.match(/^\s*/)||[''])[0],extra=/(\bbegin|\(|\bcase\b.*\))\s*$/.test(line)?'  ':'';code.setRangeText('\n'+indent+extra,s,code.selectionEnd,'end');refreshEditor();saveCode();updateCaret()}
+  else if(mod&&e.key==='s'){e.preventDefault();$('#saveBtn').click()}
+  else if(mod&&e.key==='/'){e.preventDefault();toggleComment()}
+  else if(e.key==='Escape'){code.blur()}});
+code.addEventListener('keyup',updateCaret);code.addEventListener('click',updateCaret);code.addEventListener('select',updateCaret);
+$('#examples').onchange=e=>load(e.target.value);
+// Custom menus: a button + list that drive the hidden native <select>, so value/onchange keep working.
+function menuFor(sel){
+  const wrap=document.createElement('div');wrap.className='menu';const btn=document.createElement('button');btn.type='button';btn.className='menu-btn';btn.setAttribute('aria-haspopup','listbox');btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label',sel.getAttribute('aria-label')||'');
+  const list=document.createElement('div');list.className='menu-list';list.setAttribute('role','listbox');list.hidden=true;
+  const label=()=>{const o=sel.options[sel.selectedIndex];btn.textContent=o?o.textContent:'';};
+  const build=()=>{list.innerHTML='';for(const o of sel.options){if(o.disabled)continue;const it=document.createElement('button');it.type='button';it.setAttribute('role','option');it.textContent=o.textContent;it.dataset.value=o.value;it.setAttribute('aria-selected',String(o.selected));it.onclick=()=>{sel.value=o.value;sel.dispatchEvent(new Event('change'));close();label();};list.appendChild(it)}};
+  const open=()=>{build();list.hidden=false;btn.setAttribute('aria-expanded','true');document.addEventListener('pointerdown',onDoc,true);document.addEventListener('keydown',onKey)};
+  const close=()=>{list.hidden=true;btn.setAttribute('aria-expanded','false');document.removeEventListener('pointerdown',onDoc,true);document.removeEventListener('keydown',onKey)};
+  const onDoc=e=>{if(!wrap.contains(e.target))close()};const onKey=e=>{if(e.key==='Escape'){close();btn.focus()}};
+  btn.onclick=()=>list.hidden?open():close();
+  sel.addEventListener('change',label);sel.hidden=true;sel.tabIndex=-1;sel.parentNode.insertBefore(wrap,sel);wrap.append(btn,list,sel);label();
+  const mo=new MutationObserver(label);mo.observe(sel,{attributes:true,childList:true,subtree:true});
+  return {label};
+}
+const exampleMenu=menuFor($('#examples')),speedMenu=menuFor($('#speed'));
+$('#openBtn').onclick=()=>$('#fileInput').click();
+$('#menuBtn').onclick=()=>{const open=!$('#nav').classList.contains('open');$('#nav').classList.toggle('open',open);$('#menuBtn').setAttribute('aria-expanded',String(open))};
+$('#fileInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;code.value=await f.text();$('#examples').selectedIndex=0;exampleMenu.label();refreshEditor();saveCode();e.target.value=''};
+$('#saveBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([code.value],{type:'text/plain'}));a.download='design.v';a.click();URL.revokeObjectURL(a.href)};
+
+function setLog(text){const log=$('#log');log.innerHTML=esc(text||'').split('\n').map(l=>{l=l.replace(/\/?design\.s?v:(\d+)/g,(m,n)=>`<span class="loc" data-line="${n}">${m}</span>`);return /error|ERROR/.test(l)?`<span class="err">${l}</span>`:/warning/i.test(l)?`<span class="warn">${l}</span>`:l}).join('\n');const n=(text||'').split('\n').filter(l=>/error|ERROR/.test(l)).length;$('.tab[data-tab="log"]').textContent=n?`Output (${n})`:'Output';markErrors(text);if(n)showTab('log')}
+function appendProgress(message){const b=$('#busy');const m=/(\d+)%/.exec(message);if(m){b.dataset.pct='';b.style.setProperty('--pct',m[1]+'%')}else{delete b.dataset.pct;b.style.removeProperty('--pct')}}
+function setBusy(on){const b=$('#busy');b.hidden=!on;if(on){delete b.dataset.pct;b.style.removeProperty('--pct')}}
+
+function load(name){nativeWorker?.postMessage({type:'stop'});nativeActive=false;dutyByName=null;vgaInfo=null;mode=name;code.value=examples[name];$('#examples').value=name;exampleMenu.label();refreshEditor();saveCode();running=false;paused=false;sim=null;wasmResult=null;wasmOutputs={};wave=[];vgaPixels=null;ticks=0;frame=0;trace.signals=[];traceClear();setStatus('Ready');setLog('');$('#pauseBtn').classList.remove('is-paused');$('#pauseBtn').setAttribute('aria-label','Pause');$('#pauseBtn').title='Pause';drawVga();renderModel();waveView.reset()}
+
+// ---------------------------------------------------------------- pins
+$('#pinGrid').innerHTML=Object.entries(pins).map(([k,v])=>`<table><caption>${k}</caption>${v.map(x=>{const [n,p]=x.split(' · ');return `<tr><td>${n}</td><td>${p}</td></tr>`}).join('')}</table>`).join('');
+
+// ---------------------------------------------------------------- dock
+let traceWanted=true;
+function showTab(name){$$('.tab').forEach(t=>t.classList.toggle('selected',t.dataset.tab===name));$$('.dock-body').forEach(b=>b.hidden=b.dataset.panel!==name);$$('.dock-tools').forEach(t=>t.hidden=t.dataset.for!==name);traceWanted=name==='wave';nativeWorker?.postMessage({type:'trace',value:traceWanted});if(name==='wave')waveView.requestDraw()}
+$$('.tab').forEach(t=>t.onclick=()=>showTab(t.dataset.tab));
+$('#clearBtn').onclick=()=>setLog('');
+$('#log').addEventListener('click',e=>{const loc=e.target.closest('.loc');if(loc)gotoLine(+loc.dataset.line)});
+
+const ide=$('#ide');
+function restoreSplits(){try{const w=localStorage.getItem('goboard-editor-w'),h=localStorage.getItem('goboard-dock-h');if(w)ide.style.setProperty('--editor-w',w);if(h)ide.style.setProperty('--dock-h',h)}catch{}}
+function makeSplit(el,axis){el.addEventListener('pointerdown',e=>{if(e.button!==0)return;try{el.setPointerCapture(e.pointerId)}catch{}el.classList.add('active');document.body.classList.add('resizing');document.body.style.cursor=axis==='x'?'col-resize':'row-resize';const rect=ide.getBoundingClientRect();const move=ev=>{if(axis==='x'){const w=Math.max(240,Math.min(rect.width-320,ev.clientX-rect.left));ide.style.setProperty('--editor-w',w+'px')}else{const h=Math.max(120,Math.min(rect.height-200,rect.bottom-ev.clientY));ide.style.setProperty('--dock-h',h+'px')}waveView.requestDraw()};const up=()=>{el.removeEventListener('pointermove',move);el.classList.remove('active');document.body.classList.remove('resizing');document.body.style.cursor='';try{localStorage.setItem(axis==='x'?'goboard-editor-w':'goboard-dock-h',ide.style.getPropertyValue(axis==='x'?'--editor-w':'--dock-h'))}catch{}};el.addEventListener('pointermove',move);el.addEventListener('pointerup',up,{once:true});el.addEventListener('pointercancel',up,{once:true});e.preventDefault()})}
+makeSplit($('#vsplit'),'x');makeSplit($('#hsplit'),'y');restoreSplits();
+
+// ---------------------------------------------------------------- waveform viewer
+function fmtTime(cycles,step){const s=cycles/CYCLES_PER_SEC,a=Math.abs(s);const [k,u]=a>=1?[1,'s']:a>=1e-3?[1e3,'ms']:a>=1e-6?[1e6,'µs']:[1e9,'ns'];const v=s*k;let d=Math.abs(v)>=100?0:Math.abs(v)>=10?1:Math.abs(v)>=1?2:3;if(step){const sv=step/CYCLES_PER_SEC*k;d=Math.max(d,Math.min(6,Math.ceil(-Math.log10(sv))))}return `${v.toFixed(d)} ${u}`}
+function fmtValue(sig,v){if(v==null)return '';if(sig.bits===1)return String(v);return '0x'+(v>>>0).toString(16).toUpperCase().padStart(Math.ceil(sig.bits/4),'0')}
+function niceStep(x){const p=10**Math.floor(Math.log10(x));const m=x/p;return (m<=1?1:m<=2?2:m<=5?5:10)*p}
+const waveView={
+  c:$('#waveform'),g:null,lastDraw:0,names:160,axis:24,row:30,t0:0,cpp:400,follow:true,auto:true,cursor:null,hover:null,dirty:true,drag:null,minCpp:1/40,
+  init(){this.g=this.c.getContext('2d');const c=this.c;
+    c.addEventListener('pointerdown',e=>{if(e.button!==0)return;try{c.setPointerCapture(e.pointerId)}catch{}this.drag={x:e.clientX,t0:this.t0,moved:false};e.preventDefault()});
+    c.addEventListener('pointermove',e=>{const px=this.px(e);if(this.drag){const dx=e.clientX-this.drag.x;if(Math.abs(dx)>2)this.drag.moved=true;if(this.drag.moved){this.follow=false;$('#live').setAttribute('aria-pressed','false');this.t0=this.drag.t0-dx*this.cpp}}this.hover=px>=0?this.t0+px*this.cpp:null;this.requestDraw()});
+    c.addEventListener('pointerup',e=>{if(this.drag&&!this.drag.moved){const px=this.px(e);this.cursor=px>=0?this.t0+px*this.cpp:null}this.drag=null;this.requestDraw()});
+    c.addEventListener('pointerleave',()=>{this.hover=null;this.requestDraw()});
+    c.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey||Math.abs(e.deltaX)>Math.abs(e.deltaY)){e.preventDefault();if(e.ctrlKey||e.metaKey)this.zoom(Math.exp(e.deltaY*.01),this.px(e));else{this.t0+=e.deltaX*this.cpp;this.follow=false;$('#live').setAttribute('aria-pressed','false')}this.requestDraw()}},{passive:false});
+    c.addEventListener('dblclick',e=>{this.zoom(.5,this.px(e))});
+    $('#zoomIn').onclick=()=>this.zoom(.5,this.width()/2);$('#zoomOut').onclick=()=>this.zoom(2,this.width()/2);$('#zoomFit').onclick=()=>this.fit();
+    $('#zoomAuto').onclick=()=>{this.setAuto(!this.auto);if(this.auto){this.follow=true;$('#live').setAttribute('aria-pressed','true')}this.requestDraw()};
+    $('#live').onclick=()=>{this.follow=!this.follow;$('#live').setAttribute('aria-pressed',String(this.follow));this.requestDraw()};
+    new ResizeObserver(()=>this.requestDraw()).observe(c.parentElement);
+  },
+  px(e){const r=this.c.getBoundingClientRect();return e.clientX-r.left-this.names},
+  width(){return Math.max(1,this.c.clientWidth-this.names)},
+  start(){let s=Infinity;for(const sig of trace.signals)if(sig.t.length)s=Math.min(s,sig.t[0]);return isFinite(s)?s:0},
+  maxCpp(){return Math.max(1,(trace.end-this.start())*2/this.width())},
+  setAuto(v){this.auto=v;$('#zoomAuto').setAttribute('aria-pressed',String(v))},
+  autoCpp(){const ivs=[];for(const sig of trace.signals){const t=sig.t,n=t.length;if(n<2)continue;for(let i=Math.max(1,n-32);i<n;i++){const d=t[i]-t[i-1];if(d>0)ivs.push(d)}}if(!ivs.length)return null;ivs.sort((a,b)=>a-b);const d=ivs[Math.floor(ivs.length*.2)];return Math.min(this.maxCpp(),Math.max(this.minCpp,d/12))},
+  applyAuto(){if(!this.auto)return;const c=this.autoCpp();if(c!=null&&(c>this.cpp*1.4||c<this.cpp/1.4))this.cpp=c},
+  zoom(f,px){this.setAuto(false);const t=this.t0+px*this.cpp;this.cpp=Math.min(this.maxCpp(),Math.max(this.minCpp,this.cpp*f));this.t0=t-px*this.cpp;this.requestDraw()},
+  fit(){this.setAuto(false);this.cpp=Math.max(this.minCpp,(trace.end-this.start())/this.width());this.t0=this.start();this.follow=true;$('#live').setAttribute('aria-pressed','true');this.requestDraw()},
+  reset(){this.cursor=null;this.hover=null;this.follow=true;this.setAuto(true);$('#live').setAttribute('aria-pressed','true');this.cpp=CYCLES_PER_SEC/2/this.width();this.t0=0;this.requestDraw()},
+  requestDraw(){this.dirty=true},
+  tick(live,now){if((this.dirty||(live&&this.follow))&&now-this.lastDraw>=32){this.dirty=false;this.lastDraw=now;this.applyAuto();this.draw()}},
+  draw(){
+    const c=this.c,g=this.g,dpr=devicePixelRatio||1;if(c.parentElement.hidden)return;const need=this.axis+trace.signals.length*this.row,avail=c.parentElement.clientHeight,wantH=need>avail?need+'px':'100%';if(c.style.height!==wantH)c.style.height=wantH;const W=c.clientWidth,H=c.clientHeight;if(!W||!H)return;
+    if(c.width!==Math.round(W*dpr)||c.height!==Math.round(H*dpr)){c.width=Math.round(W*dpr);c.height=Math.round(H*dpr)}
+    g.setTransform(dpr,0,0,dpr,0,0);const cs=getComputedStyle(document.documentElement),fg=cs.getPropertyValue('--wave-fg').trim(),bg=cs.getPropertyValue('--wave-bg').trim(),grid=cs.getPropertyValue('--wave-grid').trim(),busy=cs.getPropertyValue('--wave-busy').trim(),low=cs.getPropertyValue('--wave-low').trim()||busy,cur=cs.getPropertyValue('--wave-cursor').trim(),mono=cs.getPropertyValue('--ux-mono').trim();
+    const palette=cs.getPropertyValue('--wave-palette').trim().split(/\s+/);const names=this.names,axis=this.axis,row=this.row,width=W-names;const signals=trace.signals;
+    const end=trace.end,start=this.start();if(this.follow)this.t0=Math.max(start,end-width*this.cpp);const t0=this.t0,cpp=this.cpp,t1=t0+width*cpp;
+    g.fillStyle=bg;g.fillRect(0,0,W,H);g.font=`11px ${mono}`;g.textBaseline='middle';
+    // axis
+    g.strokeStyle=grid;g.fillStyle=fg;g.lineWidth=1;const stepNs=niceStep(90*cpp*40),stepC=stepNs/40;g.beginPath();for(let t=Math.ceil(t0/stepC)*stepC;t<=t1;t+=stepC){const x=names+Math.round((t-t0)/cpp)+.5;g.moveTo(x,axis);g.lineTo(x,H);g.fillText(fmtTime(t,stepC),x+3,axis/2)}g.stroke();
+    g.strokeStyle=grid;g.beginPath();g.moveTo(names+.5,0);g.lineTo(names+.5,H);g.moveTo(0,axis+.5);g.lineTo(W,axis+.5);g.stroke();
+    // rows
+    const readAt=this.cursor??(trace.playhead??end);
+    for(let r=0;r<signals.length;r++){const top=axis+r*row;if(top>H)break;const sig=signals[r],yH=top+7,yL=top+row-7,yM=(yH+yL)/2,color=palette[r%palette.length]||fg;
+      g.strokeStyle=grid;g.beginPath();g.moveTo(0,top+row+.5);g.lineTo(W,top+row+.5);g.stroke();
+      g.fillStyle=color;g.textAlign='left';g.fillText(sig.name.length>16?sig.name.slice(0,15)+'…':sig.name,8,top+row/2);g.textAlign='right';{const val=valueAt(sig,readAt);g.fillStyle=sig.bits===1?(val==null?low:val?fg:low):busy;if(sig.bits===1&&val)g.font=`600 11px ${mono}`;g.fillText(fmtValue(sig,val),names-8,top+row/2);g.font=`11px ${mono}`}g.textAlign='left';
+      if(!sig.t.length)continue;
+      g.save();g.beginPath();g.rect(names,top,width,row);g.clip();
+      const t=sig.t,v=sig.v;
+      if(sig.bits===1){const hi=new Path2D(),lo=new Path2D(),edges=new Path2D();let prevIdx=upperBound(t,t0)-1;let runY=null,runX=0;
+        const flushRun=(x)=>{if(runY==null)return;const p=runY===yH?hi:lo;p.moveTo(runX,runY);p.lineTo(x,runY)};
+        for(let px=0;px<=width;px++){const tb=t0+(px+1)*cpp,ib=upperBound(t,tb)-1,x=names+px;const level=ib<0?null:v[ib],y=level==null?null:level?yH:yL;if(ib>prevIdx){flushRun(x);edges.moveTo(x+.5,yH);edges.lineTo(x+.5,yL);runY=y;runX=x}else if(y!==runY){flushRun(x);runY=y;runX=x}prevIdx=ib}
+        flushRun(names+width);
+        g.lineWidth=1;g.strokeStyle=low;g.stroke(lo);g.stroke(edges);g.lineWidth=1.5;g.strokeStyle=fg;g.stroke(hi);g.lineWidth=1}
+      else{let prevIdx=upperBound(t,t0)-1,spanStart=0,spanVal=prevIdx<0?null:v[prevIdx],spanBusy=false;
+        const flush=(x0,x1,val,isBusy)=>{if(val==null&&!isBusy)return;const a=names+x0,b=names+x1;if(isBusy){g.globalAlpha=.45;g.fillStyle=color;g.fillRect(a,yH,Math.max(1,b-a),yL-yH);g.globalAlpha=1;return}g.strokeStyle=color;g.beginPath();g.moveTo(a,yM);g.lineTo(a+3,yH);g.lineTo(b-3,yH);g.lineTo(b,yM);g.lineTo(b-3,yL);g.lineTo(a+3,yL);g.closePath();g.stroke();if(b-a>30){g.fillStyle=fg;g.textAlign='center';const label=fmtValue(sig,val);g.fillText(label.length*6.6>b-a-8?label.slice(0,Math.max(1,Math.floor((b-a-8)/6.6)))+'…':label,(a+b)/2,yM);g.textAlign='left'}};
+        for(let px=0;px<=width;px++){const tb=t0+(px+1)*cpp,ib=upperBound(t,tb)-1,val=ib<0?null:v[ib],isBusy=ib>prevIdx;if(isBusy!==spanBusy||val!==spanVal||isBusy){if(isBusy&&spanBusy){prevIdx=ib;continue}flush(spanStart,px,spanVal,spanBusy);spanStart=px;spanVal=val;spanBusy=isBusy}prevIdx=ib}
+        flush(spanStart,width,spanVal,spanBusy)}
+      g.restore()}
+    // playhead / cursor / hover
+    const vline=(tc,color,dash,alpha=1)=>{if(tc==null||tc<t0||tc>t1)return;const x=names+Math.round((tc-t0)/cpp)+.5;g.strokeStyle=color;g.globalAlpha=alpha;g.setLineDash(dash);g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();g.setLineDash([]);g.globalAlpha=1};
+    vline(trace.playhead,busy,[]);vline(this.hover,fg,[4,3],.7);vline(this.cursor,cur,[]);
+    const parts=[];if(this.cursor!=null)parts.push(fmtTime(this.cursor));if(this.hover!=null&&this.cursor!=null)parts.push('Δ '+fmtTime(this.hover-this.cursor));else if(this.hover!=null)parts.push(fmtTime(this.hover));if(trace.overflow)parts.push('…');$('#waveReadout').textContent=parts.join('   ');
+  }
+};
+waveView.init();
+
+// ---------------------------------------------------------------- native runtime
+function handleNativeRuntime(data){
+  if(!nativeActive)return;wasmOutputs=data.outputs||{};frame=data.frameNumber||frame;const endCycle=data.cycle||0,endLo=endCycle>>>0,tr=data.trace||[];
+  for(let i=0;i<tr.length;i+=3){const sig=outSigByIndex[tr[i+1]];if(sig)traceAdd(sig,endCycle-((endLo-tr[i])>>>0),tr[i+2])}
+  for(const [cyc,idx,val] of data.inputEvents||[]){const sig=inSigByIndex[idx];if(sig)traceAdd(sig,cyc,val)}
+  trace.end=endCycle;if(data.overflow)trace.overflow=true;ticks=endCycle;
+  if(data.duty){dutyByName={};for(let i=0;i<outputPortNames.length;i++)dutyByName[outputPortNames[i]]=data.duty[i]}
+  if(data.type==='frame'){nativeFrameCanvas||=document.createElement('canvas');nativeFrameCanvas.width=640;nativeFrameCanvas.height=480;nativeFrameCanvas.getContext('2d').putImageData(new ImageData(data.frame,640,480),0,0);vgaPixels=nativeFrameCanvas;vgaInfo=data.vga||null;drawVga();$('#frame').textContent=String(frame).padStart(4,'0')}
+  renderModel();waveView.requestDraw()
+}
+
+// ---------------------------------------------------------------- compile
 async function compile(){
-  const serial=++compileSerial,src=$('#code').value;nativeWorker?.terminate();nativeWorker=null;nativeActive=false;compiledSource=src;running=false;sim=null;wasmResult=null;wasmOutputs={};vgaPixels=null;wavePlayback=0;vgaPlayback=0;wave=[];hasClockedDesign=false;$('#status').textContent='Compiling';$('#log').textContent='Synthesizing and compiling an optimized browser-native model…';$('#hardwareReport').textContent='Client-side synthesis and simulation';$('#compileOverlay').hidden=false;$('#compileProgress').textContent='Starting browser-native toolchain.';await new Promise(requestAnimationFrame);
+  const serial=++compileSerial,src=code.value;nativeActive=false;dutyByName=null;vgaInfo=null;compiledSource=src;running=false;sim=null;wasmResult=null;wasmOutputs={};vgaPixels=null;wavePlayback=0;vgaPlayback=0;wave=[];hasClockedDesign=false;trace.signals=[];traceClear();
+  setStatus('Compiling');setLog('');setBusy(true);await new Promise(requestAnimationFrame);
   const inputs={};for(let i=1;i<=4;i++){inputs[`i_Switch_${i}`]=buttons[i-1];inputs[`SW${i}`]=buttons[i-1];inputs[`BUTTON${i}`]=buttons[i-1]}
   let nativeError=null;
-  try{const result=await runNativeInWorker(src,message=>{$('#compileProgress').textContent+=`\n${message}`});if(serial!==compileSerial)return;const outs=result.ports.filter(p=>p.dir==='output').map(p=>p.name),ins=result.ports.filter(p=>p.dir==='input').map(p=>p.name);mode=outs.some(n=>/VGA/i.test(n))?'vga':outs.some(n=>/Segment|7Seg|^S[12]_[A-G]$/i.test(n))?'seven':ins.some(n=>/Switch|Button|^SW/i.test(n))?'switches':'logic';waveSignals=result.ports.filter(p=>!/clk/i.test(p.name)).slice(0,10);nativeInputPorts=result.ports.filter(p=>p.dir==='input'&&!/^(i_)?clk$|clock/i.test(p.name));hasClockedDesign=result.ports.some(p=>p.dir==='input'&&/^(i_)?clk$|clock/i.test(p.name));nativeActive=true;running=true;paused=false;ticks=0;frame=0;$('#status').textContent='Running native';$('#pauseBtn').textContent='Pause';$('#hardwareReport').textContent='Yosys CXXRTL · optimized WebAssembly';$('#log').textContent=`Yosys synthesized top module ${result.top}\nClang compiled an optimized CXXRTL WebAssembly model\nModel size: ${(result.modelBytes/1024).toFixed(1)} KiB\nExecution: persistent browser worker at 25 MHz\nVGA: ${result.isVga?'continuous 800×525 timing, rendered at 60 Hz':'not detected'}${result.log?.trim()?`\n\n${result.log.trim()}`:''}`;$('#compileOverlay').hidden=true;nativeWorker.postMessage({type:'speed',value:+$('#speed').value});nativeWorker.postMessage({type:'start'});return}catch(error){nativeError=error;nativeWorker?.terminate();nativeWorker=null;nativeActive=false;$('#compileProgress').textContent+=`\nNative synthesis unavailable: ${error.message}\nFalling back to Icarus compatibility simulation…`}
-  try{const result=await runBoardInWorker(src,inputs,message=>{$('#compileProgress').textContent+=`\n${message}`});if(serial!==compileSerial)return;wasmResult=result;wasmOutputs=result.values;hasClockedDesign=result.hasClock;const outs=result.ports.filter(p=>p.dir==='output').map(p=>p.name),ins=result.ports.filter(p=>p.dir==='input').map(p=>p.name);mode=outs.some(n=>/VGA/i.test(n))?'vga':outs.some(n=>/Segment|7Seg|^S[12]_[A-G]$/i.test(n))?'seven':ins.some(n=>/Switch|Button|^SW/i.test(n))?'switches':'logic';waveSignals=result.ports.filter(p=>!/clk/i.test(p.name)).slice(0,10);wave=parseVcd(result.vcd,result.ports);if(mode==='vga')vgaPixels=renderPackedVga(result.frameData,result.frameCount,result.frameWidth,result.frameHeight,result.ports)||[renderVcdVga(result.vcd,result.ports)];if(!hasClockedDesign)try{sim=new VerilogSimulator.Simulator(src)}catch{sim=null}ticks=0;running=true;paused=false;$('#status').textContent='Running fallback';$('#log').textContent=`Native synthesis failed: ${nativeError?.message}\n\n${result.engine} compatibility mode\nCompiled top module ${result.top}\nSimulated ${result.cycles.toLocaleString()} clock cycles\nExecution: browser WebAssembly worker`;renderModel(false);drawVga();drawWave()}catch(error){if(serial!==compileSerial)return;running=false;$('#status').textContent='Error';$('#log').textContent=`NATIVE ERROR: ${nativeError?.message}\nICARUS ERROR: ${error.message}`}finally{if(serial===compileSerial)$('#compileOverlay').hidden=true}
+  const t0=performance.now();
+  try{const result=await runNativeInWorker(src,appendProgress);if(serial!==compileSerial)return;
+    detectMode(result.ports);nativeInputPorts=result.ports.filter(p=>p.dir==='input'&&!isClock(p.name));hasClockedDesign=result.ports.some(p=>p.dir==='input'&&isClock(p.name));
+    traceReset(result.ports);outputPortNames=result.ports.filter(p=>p.dir==='output').map(p=>p.name);dutyByName=null;vgaInfo=null;outSigByIndex=result.ports.filter(p=>p.dir==='output').map(p=>trace.signals.find(s=>s.name===p.name));inSigByIndex=nativeInputPorts.map(p=>trace.signals.find(s=>s.name===p.name));
+    nativeActive=true;running=true;paused=false;ticks=0;frame=0;setStatus('Running');$('#pauseBtn').classList.remove('is-paused');$('#pauseBtn').setAttribute('aria-label','Pause');$('#pauseBtn').title='Pause';setLog([summary(result.top,result.ports,`compiled in ${((performance.now()-t0)/1000).toFixed(1)} s`),result.log?.trim()].filter(Boolean).join('\n\n'));setBusy(false);
+    nativeWorker.postMessage({type:'speed',value:+$('#speed').value});nativeWorker.postMessage({type:'trace',value:traceWanted});
+    inSigByIndex.forEach((sig,index)=>{const v=buttonForPort(nativeInputPorts[index].name);if(sig)traceAdd(sig,0,v);if(v)nativeWorker.postMessage({type:'input',index,value:v})});
+    nativeWorker.postMessage({type:'start'});drawVga();waveView.reset();return}
+  catch(error){nativeError=error;nativeActive=false;setBusy(true)}
+  try{const result=await runBoardInWorker(src,inputs,appendProgress);if(serial!==compileSerial)return;
+    wasmResult=result;wasmOutputs=result.values;hasClockedDesign=result.hasClock;detectMode(result.ports);wave=parseVcd(result.vcd,result.ports);traceReset(result.ports);loadVcdTrace(result.vcd);
+    for(const sig of trace.signals)if(sig.dir==='input'&&!sig.t.length)traceAdd(sig,0,buttonForPort(sig.name));
+    if(mode==='vga')vgaPixels=renderPackedVga(result.frameData,result.frameCount,result.frameWidth,result.frameHeight,result.ports)||[renderVcdVga(result.vcd,result.ports)];
+    if(!hasClockedDesign){try{sim=new VerilogSimulator.Simulator(src)}catch{sim=null}trace.playhead=null;trace.end=0}
+    ticks=0;running=true;paused=false;setStatus('Running');$('#pauseBtn').classList.remove('is-paused');$('#pauseBtn').setAttribute('aria-label','Pause');$('#pauseBtn').title='Pause';setLog([summary(result.top||'go_board',result.ports,'compatibility simulation'),nativeError?.message].filter(Boolean).join('\n\n'));renderModel();drawVga();waveView.reset()}
+  catch(error){if(serial!==compileSerial)return;running=false;setStatus('Error');setLog(`${nativeError?.message||''}\n${error.message}`.trim());showTab('log')}
+  finally{if(serial===compileSerial)setBusy(false)}
 }
-function setDigit(which,n){const map=n==null?'':['abcdef','bc','abdeg','abcdg','bcfg','acdfg','acdefg','abc','abcdefg','abcdfg','abcefg','cdefg','adef','bcdeg','adefg','aefg'][n&15];$$(`.digit[data-digit="${which}"] .seg`).forEach(s=>s.classList.toggle('on',map.includes([...s.classList].find(x=>x.length===1))))}
-function drawVga(){const c=$('#screen'),x=c.getContext('2d');x.fillStyle='#030607';x.fillRect(0,0,c.width,c.height);if(mode!=='vga'){ $('#vgaStatus').textContent='NO SIGNAL';return}const pixels=Array.isArray(vgaPixels)?vgaPixels[Math.floor(vgaPlayback)%vgaPixels.length]:vgaPixels;if(pixels){x.drawImage(pixels,0,0,c.width,c.height);$('#vgaStatus').textContent='SYNC LOCKED'}else{$('#vgaStatus').textContent='NO PIXELS'}}
-function drawWave(){
-  const c=$('#waveform'),g=c.getContext('2d'),signals=waveSignals.length?waveSignals:[{name:'waiting',bits:1}],colors=['#00ff00','#ffff00','#00ffff','#ff80ff','#ff8040','#80a0ff','#ffffff','#80ff80','#ff8080','#c080ff'],row=38;
-  c.height=Math.max(210,signals.length*row+12);c.style.height=c.height+'px';g.fillStyle='#000';g.fillRect(0,0,c.width,c.height);g.font='11px monospace';const left=125;
-  for(let r=0;r<signals.length;r++){const s=signals[r],base=13+r*row,color=colors[r%colors.length];g.strokeStyle='#282828';g.beginPath();g.moveTo(left,base+16);g.lineTo(c.width,base+16);g.stroke();g.fillStyle=color;g.fillText(s.name.length>18?s.name.slice(0,17)+'…':s.name,5,base+11);g.strokeStyle=color;g.beginPath();let lastLabel=-100;
-    for(let i=0;i<wave.length;i++){const x=left+i*(c.width-left-4)/Math.max(1,wave.length-1),value=wave[i][s.name]||0;if(s.bits===1){const y=base+(value?0:17);if(i===0)g.moveTo(x,y);else{const px=left+(i-1)*(c.width-left-4)/Math.max(1,wave.length-1);g.lineTo(px,y);g.lineTo(x,y)}}else{const y=base+8;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);if((i===0||value!==(wave[i-1][s.name]||0))&&x-lastLabel>54){g.fillStyle=color;g.fillText('0x'+value.toString(16).toUpperCase(),x+3,base+4);lastLabel=x}}}g.stroke()
-  }
-}
-function outputValue(names){if(sim){try{return Number(sim.output(names))}catch{}}for(const n of names)if(Object.hasOwn(wasmOutputs,n))return Number(wasmOutputs[n]);return 0}
-function setPhysicalDigit(which,prefix){const names='ABCDEFG';$$(`.digit[data-digit="${which}"] .seg`).forEach((segment,i)=>segment.classList.toggle('on',!outputValue([`${prefix}_${names[i]}`])))}
-function renderModel(addWave=true){const led=[1,2,3,4].map(i=>outputValue([`LED${i}`,`o_LED_${i}`]));led.forEach((v,i)=>$(`#led${i+1}`).classList.toggle('on',!!v));if(addWave&&sim){const sample={};for(const s of waveSignals){if(s.dir==='input'){const m=s.name.match(/(?:Switch_|SW|BUTTON)([1-4])/i);sample[s.name]=m?buttons[Number(m[1])-1]:0}else sample[s.name]=outputValue([s.name])}wave.push(sample);if(wave.length>180)wave.shift()}if(mode==='seven'){if(['S1_A','S2_A'].some(name=>Object.hasOwn(wasmOutputs,name))){setPhysicalDigit(1,'S1');setPhysicalDigit(2,'S2')}else{setDigit(1,outputValue(['o_Segment1','o_7_Segment1']));setDigit(2,outputValue(['o_Segment2','o_7_Segment2']))}}else{setDigit(1,null);setDigit(2,null)}if(!nativeActive)frame++;$('#simTime').textContent=(ticks/25000).toFixed(3)+' ms';$('#edges').textContent=Math.floor(ticks).toLocaleString();if(!nativeActive&&!(mode==='vga'&&Array.isArray(vgaPixels)))$('#frame').textContent='FRAME '+String(frame).padStart(4,'0')}
-function update(now){const dt=Math.min(50,now-last);last=now;if(!nativeActive&&running&&!paused&&hasClockedDesign){if(wave.length){wavePlayback=(wavePlayback+dt*.045*+$('#speed').value)%wave.length;wasmOutputs={...wasmResult.values,...wave[Math.floor(wavePlayback)]};ticks=wasmResult.cycles*wavePlayback/Math.max(1,wave.length-1);renderModel(false)}if(mode==='vga'&&Array.isArray(vgaPixels)&&vgaPixels.length>1){const before=Math.floor(vgaPlayback);vgaPlayback=(vgaPlayback+dt*.06*+$('#speed').value)%vgaPixels.length;if(Math.floor(vgaPlayback)!==before){drawVga();$('#frame').textContent='FRAME '+String(Math.floor(vgaPlayback)+1).padStart(4,'0')}}}requestAnimationFrame(update)}
-$$('.examples button').forEach(b=>b.onclick=()=>load(b.dataset.example));$('#code').addEventListener('input',lines);$('#code').addEventListener('scroll',()=>{$('#lines').scrollTop=$('#code').scrollTop});$('#runBtn').onclick=compile;$('#resetBtn').onclick=()=>{if(nativeActive){nativeWorker.postMessage({type:'reset'});ticks=0;frame=0;wave=[];return}sim=null;if(compiledSource&&!hasClockedDesign){try{sim=new VerilogSimulator.Simulator(compiledSource)}catch{sim=null}}ticks=0;edgeRemainder=0;wavePlayback=0;frame=0;wasmOutputs=wasmResult?{...wasmResult.values,...(wave[0]||{})}:{};drawWave();drawVga();renderModel(false)};$('#pauseBtn').onclick=()=>{paused=!paused;if(nativeActive)nativeWorker.postMessage({type:'pause',value:paused});$('#pauseBtn').textContent=paused?'Continue':'Pause';$('#status').textContent=paused?'Paused':nativeActive?'Running native':'Running'};$('#speed').onchange=()=>nativeWorker?.postMessage({type:'speed',value:+$('#speed').value});$('#clearBtn').onclick=()=>$('#log').textContent='';$('#codeTab').onclick=()=>{$('#codeFile').hidden=false;$('#pinFile').hidden=true;$('#codeTab').classList.add('selected');$('#pinTab').classList.remove('selected')};$('#pinTab').onclick=()=>{$('#codeFile').hidden=true;$('#pinFile').hidden=false;$('#pinTab').classList.add('selected');$('#codeTab').classList.remove('selected')};$('#pinsBtn').onclick=()=>$('#pinTab').click();$('#closePins').onclick=()=>{};$$('.switch').forEach((b,i)=>{const setNative=value=>{if(!nativeActive)return;nativeInputPorts.forEach((p,index)=>{const m=p.name.match(/(?:Switch_|SW|BUTTON)([1-4])/i);if(m&&Number(m[1])===i+1)nativeWorker.postMessage({type:'input',index,value})})},on=()=>{buttons[i]=1;b.classList.add('pressed');setNative(1);if(sim){sim.setInput(`i_Switch_${i+1}`,1);sim.setInput(`SW${i+1}`,1);sim.setInput(`BUTTON${i+1}`,1);renderModel()}},off=()=>{buttons[i]=0;b.classList.remove('pressed');setNative(0);if(sim){sim.setInput(`i_Switch_${i+1}`,0);sim.setInput(`SW${i+1}`,0);sim.setInput(`BUTTON${i+1}`,0);renderModel()}};b.onpointerdown=on;b.onpointerup=b.onpointerleave=b.onpointercancel=off;b.onkeydown=e=>{if(e.code==='Space'||e.code==='Enter'){e.preventDefault();on()}};b.onkeyup=off});
 
-const boardRow=$('.board-row'),vgaWindow=$('#vgaWindow'),vgaHandle=$('#vgaHandle');
-let dragVga=null;
-vgaHandle.addEventListener('pointerdown',e=>{if(e.button!==0)return;const w=vgaWindow.getBoundingClientRect(),p=boardRow.getBoundingClientRect();dragVga={dx:e.clientX-w.left,dy:e.clientY-w.top,p};vgaHandle.setPointerCapture(e.pointerId);e.preventDefault()});
-vgaHandle.addEventListener('pointermove',e=>{if(!dragVga)return;const maxX=boardRow.clientWidth-vgaWindow.offsetWidth-4,maxY=boardRow.clientHeight-vgaWindow.offsetHeight-4;vgaWindow.style.left=Math.max(4,Math.min(maxX,e.clientX-dragVga.p.left-dragVga.dx))+'px';vgaWindow.style.top=Math.max(4,Math.min(maxY,e.clientY-dragVga.p.top-dragVga.dy))+'px'});
-vgaHandle.addEventListener('pointerup',()=>dragVga=null);
-vgaHandle.addEventListener('dblclick',e=>{vgaWindow.style.left='8px';vgaWindow.style.top='8px';e.preventDefault()});
-boardRow.addEventListener('dragstart',e=>e.preventDefault());boardRow.addEventListener('dblclick',e=>e.preventDefault());
-const leftPane=$('#leftPane'),consoleResize=$('#consoleResize');let resizeConsole=null;
-consoleResize.addEventListener('pointerdown',e=>{resizeConsole=leftPane.getBoundingClientRect();consoleResize.setPointerCapture(e.pointerId);document.body.style.cursor='row-resize';e.preventDefault()});
-consoleResize.addEventListener('pointermove',e=>{if(!resizeConsole)return;const wanted=resizeConsole.bottom-e.clientY-4,max=resizeConsole.height-150;leftPane.style.setProperty('--console-height',Math.max(70,Math.min(max,wanted))+'px')});
-consoleResize.addEventListener('pointerup',()=>{resizeConsole=null;document.body.style.cursor=''});
-load('blink');drawWave();requestAnimationFrame(update);
+// ---------------------------------------------------------------- board rendering
+function drawVga(){document.body.classList.toggle('vga',mode==='vga');const c=$('#screen'),x=c.getContext('2d');if(mode!=='vga'){x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);$('#vgaStatus').textContent='NO SIGNAL';$('#vgaMode').textContent='';return}const pixels=Array.isArray(vgaPixels)?vgaPixels[Math.floor(vgaPlayback)%vgaPixels.length]:vgaPixels;const synced=vgaInfo?vgaInfo.sync:!!pixels;if(pixels&&synced){x.drawImage(pixels,0,0,c.width,c.height)}else{x.fillStyle='#000';x.fillRect(0,0,c.width,c.height)}$('#vgaStatus').textContent=synced?'SYNC':'NO SIGNAL';$('#vgaMode').textContent=vgaInfo&&synced&&vgaInfo.lineCycles&&vgaInfo.frameLines?`${vgaInfo.lineCycles}×${vgaInfo.frameLines}  ${(CYCLES_PER_SEC/(vgaInfo.lineCycles*vgaInfo.frameLines)).toFixed(1)} Hz`:''}
+const ledEls=[1,2,3,4].map(i=>$(`#led${i}`)),segEls={1:$$('.digit[data-digit="1"] .seg'),2:$$('.digit[data-digit="2"] .seg')},simTimeEl=$('#simTime');let lastSimText='';
+function renderModel(){
+  for(let i=0;i<4;i++){const names=[`LED${i+1}`,`o_LED_${i+1}`],d=dutyOf(names),v=d==null?!!outputValue(names):d>0.02;if(ledEls[i].classList.contains('on')!==v)ledEls[i].classList.toggle('on',v);const op=v&&d!=null?String(Math.round((0.3+0.7*d)*100)/100):'';if(ledEls[i].style.opacity!==op)ledEls[i].style.opacity=op}
+  if(sim){for(const sig of trace.signals)traceAdd(sig,Math.round(ticks),sig.dir==='input'?buttonForPort(sig.name):outputValue([sig.name]));trace.end=Math.round(ticks);waveView.requestDraw()}
+  if(mode==='seven'){if(['S1_A','S2_A'].some(name=>Object.hasOwn(wasmOutputs,name))){setPhysicalDigit(1,'S1');setPhysicalDigit(2,'S2')}else{setDigit(1,outputValue(['o_Segment1','o_7_Segment1']));setDigit(2,outputValue(['o_Segment2','o_7_Segment2']))}}else{setDigit(1,null);setDigit(2,null)}
+  const text=fmtTime(ticks);if(text!==lastSimText){lastSimText=text;simTimeEl.textContent=text}
+}
+function update(now){const dt=Math.min(50,now-last);last=now;const speed=+$('#speed').value;
+  if(!nativeActive&&running&&!paused){
+    if(hasClockedDesign&&wave.length){wavePlayback=(wavePlayback+dt*.045*speed)%wave.length;wasmOutputs={...wasmResult.values,...wave[Math.floor(wavePlayback)]};ticks=wasmResult.cycles*wavePlayback/Math.max(1,wave.length-1);trace.playhead=vcdEnd*wavePlayback/Math.max(1,wave.length-1);renderModel();waveView.requestDraw()}
+    else if(sim){ticks+=CYCLES_PER_SEC*speed*dt/1000;renderModel()}
+    if(mode==='vga'&&Array.isArray(vgaPixels)&&vgaPixels.length>1){const before=Math.floor(vgaPlayback);vgaPlayback=(vgaPlayback+dt*.06*speed)%vgaPixels.length;if(Math.floor(vgaPlayback)!==before){drawVga();$('#frame').textContent=String(Math.floor(vgaPlayback)+1).padStart(4,'0')}}}
+  waveView.tick(running&&!paused,now);requestAnimationFrame(update)}
+
+// ---------------------------------------------------------------- controls
+$('#runBtn').onclick=compile;
+function clearPause(){paused=false;$('#pauseBtn').classList.remove('is-paused');$('#pauseBtn').setAttribute('aria-label','Pause');$('#pauseBtn').title='Pause';if(running)setStatus('Running')}
+$('#resetBtn').onclick=()=>{traceClear();waveView.reset();clearPause();ticks=0;frame=0;lastSimText='';$('#simTime').textContent='0.000 ns';if(nativeActive){nativeWorker.postMessage({type:'reset'});ticks=0;frame=0;inSigByIndex.forEach((sig,index)=>{const v=buttonForPort(nativeInputPorts[index].name);if(sig)traceAdd(sig,0,v);if(v)nativeWorker.postMessage({type:'input',index,value:v})});return}sim=null;if(compiledSource&&!hasClockedDesign){try{sim=new VerilogSimulator.Simulator(compiledSource)}catch{sim=null}}ticks=0;wavePlayback=0;frame=0;wasmOutputs=wasmResult?{...wasmResult.values,...(wave[0]||{})}:{};if(wasmResult?.vcd)loadVcdTrace(wasmResult.vcd);drawVga();renderModel()};
+$('#pauseBtn').onclick=()=>{if(!running)return;paused=!paused;if(nativeActive)nativeWorker.postMessage({type:'pause',value:paused});$('#pauseBtn').classList.toggle('is-paused',paused);$('#pauseBtn').setAttribute('aria-label',paused?'Resume':'Pause');$('#pauseBtn').title=paused?'Resume':'Pause';setStatus(paused?'Paused':'Running')};
+$('#speed').onchange=()=>nativeWorker?.postMessage({type:'speed',value:+$('#speed').value});
+
+const switches=$$('.switch');
+function setButton(i,value){buttons[i]=value?1:0;switches[i].classList.toggle('pressed',!!value);if(nativeActive){nativeInputPorts.forEach((p,index)=>{const m=p.name.match(/(?:Switch_|SW|BUTTON)([1-4])/i);if(m&&Number(m[1])===i+1)nativeWorker.postMessage({type:'input',index,value:buttons[i]})})}if(sim){sim.setInput(`i_Switch_${i+1}`,buttons[i]);sim.setInput(`SW${i+1}`,buttons[i]);sim.setInput(`BUTTON${i+1}`,buttons[i]);renderModel()}}
+switches.forEach((b,i)=>{b.onpointerdown=e=>{if(e.shiftKey){latched[i]=!latched[i];b.classList.toggle('latched',latched[i]);setButton(i,latched[i]);return}setButton(i,1)};const release=()=>{if(!latched[i])setButton(i,0)};b.onpointerup=b.onpointerleave=b.onpointercancel=release;b.onkeydown=e=>{if(e.code==='Space'||e.code==='Enter'){e.preventDefault();setButton(i,1)}};b.onkeyup=release});
+document.addEventListener('keydown',e=>{if(e.repeat||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;const i='1234'.indexOf(e.key);if(i>=0)setButton(i,1)});
+document.addEventListener('keyup',e=>{if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;const i='1234'.indexOf(e.key);if(i>=0&&!latched[i])setButton(i,0)});
+
+// ---------------------------------------------------------------- theme
+const uxKey='basicsvm-ux',uxButtons=$$('#uxSwitcher button');
+function applyUx(v){document.documentElement.dataset.ux=v;uxButtons.forEach(b=>b.setAttribute('aria-pressed',b.dataset.ux===v));try{localStorage.setItem(uxKey,v)}catch{}waveView.requestDraw()}
+uxButtons.forEach(b=>b.onclick=()=>applyUx(b.dataset.ux));applyUx(document.documentElement.dataset.ux||'1');
+const appearanceKey='vitepress-theme-appearance',appearanceBtn=$('#appearance');
+function syncAppearance(){appearanceBtn.setAttribute('aria-checked',document.documentElement.classList.contains('dark'));waveView.requestDraw()}
+appearanceBtn.onclick=()=>{const dark=!document.documentElement.classList.contains('dark');document.documentElement.classList.toggle('dark',dark);try{localStorage.setItem(appearanceKey,dark?'dark':'light')}catch{}syncAppearance()};
+syncAppearance();
+
+// ---------------------------------------------------------------- start
+{let saved=null;try{saved=localStorage.getItem('goboard-code')}catch{}if(saved&&saved.trim()){code.value=saved;refreshEditor();renderModel();drawVga();waveView.reset()}else load('blink')}
+requestAnimationFrame(update);

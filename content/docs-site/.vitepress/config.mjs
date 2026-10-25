@@ -5,6 +5,7 @@ export default {
   ignoreDeadLinks: true,
   head: [
     ['link', { rel: 'icon', href: '/favicon.png' }],
+    ['script', {}, `(function(){try{var v=localStorage.getItem('basicsvm-ux');document.documentElement.dataset.ux=/^[1-5]$/.test(v)?v:'1'}catch(e){document.documentElement.dataset.ux='1'}})()`],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }]
   ],
@@ -32,6 +33,14 @@ export default {
   vite: {
     build: {
       minify: false
+    },
+    optimizeDeps: {
+      include: ['mermaid']
+    },
+    server: {
+      warmup: {
+        clientFiles: ['./.vitepress/theme/**/*.vue', './.vitepress/theme/index.js']
+      }
     }
   },
   themeConfig: {
@@ -52,7 +61,7 @@ export default {
         items: [
           { text: 'Start Here', link: '/' },
           {
-            text: 'Choose your operating system',
+            text: 'Install',
             collapsed: true,
             items: [
               { text: 'macOS Apple Silicon', link: '/install/mac-apple-silicon' },
@@ -63,92 +72,24 @@ export default {
               { text: 'Linux ARM', link: '/install/linux-arm' }
             ]
           },
-          {
-            text: 'First boot',
-            items: [
-              { text: 'First Boot', link: '/start/first-boot' },
-              { text: 'VM Basics', link: '/use/' }
-            ]
-          }
+          { text: 'First Boot', link: '/start/first-boot' },
+          { text: 'VM Basics', link: '/use/' }
         ]
       },
       {
-        text: 'Versions',
+        text: 'Learn',
         items: [
-          { text: 'All versions', link: '/install/versions' },
-          {
-            text: '1.4',
-            items: [
-              { text: '1.4 stable — Latest', link: '/install/version-1-4' },
-              { text: 'Migrate to 1.4', link: '/install/migrate-to-1-4' }
-            ]
-          },
-          {
-            text: '1.3 — Legacy',
-            items: [
-              { text: '1.3 stable', link: '/install/version-1-3' },
-              { text: 'Migrate to 1.3', link: '/install/migrate-to-1-3' }
-            ]
-          },
-          {
-            text: '1.2 — Legacy',
-            items: [
-              { text: '1.2 stable', link: '/install/version-1-2' },
-              { text: 'Migrate to 1.2', link: '/install/migrate-to-1-2' }
-            ]
-          },
-          {
-            text: '1.1 — Legacy',
-            items: [
-              { text: '1.1 stable', link: '/install/version-1-1' },
-              { text: 'Migrate to 1.1', link: '/install/migrate-to-1-1' }
-            ]
-          },
-          {
-            text: '1.0 — Legacy',
-            items: [
-              { text: '1.0 stable', link: '/install/version-1-0' }
-            ]
-          }
+          { text: 'Go Board Simulator', link: '/simulator' },
+          { text: 'Your First Go Board Project', link: '/use/go-board-basics' },
+          { text: 'First Counter Flow', link: '/use/first-flow' },
+          { text: 'Adder From Scratch', link: '/use/adder-from-scratch' }
         ]
       },
       {
-        text: 'Examples',
+        text: 'Guides',
         items: [
-          {
-            text: 'OpenLane',
-            items: [
-              { text: 'First Counter Flow', link: '/use/first-flow' },
-              { text: 'Adder From Scratch', link: '/use/adder-from-scratch' }
-            ]
-          },
-          {
-            text: 'Nandland Go Board',
-            items: [
-              { text: 'Your First Go Board Project', link: '/use/go-board-basics' }
-            ]
-          }
-        ]
-      },
-      {
-        text: 'Miscellaneous',
-        items: [
-          {
-            text: 'Connecting USB devices',
-            link: '/install/connecting-usb-devices',
-            items: [
-              { text: 'UTM', link: '/install/connecting-usb-devices#utm' },
-              { text: 'VirtualBox', link: '/install/connecting-usb-devices#virtualbox' }
-            ]
-          },
-          {
-            text: 'Enable Folder Sharing',
-            link: '/misc/enable-folder-sharing',
-            items: [
-              { text: 'UTM', link: '/misc/enable-folder-sharing#utm' },
-              { text: 'VirtualBox', link: '/misc/enable-folder-sharing#virtualbox' }
-            ]
-          },
+          { text: 'Connecting USB Devices', link: '/install/connecting-usb-devices' },
+          { text: 'Folder Sharing', link: '/misc/enable-folder-sharing' },
           { text: 'Install APIO', link: '/install/apio' },
           { text: 'VSCodium Desktop Shortcut', link: '/misc/vscodium-desktop-shortcut' }
         ]
@@ -162,9 +103,6 @@ export default {
         ]
       }
     ],
-    footer: {
-      message: 'Run into an issue? <a href="https://github.com/ZimengXiong/basicsvm/issues/new">Report it on GitHub</a>.',
-      copyright: 'Static docs for public hosting and offline VM bundling.'
-    }
+    outline: { level: [2, 3] }
   }
 };

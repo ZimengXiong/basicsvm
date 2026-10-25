@@ -32,3 +32,10 @@ tools. Those packages are redistributed under their own upstream licenses, which
 may include GPL, LGPL, MPL, Apache-2.0, MIT, BSD, ISC, and other free software
 licenses. The MIT License for this repository does not relicense those
 third-party packages, PDK data, or templates.
+
+## Tux
+
+The Linux mark on the documentation start page (`content/docs-site/public/tux.svg`)
+is Tux by Larry Ewing (lewing@isc.tamu.edu), created with The GIMP, as published
+on Wikimedia Commons. It is used with the attribution the author requests and is
+not covered by this repository's MIT License.
