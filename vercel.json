@@ -11,13 +11,23 @@
       "permanent": true
     },
     {
+      "source": "/simulator/",
+      "destination": "/fpga-simulator/",
+      "permanent": true
+    },
+    {
       "source": "/go-board-simulator",
       "destination": "/fpga-simulator/",
       "permanent": true
     },
     {
-      "source": "/go-board-simulator/:path*",
-      "destination": "/fpga-simulator/:path*",
+      "source": "/go-board-simulator/",
+      "destination": "/fpga-simulator/",
+      "permanent": true
+    },
+    {
+      "source": "/go-board-simulator/:path+",
+      "destination": "/fpga-simulator/:path+",
       "permanent": true
     }
   ]
