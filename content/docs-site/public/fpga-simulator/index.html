@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Go Board Simulator</title>
+  <title>FPGA Simulator</title>
   <link rel="icon" href="/favicon.png">
-  <script>(function(){var d=document.documentElement;try{var v=localStorage.getItem('basicsvm-ux');d.dataset.ux=/^[1-5]$/.test(v)?v:'1'}catch(e){d.dataset.ux='1'}try{var a=localStorage.getItem('vitepress-theme-appearance')||'auto';var dark=a==='dark'||(a!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);d.classList.toggle('dark',dark)}catch(e){}})()</script>
-  <link rel="stylesheet" href="/go-board-simulator/style.css">
+  <script>(function(){var d=document.documentElement;try{var a=localStorage.getItem('vitepress-theme-appearance')||'auto';var dark=a==='dark'||(a!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);d.classList.toggle('dark',dark)}catch(e){}})()</script>
+  <link rel="stylesheet" href="/fpga-simulator/style.css">
 </head>
 <body>
   <header id="nav">
@@ -14,7 +14,7 @@
     <nav id="links">
       <a href="/">Start</a>
       <a href="/use/">Use</a>
-      <a href="/simulator" class="active">Simulator</a>
+      <a href="/fpga-simulator/" class="active">Simulator</a>
       <a href="/release/">Releases</a>
       <a href="/build/">Advanced</a>
       <a href="https://github.com/ZimengXiong/basicsvm" target="_blank" rel="noreferrer">GitHub</a>
@@ -51,12 +51,14 @@
           <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Verilog source"></textarea>
         </div>
       </div>
+      <div id="editorNote" class="editor-note" hidden>Complex HDMI animations may not run well in the simulator.</div>
     </section>
 
     <div id="vsplit" class="split v" role="separator" aria-orientation="vertical"></div>
 
     <section id="boardPane" class="pane">
       <div class="pane-head">
+        <select id="board" aria-label="Board"><option value="goboard">Go Board</option><option value="tang9k">Tang Nano 9K</option><option value="tang20k">Tang Nano 20K</option></select>
         <button id="runBtn" type="button" class="glyph run" aria-label="Run" title="Run"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg></button>
         <button id="pauseBtn" type="button" class="glyph pause" aria-label="Pause" title="Pause"><span class="when-running"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M4 2.5h3v11H4zM9 2.5h3v11H9z"/></svg></span><span class="when-paused"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg></span></button>
         <button id="resetBtn" type="button" class="glyph reset" aria-label="Reset" title="Reset"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M12.9 6.2A5.3 5.3 0 1 0 13.3 9"/><path fill="currentColor" d="M13.6 2.6v4.2H9.4z"/></svg></button>
@@ -68,8 +70,8 @@
       </div>
       <div class="board-area">
         <div class="board-card">
-          <img class="pcb-render" src="/go-board-simulator/assets/goboard-v1.webp" alt="Nandland Go Board">
-          <svg id="goBoard" viewBox="0 0 1376 872" aria-label="Interactive Go Board"></svg>
+          <img class="pcb-render" src="/fpga-simulator/assets/goboard-v1.webp" alt="">
+          <svg id="goBoard" aria-label="Board"></svg>
         </div>
         <div class="vga-panel" id="vgaWindow">
           <canvas id="screen" width="640" height="480"></canvas>
@@ -106,10 +108,7 @@
     </section>
   </main>
 
-  <div class="ux-switcher" id="uxSwitcher">
-    <button type="button" data-ux="1">1</button><button type="button" data-ux="2">2</button><button type="button" data-ux="3">3</button><button type="button" data-ux="4">4</button><button type="button" data-ux="5">5</button>
-  </div>
-  <script src="/go-board-simulator/verilog-sim.js"></script>
-  <script type="module" src="/go-board-simulator/app.js"></script>
+  <script src="/fpga-simulator/verilog-sim.js"></script>
+  <script type="module" src="/fpga-simulator/app.js"></script>
 </body>
 </html>

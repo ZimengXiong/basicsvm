@@ -24,7 +24,7 @@ Repository: [ZimengXiong/basicsvm](https://github.com/ZimengXiong/basicsvm/tree/
 ├── Desktop
 │   ├── bASICs -> /home/beaver/bASICs
 │   └── bASICs-Docs.desktop -> https://basics.alpacawebservices.com
-│   └── Go-Board-Simulator.desktop -> https://basics.alpacawebservices.com/go-board-simulator
+│   └── Go-Board-Simulator.desktop -> https://basics.alpacawebservices.com/fpga-simulator
 └── Documents
     └── bASICs -> /home/beaver/bASICs
 ```

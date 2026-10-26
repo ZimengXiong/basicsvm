@@ -5,7 +5,6 @@ export default {
   ignoreDeadLinks: true,
   head: [
     ['link', { rel: 'icon', href: '/favicon.png' }],
-    ['script', {}, `(function(){try{var v=localStorage.getItem('basicsvm-ux');document.documentElement.dataset.ux=/^[1-5]$/.test(v)?v:'1'}catch(e){document.documentElement.dataset.ux='1'}})()`],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }]
   ],
@@ -41,7 +40,24 @@ export default {
       warmup: {
         clientFiles: ['./.vitepress/theme/**/*.vue', './.vitepress/theme/index.js']
       }
-    }
+    },
+    plugins: [
+      {
+        // Mirror the production redirects/directory index for the static simulator app in `public/`.
+        name: 'basicsvm-simulator-routes',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            const url = req.url.split('?')[0];
+            const redirect = url === '/simulator' || url === '/simulator/' ? '/fpga-simulator/'
+              : url.startsWith('/go-board-simulator') ? url.replace('/go-board-simulator', '/fpga-simulator') || '/fpga-simulator/'
+              : null;
+            if (redirect) { res.statusCode = 308; res.setHeader('Location', redirect); res.end(); return; }
+            if (url === '/fpga-simulator' || url === '/fpga-simulator/') req.url = '/fpga-simulator/index.html' + req.url.slice(url.length);
+            next();
+          });
+        }
+      }
+    ]
   },
   themeConfig: {
     logo: '/logo.webp',
@@ -49,7 +65,7 @@ export default {
     nav: [
       { text: 'Start', link: '/' },
       { text: 'Use', link: '/use/' },
-      { text: 'Simulator', link: '/simulator' },
+      { text: 'Simulator', link: '/fpga-simulator/', target: '_self' },
       { text: 'Releases', link: '/release/' },
       { text: 'Advanced', link: '/build/' },
       { text: 'GitHub', link: 'https://github.com/ZimengXiong/basicsvm' },
@@ -79,7 +95,7 @@ export default {
       {
         text: 'Learn',
         items: [
-          { text: 'Go Board Simulator', link: '/simulator' },
+          { text: 'FPGA Simulator', link: '/fpga-simulator/', target: '_self' },
           { text: 'Your First Go Board Project', link: '/use/go-board-basics' },
           { text: 'First Counter Flow', link: '/use/first-flow' },
           { text: 'Adder From Scratch', link: '/use/adder-from-scratch' }

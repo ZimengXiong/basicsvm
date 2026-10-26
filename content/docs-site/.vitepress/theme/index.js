@@ -1,7 +1,6 @@
 import DefaultTheme from 'vitepress/theme'
 import { inBrowser } from 'vitepress'
 import { h } from 'vue'
-import UxSwitcher from './UxSwitcher.vue'
 import VersionPicker from './VersionPicker.vue'
 import MobileNav from './MobileNav.vue'
 import SidebarTrigger from './SidebarTrigger.vue'
@@ -57,7 +56,6 @@ export default {
   extends: DefaultTheme,
   Layout() {
     return h(DefaultTheme.Layout, null, {
-      'layout-bottom': () => h(UxSwitcher),
       'sidebar-nav-before': () => h(MobileNav),
       'sidebar-nav-after': () => h(VersionPicker),
       'nav-bar-content-after': () => h(SidebarTrigger)

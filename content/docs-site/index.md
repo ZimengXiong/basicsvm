@@ -92,9 +92,9 @@ next: false
           <span class="platform-row-name">VM Basics</span>
         </div>
       </a>
-      <a class="platform-row" href="./simulator.html">
+      <a class="platform-row" href="/fpga-simulator/" target="_self">
         <div class="platform-row-left">
-          <span class="platform-row-name">Go Board Simulator</span>
+          <span class="platform-row-name">FPGA Simulator</span>
         </div>
       </a>
     </div>

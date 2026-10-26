@@ -20,7 +20,7 @@ function toggleDark() { isDark.value = !isDark.value }
       :key="l.link"
       :href="l.link"
       :class="{ active: current(l.link) }"
-      :target="/^https?:/.test(l.link) ? '_blank' : null"
+      :target="l.target || (/^https?:/.test(l.link) ? '_blank' : null)"
       :rel="/^https?:/.test(l.link) ? 'noreferrer' : null"
     >{{ l.text }}</a>
     <button type="button" class="mobile-nav-appearance" role="switch" :aria-checked="isDark" @click="toggleDark">

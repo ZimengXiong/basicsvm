@@ -18,7 +18,7 @@ cat > ~/Desktop/Go-Board-Simulator.desktop <<'EOF'
 [Desktop Entry]
 Type=Application
 Name=Go Board Simulator
-Exec=firefox https://basics.alpacawebservices.com/go-board-simulator
+Exec=firefox https://basics.alpacawebservices.com/fpga-simulator
 Icon=applications-engineering
 Terminal=false
 Categories=Education;Engineering;

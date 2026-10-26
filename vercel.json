@@ -3,5 +3,22 @@
   "installCommand": "cd content/docs-site && npm install",
   "buildCommand": "cd content/docs-site && npm run build",
   "outputDirectory": "content/docs-site/.vitepress/dist",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/simulator",
+      "destination": "/fpga-simulator/",
+      "permanent": true
+    },
+    {
+      "source": "/go-board-simulator",
+      "destination": "/fpga-simulator/",
+      "permanent": true
+    },
+    {
+      "source": "/go-board-simulator/:path*",
+      "destination": "/fpga-simulator/:path*",
+      "permanent": true
+    }
+  ]
 }
